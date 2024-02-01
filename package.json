@@ -1,35 +1,53 @@
 {
-    "name": "vsnip",
-    "displayName": "vsnip",
-    "description": "Syntax highlighting for .nip pickit files",
-    "version": "0.0.1",
-    "repository": "https://github.com/laztheripper/vsnip",
-    "engines": {
-        "vscode": "^1.0.0"
-    },
-    "categories": [
-        "Programming Languages"
-    ],
-    "contributes": {
-        "languages": [
-            {
-                "id": "nip",
-                "aliases": [
-                    "Nip",
-                    "nip"
-                ],
-                "extensions": [
-                    ".nip"
-                ],
-                "configuration": "./language-configuration.json"
-            }
+  "name": "vsnip-check",
+  "displayName": "vsnip-check",
+  "description": "Syntax highlighting for .nip pickit files",
+  "version": "0.0.1",
+  "repository": "https://github.com/theBGuy/vsnip-check",
+  "engines": {
+    "vscode": "^1.0.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "nip",
+        "aliases": [
+          "Nip",
+          "nip"
         ],
-        "grammars": [
-            {
-                "language": "nip",
-                "scopeName": "source.nip",
-                "path": "./syntaxes/nip.tmLanguage.json"
-            }
-        ]
-    }
+        "extensions": [
+          ".nip"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "nip",
+        "scopeName": "source.nip",
+        "path": "./syntaxes/nip.tmLanguage.json"
+      }
+    ]
+  },
+  "main": "./out/diagnostics.js",
+  "scripts": {
+    "compile": "tsc -p ."
+  },
+  "activationEvents": [
+    "onDidOpenTextDocument",
+    "onDidSaveTextDocument",
+    "onDidChangeActiveTextEditor",
+    "onDidOpenTextDocument",
+    "onStartupFinished",
+    "onDidCloseTextDocument"
+  ],
+  "devDependencies": {
+    "@types/node": "^20.11.13",
+    "@types/vscode": "^1.85.0",
+    "tslint": "^6.1.3",
+    "typescript": "^5.3.3"
+  }
 }

@@ -1,6 +1,6 @@
-# vsnip
-Simple syntax highlighting for .nip pickit files in vscode\
-No error checking of any kind, just nicer on the eyes\
+# vsnip-check
+Syntax highlighting for .nip pickit files in vscode\
+Provides error checking on save and while typing\
 Only tested with dark theme, but should work with others
 ## How to install
 Download the latest .vsix file from [releases](https://github.com/laztheripper/vsnip/releases/tag/default)\
