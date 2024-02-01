@@ -19,3 +19,6 @@ Linux: $HOME/.vscode/extensions
 **Enjoy!**
 
 ![image](https://user-images.githubusercontent.com/1103794/232825340-28ee3222-70c8-462b-b6da-c5b55a2322f3.png)
+
+![image](https://github.com/theBGuy/vsnip-check/assets/60308670/aaaf4667-6d46-4c0f-8431-55f8b5b8dd3a)
+
