@@ -1,8 +1,9 @@
 {
   "name": "vsnip-check",
   "displayName": "vsnip-check",
-  "description": "Syntax highlighting for .nip pickit files",
+  "description": "Syntax highlighting and error reporting for .nip pickit files",
   "version": "1.0.0",
+  "publisher": "theBGuy",
   "repository": "https://github.com/theBGuy/vsnip-check",
   "engines": {
     "vscode": "^1.85.5"
@@ -34,6 +35,7 @@
   },
   "main": "./out/diagnostics.js",
   "scripts": {
+    "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ."
   },
   "activationEvents": [

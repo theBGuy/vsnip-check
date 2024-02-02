@@ -22,44 +22,46 @@ function isSyntaxInt (ch: string) {
   );
 }
 
+const validProperties = [
+  "classid",
+  "name",
+  "type",
+  "class",
+  "quality",
+  "charlvl",
+  "level",
+  "flag",
+  "wsm",
+  "weaponspeed",
+  "minimumsockets",
+  "strreq",
+  "dexreq",
+  "2handed",
+  "color",
+  "europe",
+  "uswest",
+  "useast",
+  "asia",
+  "ladder",
+  "hardcore",
+  "classic",
+  "distance",
+  "prefix",
+  "suffix",
+  "n",
+  "id",
+  "t",
+  "q",
+  "lvl",
+  "ilvl",
+  "f",
+  "hc",
+  "cl",
+  "clvl"
+];
+
 function isValidProperty (property: string) {
-  return [
-    "classid",
-    "name",
-    "type",
-    "class",
-    "quality",
-    "charlvl",
-    "level",
-    "flag",
-    "wsm",
-    "weaponspeed",
-    "minimumsockets",
-    "strreq",
-    "dexreq",
-    "2handed",
-    "color",
-    "europe",
-    "uswest",
-    "useast",
-    "asia",
-    "ladder",
-    "hardcore",
-    "classic",
-    "distance",
-    "prefix",
-    "suffix",
-    "n",
-    "id",
-    "t",
-    "q",
-    "lvl",
-    "ilvl",
-    "f",
-    "hc",
-    "cl",
-    "clvl"
-  ].includes(property);
+  return validProperties.includes(property);
 }
 
 function isValidExtra (property: string) {
@@ -273,11 +275,146 @@ function validateTextDocument(textDocument: vscode.TextDocument, diagnosticColle
 }
 
 export function activate(context: vscode.ExtensionContext) {
-  let diagnosticCollection = vscode.languages.createDiagnosticCollection('vsnipcheck');
+  let diagnosticCollection = vscode.languages.createDiagnosticCollection('vsnip-check');
+  // context.subscriptions.push(
+  //   vscode.languages.registerCodeActionsProvider(
+  //     'nip',
+  //     {
+  //       provideCodeActions: (document, range, context, token) => {
+  //         const diagnostic = context.diagnostics[0];
+  //         if (diagnostic.code === 'Mismatched brackets') {
+  //           const fix = new vscode.CodeAction('Remove mismatched brackets', vscode.CodeActionKind.QuickFix);
+  //           fix.edit = new vscode.WorkspaceEdit();
+  //           fix.edit.delete(document.uri, diagnostic.range);
+  //           return [fix];
+  //         }
+  //       }
+  //     }
+  //   )
+  // );
   vscode.workspace.onDidOpenTextDocument(document => validateTextDocument(document, diagnosticCollection));
   vscode.workspace.onDidSaveTextDocument(document => validateTextDocument(document, diagnosticCollection));
   vscode.workspace.onDidOpenTextDocument(document => validateTextDocument(document, diagnosticCollection));
   vscode.workspace.onDidChangeTextDocument(event => validateTextDocument(event.document, diagnosticCollection));
   vscode.workspace.onDidCloseTextDocument(document => diagnosticCollection.delete(document.uri));
   
+  const alphas = [
+    'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'o', 'p', 'q', 'r', 's', 'u', 'v', 'w', 'x', 'y', 'z',
+    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'O', 'P', 'Q', 'R', 'S', 'U', 'V', 'W', 'X', 'Y', 'Z'
+  ];
+  const numerics = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
+  const propsAndStatsProvider = vscode.languages.registerCompletionItemProvider('nip', {
+    provideCompletionItems(document, position, token, context) {
+      try {
+        const completionItems: vscode.CompletionItem[] = [];
+        const line = document.lineAt(position).text;
+        const linePrefix = line.slice(0, position.character);
+        const lineSuffix = line.slice(position.character);
+        
+        // We need to determine if we are inside a pair of brackets
+        let foundOpenBracket = false;
+        let foundCloseBracket = false;
+
+        for (let i = linePrefix.length - 1; i >= 0; i--) {
+          if (linePrefix[i] === '[') {
+            foundOpenBracket = true;
+            break;
+          }
+          if (!/\w/.test(linePrefix[i])) {
+            // console.log(`Not a word character: ${linePrefix[i]}`);
+            return completionItems;
+          }
+        }
+        console.log(foundOpenBracket);
+        if (!foundOpenBracket) return completionItems;
+
+        for (let i = 0; i < lineSuffix.length; i++) {
+          if (lineSuffix[i] === ']') {
+            foundCloseBracket = true;
+            break;
+          }
+          if (!/\w/.test(lineSuffix[i])) {
+            // console.log(`Not a word character: ${lineSuffix[i]}`);
+            return completionItems;
+          }
+        }
+        console.log(foundCloseBracket);
+        if (!foundCloseBracket) return completionItems;
+
+        const segments = line.split('#');
+
+        // Find which segment the cursor is in
+        let segmentIndex = 0;
+        let characterCount = 0;
+        for (let i = 0; i < segments.length; i++) {
+          characterCount += segments[i].length;
+          if (position.character <= characterCount) {
+            segmentIndex = i;
+            break;
+          }
+          characterCount += 1;
+        }
+
+        if (segmentIndex === 0) {
+          for (const val of validProperties) {
+            completionItems.push(new vscode.CompletionItem(val, vscode.CompletionItemKind.Keyword));
+          }
+        } else if (segmentIndex === 1) {
+          for (const val of Object.keys(NTIPAliasStat)) {
+            completionItems.push(new vscode.CompletionItem(val, vscode.CompletionItemKind.Keyword));
+          }
+        } else {
+          for (const val of ["tier", "merctier", "charmtier", "maxquantity", "mq"]) {
+            completionItems.push(new vscode.CompletionItem(val, vscode.CompletionItemKind.Keyword));
+          }
+        }
+        return completionItems;
+      } catch (e) {
+        console.error(e);
+      }
+    },
+  }, ...alphas, ...numerics, '[');
+
+  const idsProvider = vscode.languages.registerCompletionItemProvider('nip', {
+    provideCompletionItems(document, position, token, context) {
+      try {
+        const completionItems: vscode.CompletionItem[] = [];
+        const line = document.lineAt(position).text;
+        const segments = line.split('#');
+
+        // Find which segment the cursor is in
+        let segmentIndex = 0;
+        let characterCount = 0;
+        for (let i = 0; i < segments.length; i++) {
+          characterCount += segments[i].length;
+          if (position.character <= characterCount) {
+            segmentIndex = i;
+            break;
+          }
+          characterCount += 1;
+        }
+
+        if (segmentIndex === 0) {
+          const matches = line.match(/\[([^\]]+)\]/g);
+          if (matches) {
+            const property = matches.at(-1)?.slice(1, -1);
+            // @ts-ignore
+            if (!_lists.has(property)) return completionItems;
+            // @ts-ignore
+            const list = _lists.get(property);
+            if (list) {
+              for (const val of Object.keys(list)) {
+                completionItems.push(new vscode.CompletionItem(val, vscode.CompletionItemKind.Keyword));
+              }
+            }
+          }
+        }
+        return completionItems;
+      }
+      catch (e) {
+        console.error(e);
+      }
+    }
+  }, ...alphas);
+  context.subscriptions.push(propsAndStatsProvider, idsProvider);
 }
