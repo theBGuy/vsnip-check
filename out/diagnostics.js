@@ -308,7 +308,12 @@ function activate(context) {
                 }
                 if (segmentIndex === 0) {
                     for (const val of validProperties) {
-                        completionItems.push(new vscode.CompletionItem(val, vscode.CompletionItemKind.Keyword));
+                        const completionItem = new vscode.CompletionItem(val, vscode.CompletionItemKind.Keyword);
+                        if (_aliases.has(val)) {
+                            // @ts-ignore
+                            completionItem.detail = _aliases.get(val);
+                        }
+                        completionItems.push(completionItem);
                     }
                 }
                 else if (segmentIndex === 1) {
