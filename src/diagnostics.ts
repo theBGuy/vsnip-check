@@ -141,8 +141,8 @@ function validateTextDocument(textDocument: vscode.TextDocument, diagnosticColle
 
       if (j === 0 && lineSection.length > 4) {
         let p_start: number = 0;
-        let p_section = lineSection.split('[');
-        let section = (lines[i].split('#').at(0) || "");
+        const p_section = lineSection.split('[');
+        const section = (lines[i].split('#').at(0) || "");
 
         for (let k = 1; k < p_section.length; k++) {
           let p_end = p_section[k].indexOf("]") + 1;
@@ -196,15 +196,15 @@ function validateTextDocument(textDocument: vscode.TextDocument, diagnosticColle
           }
         }
       } else if (j === 1 && lineSection.length > 4) {
-        let section = (lines[i].split('#').at(1) || "");
-        let sectionIndex = lines[i].indexOf('#');
         let p_start: number = 0;
-        let p_section = lineSection.split('[');
+        const section = (lines[i].split('#').at(1) || "");
+        const sectionIndex = lines[i].indexOf('#');
+        const p_section = lineSection.split('[');
 
         for (let k = 1; k < p_section.length; k++) {
           let p_end = p_section[k].indexOf("]") + 1;
-          let stat = p_section[k].substring(p_start, p_end - 1);
-          let statIdx = 1 + sectionIndex + section.indexOf(`[${stat}]`);
+          const stat = p_section[k].substring(0, p_end - 1);
+          const statIdx = 1 + sectionIndex + section.indexOf(`[${stat}]`);
 
           if (isNaN(Number(stat))) {
             if (!NTIPAliasStat.hasOwnProperty(stat)) {
@@ -230,10 +230,10 @@ function validateTextDocument(textDocument: vscode.TextDocument, diagnosticColle
           }
         }
       } else {
-        let section = (lines[i].split('#').at(-1) || "");
-        let sectionIndex = lines[i].lastIndexOf('#');
         let p_start: number = 0;
-        let p_section = lineSection.split('[');
+        const section = (lines[i].split('#').at(-1) || "");
+        const sectionIndex = lines[i].lastIndexOf('#');
+        const p_section = lineSection.split('[');
 
         for (let k = 1; k < p_section.length; k++) {
           let p_end = p_section[k].indexOf("]") + 1;
