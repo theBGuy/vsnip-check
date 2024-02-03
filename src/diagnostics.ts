@@ -403,7 +403,17 @@ export function activate(context: vscode.ExtensionContext) {
             const list = _lists.get(property);
             if (list) {
               for (const val of Object.keys(list)) {
-                completionItems.push(new vscode.CompletionItem(val, vscode.CompletionItemKind.Keyword));
+                const completionItem = new vscode.CompletionItem(val, vscode.CompletionItemKind.Keyword);
+                if (val.length === 3) {
+                  // we are dealing with the item code, find the corresponding name
+                  for (const [key, value] of Object.entries(list)) {
+                    if (value === list[val] && key !== val) {
+                      completionItem.detail = key;
+                      break;
+                    }
+                  }
+                }
+                completionItems.push(completionItem);
               }
             }
           }
