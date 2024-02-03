@@ -167,18 +167,11 @@ function validateTextDocument(textDocument, diagnosticCollection) {
                         }
                     }
                     let p_keyword = p_section[k].substring(p_start, p_end);
-                    // hacky-fix for now
-                    if (p_keyword === _property)
-                        continue;
                     if (isNaN(Number(p_keyword))) {
-                        if (!_lists.has(property)) {
-                            diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, 0, i, lineSection.length), 'Unknown keyword: ' + property));
-                        }
-                        else {
-                            let list = _lists.get(property);
-                            if (list && !(p_keyword in list)) {
-                                diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, 0, i, lineSection.length), 'Unknown keyword: ' + property + ': ' + p_keyword));
-                            }
+                        let list = _lists.get(property);
+                        if (list && !(p_keyword in list)) {
+                            let startIdx = propIdx + _property.length - 1 + p_start;
+                            diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, startIdx, i, startIdx + p_keyword.length), `Unknown keyword: ${p_keyword}`));
                         }
                     }
                 }
@@ -355,13 +348,15 @@ function activate(context) {
                     characterCount += 1;
                 }
                 if (segmentIndex === 0) {
-                    const matches = line.match(/\[([^\]]+)\]/g);
+                    const matches = segments[0].match(/\[([^\]]+)\]/g);
                     if (matches) {
-                        const property = (_a = matches.at(-1)) === null || _a === void 0 ? void 0 : _a.slice(1, -1);
-                        // @ts-ignore
+                        let property = (((_a = matches.at(-1)) === null || _a === void 0 ? void 0 : _a.slice(1, -1)) || "");
+                        if (_aliases.has(property)) {
+                            // @ts-ignore
+                            property = _aliases.get(property);
+                        }
                         if (!_lists.has(property))
                             return completionItems;
-                        // @ts-ignore
                         const list = _lists.get(property);
                         if (list) {
                             for (const val of Object.keys(list)) {

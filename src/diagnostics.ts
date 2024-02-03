@@ -184,23 +184,14 @@ function validateTextDocument(textDocument: vscode.TextDocument, diagnosticColle
 
           let p_keyword = p_section[k].substring(p_start, p_end);
 
-          // hacky-fix for now
-          if (p_keyword === _property) continue;
-
           if (isNaN(Number(p_keyword))) {
-            if (!_lists.has(property)) {
+            let list = _lists.get(property);
+            if (list && !(p_keyword in list)) {
+              let startIdx = propIdx + _property.length - 1 + p_start;
               diagnostics.push(new vscode.Diagnostic(
-                new vscode.Range(i, 0, i, lineSection.length),
-                'Unknown keyword: ' + property
+                new vscode.Range(i, startIdx, i, startIdx + p_keyword.length),
+                `Unknown keyword: ${p_keyword}`
               ));
-            } else {
-              let list = _lists.get(property);
-              if (list && !(p_keyword in list)) {
-                diagnostics.push(new vscode.Diagnostic(
-                  new vscode.Range(i, 0, i, lineSection.length),
-                  'Unknown keyword: ' + property + ': ' + p_keyword
-                ));
-              }
             }
           }
         }
@@ -401,12 +392,14 @@ export function activate(context: vscode.ExtensionContext) {
         }
 
         if (segmentIndex === 0) {
-          const matches = line.match(/\[([^\]]+)\]/g);
+          const matches = segments[0].match(/\[([^\]]+)\]/g);
           if (matches) {
-            const property = matches.at(-1)?.slice(1, -1);
-            // @ts-ignore
+            let property = (matches.at(-1)?.slice(1, -1) || "");
+            if (_aliases.has(property)) {
+              // @ts-ignore
+              property = _aliases.get(property);
+            }
             if (!_lists.has(property)) return completionItems;
-            // @ts-ignore
             const list = _lists.get(property);
             if (list) {
               for (const val of Object.keys(list)) {
