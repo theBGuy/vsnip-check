@@ -1,0 +1,310 @@
+{
+  "Biggin's Bonnet": {
+    "prefix": "biggins",
+    "body": [
+      "[name] == cap && [quality] == unique // BIGGIN'S BONNET"
+    ],
+    "description": "Add Biggin's Bonnet nip line"
+  },
+  "Tarnhelm": {
+    "prefix": "tarnhelm",
+    "body": [
+      "[name] == skullcap && [quality] == unique // tarnhelm"
+    ],
+    "description": "Add Tarnhelm nip line"
+  },
+  "Coif of Glory": {
+    "prefix": "coif",
+    "body": [
+      "[name] == helm && [quality] == unique // COIF OF GLORY"
+    ],
+    "description": "Add Coif of Glory nip line"
+  },
+  "Duskdeep": {
+    "prefix": "duskdeep",
+    "body": [
+      "[name] == fullhelm && [quality] == unique // Duskdeep"
+    ],
+    "description": "Add Duskdeep nip line"
+  },
+  "Howltusk": {
+    "prefix": "howltusk",
+    "body": [
+      "[name] == greathelm && [quality] == unique // Howltusk"
+    ],
+    "description": "Add Howltusk nip line"
+  },
+  "The Face of Horror": {
+    "prefix": "faceofhorror",
+    "body": [
+      "[name] == mask && [quality] == unique // The Face of Horror"
+    ],
+    "description": "Add Face of Horror nip line"
+  },
+  "Undead Crown": {
+    "prefix": "undeadcrown",
+    "body": [
+      "[name] == crown && [quality] == unique // Undead Crown"
+    ],
+    "description": "Add Undead Crown nip line"
+  },
+  "Wormskull": {
+    "prefix": "wormskull",
+    "body": [
+      "[name] == bonehelm && [quality] == unique // Wormskull"
+    ],
+    "description": "Add Wormskull nip line"
+  },
+  "Peasant Crown": {
+    "prefix": "peasantcrown",
+    "body": [
+      "[name] == warhat && [quality] == unique // Peasant Crown"
+    ],
+    "description": "Add Peasont Crown nip line"
+  },
+  "Rockstopper": {
+    "prefix": "rockstopper",
+    "body": [
+      "[name] == sallet && [quality] == unique // Rockstopper"
+    ],
+    "description": "Add Rockstopper nip line"
+  },
+  "Stealskull": {
+    "prefix": "stealskull",
+    "body": [
+      "[name] == casque && [quality] == unique // Stealskull"
+    ],
+    "description": "Add Stealskull nip line"
+  },
+  "Darksight": {
+    "prefix": "howltusk",
+    "body": [
+      "[name] == basinet && [quality] == unique // Darksight"
+    ],
+    "description": "Add Darksight nip line"
+  },
+  "Valkyrie Wing": {
+    "prefix": "valkyriewing",
+    "body": [
+      "[name] == wingedhelm && [quality] == unique // Valkyrie Wing"
+    ],
+    "description": "Add Valkyrie Wing nip line"
+  },
+  "Blackhorn's Face": {
+    "prefix": "blackhornsface",
+    "body": [
+      "[name] == deathmask && [quality] == unique // Blackhorn's Face"
+    ],
+    "description": "Add Blackhorn's Face nip line"
+  },
+  "Crown of Thieves": {
+    "prefix": "crownofthieves",
+    "body": [
+      "[name] == grandcrown && [quality] == unique // Crown of Thieves"
+    ],
+    "description": "Add Crown of Thieves nip line"
+  },
+  "Vampire Gaze": {
+    "prefix": "vampgaze",
+    "body": [
+      "[name] == grimhelm && [quality] == unique # [lifeleech] >= 7 && [manaleech] >= 7 && [damageresist] >= 15 // vampire gaze"
+    ],
+    "description": "Add Vampire Gaze nip line"
+  },
+  "Eth Vampire Gaze": {
+    "prefix": "eth-vampgaze",
+    "body": [
+      "[name] == grimhelm && [quality] == unique && [flag] == ethereal # [lifeleech] >= 7 && [manaleech] >= 7 && [damageresist] >= 15 // vampire gaze"
+    ],
+    "description": "Add Eth Vampire Gaze nip line"
+  },
+  "Harlequin Crest": {
+    "prefix": "shako",
+    "body": [
+      "[name] == grimhelm && [quality] == unique # [defense] >= 99 // harlequin crest"
+    ],
+    "description": "Add Harlequin Crest nip line"
+  },
+  "Eth Harlequin Crest": {
+    "prefix": "eth-shako",
+    "body": [
+      "[name] == grimhelm && [quality] == unique && [flag] == ethereal # [defense] >= 99 // harlequin crest"
+    ],
+    "description": "Add Eth Harlequin Crest nip line"
+  },
+  "Steel Shade": {
+    "prefix": "steelshade",
+    "body": [
+      "[name] == armet && [quality] == unique # [lifeleech] >= 6 && [manaleech] >= 6 && [damageresist] >= 15 // steel shade"
+    ],
+    "description": "Add Steel Shade nip line"
+  },
+  "Eth Steel Shade": {
+    "prefix": "eth-steelshade",
+    "body": [
+      "[name] == armet && [quality] == unique && [flag] == ethereal # [lifeleech] >= 6 && [manaleech] >= 6 && [damageresist] >= 15 // steel shade"
+    ],
+    "description": "Add Eth Steel Shade nip line"
+  },
+  "Veil of Steel": {
+    "prefix": "veilofsteel",
+    "body": [
+      "[name] == greathelm && [quality] == unique # [defense] >= 150 && [damageresist] >= 30 // veil of steel"
+    ],
+    "description": "Add Veil of Steel nip line"
+  },
+  "Eth Veil of Steel": {
+    "prefix": "eth-veilofsteel",
+    "body": [
+      "[name] == greathelm && [quality] == unique && [flag] == ethereal # [defense] >= 150 && [damageresist] >= 30 // veil of steel"
+    ],
+    "description": "Add Eth Veil of Steel nip line"
+  },
+  "Nightwing's Veil": {
+    "prefix": "nightwings",
+    "body": [
+      "[name] == spiredhelm && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 90 // nightwing's veil"
+    ],
+    "description": "Add Nightwing's Veil nip line"
+  },
+  "Eth Nightwing's Veil": {
+    "prefix": "eth-nightwings",
+    "body": [
+      "[name] == spiredhelm && [quality] == unique && [flag] == ethereal # [enhanceddefense] >= 120 && [dexterity] >= 20 && [itemabsorbcoldpercent] >= 9 && [passivecoldmastery]+[passivecoldpierce] >= 15"
+    ],
+    "description": "Add Eth Nightwing's Veil nip line"
+  },
+  "Andariel's Visage": {
+    "prefix": "andys",
+    "body": [
+      "[name] == demonhead && [quality] == unique // andariel's visage"
+    ],
+    "description": "Add Andariel's Visage nip line"
+  },
+  "Eth Andariel's Visage": {
+    "prefix": "eth-andys",
+    "body": [
+      "[name] == demonhead && [quality] == unique && [flag] == ethereal // andariel's visage"
+    ],
+    "description": "Add Eth Andariel's Visage nip line"
+  },
+  "Crown of Ages": {
+    "prefix": "coa",
+    "body": [
+      "[name] == corona && [quality] == unique # [sockets] == 2 && [defense] >= 170 && [damageresist] >= 30 // crown of ages"
+    ],
+    "description": "Add Crown of Ages nip line"
+  },
+  "Giant Skull": {
+    "prefix": "giantskull",
+    "body": [
+      "[name] == bonevisage && [quality] == unique # [sockets] >= 2 && [defense] >= 400 && [strength] >= 30 // giant skull"
+    ],
+    "description": "Add Giant Skull nip line"
+  },
+  "Eth Giant Skull": {
+    "prefix": "eth-giantskull",
+    "body": [
+      "[name] == bonevisage && [quality] == unique && [flag] == ethereal # [sockets] >= 2 && [defense] >= 400 && [strength] >= 30 // giant skull"
+    ],
+    "description": "Add Eth Giant Skull nip line"
+  },
+  "Arreat's Face": {
+    "prefix": "arreats",
+    "body": [
+      "[name] == slayerguard && [quality] == unique # [defense] >= 200 && [enhanceddamage] >= 200 // arreat's face"
+    ],
+    "description": "Add Arreat's Face nip line"
+  },
+  "Eth Arreat's Face": {
+    "prefix": "eth-arreats",
+    "body": [
+      "[name] == slayerguard && [quality] == unique && [flag] == ethereal # [defense] >= 200 && [enhanceddamage] >= 200 // arreat's face"
+    ],
+    "description": "Add Eth Arreat's Face nip line"
+  },
+  "Wolfhowl": {
+    "prefix": "Wolfhowl",
+    "body": [
+      "[name] == furyvisor && [quality] == unique // Wolfhowl"
+    ],
+    "description": "Add Wolfhowl nip line"
+  },
+  "Eth Wolfhowl": {
+    "prefix": "eth-wolfhowl",
+    "body": [
+      "[name] == furyvisor && [quality] == unique && [flag] == ethereal // Wolfhowl"
+    ],
+    "description": "Add Eth Wolfhowl nip line"
+  },
+  "Demonhorn's Edge": {
+    "prefix": "demonhorns",
+    "body": [
+      "[name] == destroyerhelm && [quality] == unique // Demonhorn's Edge"
+    ],
+    "description": "Add Demonhorn's Edge nip line"
+  },
+  "Halaberd's Reign": {
+    "prefix": "halaberds",
+    "body": [
+      "[name] == conquerorcrown && [quality] == unique // Halaberd's Reign"
+    ],
+    "description": "Add Halaberd's Reign nip line"
+  },
+  "Jalal's Mane": {
+    "prefix": "jalals",
+    "body": [
+      "[name] == totemicmask && [quality] == unique // Jalal's Mane"
+    ],
+    "description": "Add Jalal's Mane nip line"
+  },
+  "Cerebus Bite": {
+    "prefix": "cerebusbite",
+    "body": [
+      "[name] == bloodspirit && [quality] == unique // Cerebus Bite"
+    ],
+    "description": "Add Cerebus Bite nip line"
+  },
+  "Ravenlore": {
+    "prefix": "ravenlore",
+    "body": [
+      "[name] == skyspirt && [quality] == unique // Ravenlore"
+    ],
+    "description": "Add Ravenlore nip line"
+  },
+  "Spirit Keeper": {
+    "prefix": "spiritkeeper",
+    "body": [
+      "[name] == earthspirit && [quality] == unique // Spirit Keeper"
+    ],
+    "description": "Add Spirit Keeper nip line"
+  },
+  "Kira's Guardian": {
+    "prefix": "kiras",
+    "body": [
+      "[name] == tiara && [quality] == unique // Kira's Guardian"
+    ],
+    "description": "Add Kira's Guardian nip line"
+  },
+  "Eth Kira's Guardian": {
+    "prefix": "eth-kiras",
+    "body": [
+      "[name] == tiara && [quality] == unique && [flag] == ethereal // Kira's Guardian"
+    ],
+    "description": "Add Eth Kira's Guardian nip line"
+  },
+  "Griffon's Eye": {
+    "prefix": "griffons",
+    "body": [
+      "[name] == diadem && [quality] == unique # [enhanceddamage] >= 15 && [lightningdamage] >= 15 && [lightningresist] >= 15 // griffon's eye"
+    ],
+    "description": "Add Griffon's Eye nip line"
+  },
+  "Eth Griffon's Eye": {
+    "prefix": "eth-griffons",
+    "body": [
+      "[name] == diadem && [quality] == unique && [flag] == ethereal # [enhanceddamage] >= 15 && [lightningdamage] >= 15 && [lightningresist] >= 15 // griffon's eye"
+    ],
+    "description": "Add Eth Griffon's Eye nip line"
+  }
+}

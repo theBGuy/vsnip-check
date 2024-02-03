@@ -31,6 +31,12 @@
         "scopeName": "source.nip",
         "path": "./syntaxes/nip.tmLanguage.json"
       }
+    ],
+    "snippets": [
+      {
+        "language": "nip",
+        "path": "./snippits/snippits.json"
+      }
     ]
   },
   "main": "./out/diagnostics.js",
