@@ -139,15 +139,18 @@ function validateTextDocument(textDocument, diagnosticCollection) {
             if (j === 0 && lineSection.length > 4) {
                 let p_start = 0;
                 let p_section = lineSection.split('[');
+                let section = (lines[i].split('#').at(0) || "");
                 for (let k = 1; k < p_section.length; k++) {
                     let p_end = p_section[k].indexOf("]") + 1;
                     let property = p_section[k].substring(0, p_end - 1);
+                    const _property = property;
+                    const propIdx = section.indexOf(`[${_property}]`);
                     if (_aliases.has(property)) {
                         // @ts-ignore - TS doesn't know that the key exists even though we check it above
                         property = _aliases.get(property);
                     }
                     if (!isValidProperty(property)) {
-                        diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, 0, i, lineSection.length), `Invalid property: ${property}`));
+                        diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, propIdx, i, propIdx + _property.length), `Invalid property: ${_property}`));
                     }
                     for (p_start = p_end; p_end < p_section[k].length; p_end += 1) {
                         if (!isSyntaxInt(p_section[k][p_end])) {
@@ -155,7 +158,8 @@ function validateTextDocument(textDocument, diagnosticCollection) {
                         }
                     }
                     if (p_section[k].substring(p_start, p_end) === "=") {
-                        diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, 0, i, lineSection.length), 'Single equal signs are not allowed (properties)'));
+                        let startIdx = propIdx + _property.length + 2;
+                        diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, startIdx, i, startIdx + 3), `[${_property}] has invalid assignment operator '=' (properties)`));
                     }
                     for (p_start = p_end; p_end < p_section[k].length; p_end += 1) {
                         if (isSyntaxInt(p_section[k][p_end])) {
@@ -163,66 +167,67 @@ function validateTextDocument(textDocument, diagnosticCollection) {
                         }
                     }
                     let p_keyword = p_section[k].substring(p_start, p_end);
+                    // hacky-fix for now
+                    if (p_keyword === _property)
+                        continue;
                     if (isNaN(Number(p_keyword))) {
                         if (!_lists.has(property)) {
-                            diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, 0, i, lineSection.length), 'Unknown property: ' + property));
+                            diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, 0, i, lineSection.length), 'Unknown keyword: ' + property));
                         }
                         else {
                             let list = _lists.get(property);
                             if (list && !(p_keyword in list)) {
-                                diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, 0, i, lineSection.length), 'Unknown property: ' + property + ': ' + p_keyword));
+                                diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, 0, i, lineSection.length), 'Unknown keyword: ' + property + ': ' + p_keyword));
                             }
                         }
                     }
                 }
             }
             else if (j === 1 && lineSection.length > 4) {
+                let section = (lines[i].split('#').at(1) || "");
+                let sectionIndex = lines[i].indexOf('#');
                 let p_start = 0;
                 let p_section = lineSection.split('[');
                 for (let k = 1; k < p_section.length; k++) {
                     let p_end = p_section[k].indexOf("]") + 1;
+                    let stat = p_section[k].substring(p_start, p_end - 1);
+                    let statIdx = 1 + sectionIndex + section.indexOf(`[${stat}]`);
+                    if (isNaN(Number(stat))) {
+                        if (!NTItemAlias_js_1.NTIPAliasStat.hasOwnProperty(stat)) {
+                            diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, statIdx, i, statIdx + stat.length), 'Unknown stat: ' + stat));
+                        }
+                    }
                     for (p_start = p_end; p_end < p_section[k].length; p_end += 1) {
                         if (!isSyntaxInt(p_section[k][p_end])) {
                             break;
                         }
                     }
                     if (p_section[k].substring(p_start, p_end) === "=") {
-                        diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, 0, i, lineSection.length), 'Single equal signs are not allowed (stats)'));
-                    }
-                    for (p_start = p_end; p_end < p_section[k].length; p_end += 1) {
-                        if (isSyntaxInt(p_section[k][p_end])) {
-                            break;
-                        }
-                    }
-                    let property = p_section[k].substring(p_start, p_end);
-                    if (isNaN(Number(property))) {
-                        if (!NTItemAlias_js_1.NTIPAliasStat.hasOwnProperty(property)) {
-                            diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, 0, i, lineSection.length), 'Unknown stat: ' + property));
-                        }
+                        let startIdx = statIdx + stat.length + 2;
+                        diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, startIdx, i, startIdx + 3), `[${stat}] has invalid assignment operator '=' (stats)`));
                     }
                 }
             }
             else {
+                let section = (lines[i].split('#').at(-1) || "");
+                let sectionIndex = lines[i].lastIndexOf('#');
                 let p_start = 0;
                 let p_section = lineSection.split('[');
                 for (let k = 1; k < p_section.length; k++) {
                     let p_end = p_section[k].indexOf("]") + 1;
+                    let property = p_section[k].substring(0, p_end - 1);
+                    let propIdx = 1 + sectionIndex + section.indexOf(`[${property}]`);
+                    if (!isValidExtra(property)) {
+                        diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, propIdx, i, propIdx + property.length), `Invalid extra: ${property}`));
+                    }
                     for (p_start = p_end; p_end < p_section[k].length; p_end += 1) {
                         if (!isSyntaxInt(p_section[k][p_end])) {
                             break;
                         }
                     }
                     if (p_section[k].substring(p_start, p_end) === "=") {
-                        diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, 0, i, lineSection.length), 'Single equal signs are not allowed (extras)'));
-                    }
-                    for (p_start = p_end; p_end < p_section[k].length; p_end += 1) {
-                        if (isSyntaxInt(p_section[k][p_end])) {
-                            break;
-                        }
-                    }
-                    let property = p_section[k].substring(p_start, p_end);
-                    if (!isValidExtra(property)) {
-                        diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, 0, i, lineSection.length), `Invalid extra: ${property}`));
+                        let startIdx = propIdx + property.length + 2;
+                        diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, startIdx, i, startIdx + 3), `[${property}] has invalid assignment operator '=' (extras)`));
                     }
                 }
             }
@@ -278,7 +283,6 @@ function activate(context) {
                         return completionItems;
                     }
                 }
-                console.log(foundOpenBracket);
                 if (!foundOpenBracket)
                     return completionItems;
                 for (let i = 0; i < lineSuffix.length; i++) {
@@ -291,7 +295,6 @@ function activate(context) {
                         return completionItems;
                     }
                 }
-                console.log(foundCloseBracket);
                 if (!foundCloseBracket)
                     return completionItems;
                 const segments = line.split('#');
