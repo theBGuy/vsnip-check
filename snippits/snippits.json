@@ -2,309 +2,2660 @@
   "Biggin's Bonnet": {
     "prefix": "biggins",
     "body": [
-      "[name] == cap && [quality] == unique // BIGGIN'S BONNET"
+      "[name] == cap && [quality] == unique # [enhanceddamage] == 30 && [maxhp]+[mana] == 30 // Biggen's Bonnet"
     ],
     "description": "Add Biggin's Bonnet nip line"
   },
   "Tarnhelm": {
     "prefix": "tarnhelm",
     "body": [
-      "[name] == skullcap && [quality] == unique // tarnhelm"
+      "// Tarnhelm (25 < mf < 50)",
+      "[name] == skullcap && [quality] == unique # [itemallskills] == 1 && [itemmagicbonus] >= 25"
     ],
     "description": "Add Tarnhelm nip line"
   },
   "Coif of Glory": {
     "prefix": "coif",
     "body": [
-      "[name] == helm && [quality] == unique // COIF OF GLORY"
+      "[name] == helm && [quality] == unique # [lightresist] == 15 // Coif of Glory"
     ],
     "description": "Add Coif of Glory nip line"
   },
   "Duskdeep": {
     "prefix": "duskdeep",
     "body": [
-      "[name] == fullhelm && [quality] == unique // Duskdeep"
+      "// Duskdeep (30 < ed < 50)",
+      "[name] == fullhelm && [quality] == unique # [enhanceddefense] >= 30 "
     ],
     "description": "Add Duskdeep nip line"
   },
   "Howltusk": {
     "prefix": "howltusk",
     "body": [
-      "[name] == greathelm && [quality] == unique // Howltusk"
+      "[name] == greathelm && [quality] == unique # [enhanceddefense] == 80 // Howltusk"
     ],
     "description": "Add Howltusk nip line"
   },
   "The Face of Horror": {
     "prefix": "faceofhorror",
     "body": [
-      "[name] == mask && [quality] == unique // The Face of Horror"
+      "[name] == mask && [quality] == unique # [allres] == 10 && [strength] == 20 // The Face of Horror"
     ],
     "description": "Add Face of Horror nip line"
   },
   "Undead Crown": {
     "prefix": "undeadcrown",
     "body": [
-      "[name] == crown && [quality] == unique // Undead Crown"
+      "// Undead Crown (30 < ed < 60)(50 < undead to hit < 100)",
+      "[name] == crown && [quality] == unique # [enhanceddefense] >= 30 && [itemundeadtohit] >= 50"
     ],
     "description": "Add Undead Crown nip line"
   },
   "Wormskull": {
     "prefix": "wormskull",
     "body": [
-      "[name] == bonehelm && [quality] == unique // Wormskull"
+      "[name] == bonehelm && [quality] == unique # [necromancerskills] == 1 // Wormskull"
     ],
     "description": "Add Wormskull nip line"
   },
   "Peasant Crown": {
     "prefix": "peasantcrown",
     "body": [
-      "[name] == warhat && [quality] == unique // Peasant Crown"
+      "[name] == warhat && [quality] == unique # [itemallskills] == 1 // Peasant Crown"
     ],
     "description": "Add Peasont Crown nip line"
   },
   "Rockstopper": {
     "prefix": "rockstopper",
     "body": [
-      "[name] == sallet && [quality] == unique // Rockstopper"
+      "// Rockstopper (160 < ed < 220)(20 < cr < 40)(20 < fr < 50)(20 < lr < 40)",
+      "[name] == sallet && [quality] == unique # [enhanceddefense] >= 160 && [coldresist] >= 20 && [fireresist] >= 20 && [lightresist] >= 20"
     ],
     "description": "Add Rockstopper nip line"
   },
   "Stealskull": {
     "prefix": "stealskull",
     "body": [
-      "[name] == casque && [quality] == unique // Stealskull"
+      "// Stealskull (200 < ed < 240)",
+      "[name] == casque && [quality] == unique # [enhanceddefense] >= 200"
     ],
     "description": "Add Stealskull nip line"
   },
   "Darksight": {
-    "prefix": "howltusk",
+    "prefix": "darksight",
     "body": [
-      "[name] == basinet && [quality] == unique // Darksight"
+      "// Darksight Helm (20 < fr < 40)",
+      "[name] == basinet && [quality] == unique # [fireresist] >= 20"
     ],
     "description": "Add Darksight nip line"
   },
   "Valkyrie Wing": {
     "prefix": "valkyriewing",
     "body": [
-      "[name] == wingedhelm && [quality] == unique // Valkyrie Wing"
+      "// Valkyrie Wing (1 < amazon skills < 2)(2 < mana after kill < 4)",
+      "[name] == wingedhelm && [quality] == unique # [amazonskills] >= 1 && [itemmanaafterkill] >= 2"
     ],
     "description": "Add Valkyrie Wing nip line"
   },
   "Blackhorn's Face": {
     "prefix": "blackhornsface",
     "body": [
-      "[name] == deathmask && [quality] == unique // Blackhorn's Face"
+      "// Blackhorn's Face (180 < ed < 220)",
+      "[name] == deathmask && [quality] == unique # [enhanceddefense] >= 180"
     ],
     "description": "Add Blackhorn's Face nip line"
   },
   "Crown of Thieves": {
     "prefix": "crownofthieves",
     "body": [
-      "[name] == grandcrown && [quality] == unique // Crown of Thieves"
+      "// Crown of Thieves (160 < ed < 200)(9 < life leech < 12)(80 < gold bonus < 100)",
+      "[name] == grandcrown && [quality] == unique # [enhanceddefense] >= 160 && [lifeleech] >= 9 && [itemgoldbonus] >= 80"
     ],
     "description": "Add Crown of Thieves nip line"
   },
   "Vampire Gaze": {
-    "prefix": "vampgaze",
+    "prefix": "vampiregaze",
     "body": [
-      "[name] == grimhelm && [quality] == unique # [lifeleech] >= 7 && [manaleech] >= 7 && [damageresist] >= 15 // vampire gaze"
+      "// Vampire Gaze (6 < life leech < 8)(6 < mana leech < 8)(15 < damage resist < 20)(10 < magic damage reduction < 15)",
+      "[name] == grimhelm && [quality] == unique # [lifeleech] >= 6 && [manaleech] >= 6 && [damageresist] >= 15 && [magicdamagereduction] >= 10"
     ],
     "description": "Add Vampire Gaze nip line"
-  },
-  "Eth Vampire Gaze": {
-    "prefix": "eth-vampgaze",
-    "body": [
-      "[name] == grimhelm && [quality] == unique && [flag] == ethereal # [lifeleech] >= 7 && [manaleech] >= 7 && [damageresist] >= 15 // vampire gaze"
-    ],
-    "description": "Add Eth Vampire Gaze nip line"
   },
   "Harlequin Crest": {
     "prefix": "shako",
     "body": [
-      "[name] == grimhelm && [quality] == unique # [defense] >= 99 // harlequin crest"
+      "// Harlequin Crest (99 < defense < 141)",
+      "[name] == shako && [quality] == unique # [defense] >= 99"
     ],
     "description": "Add Harlequin Crest nip line"
-  },
-  "Eth Harlequin Crest": {
-    "prefix": "eth-shako",
-    "body": [
-      "[name] == grimhelm && [quality] == unique && [flag] == ethereal # [defense] >= 99 // harlequin crest"
-    ],
-    "description": "Add Eth Harlequin Crest nip line"
   },
   "Steel Shade": {
     "prefix": "steelshade",
     "body": [
-      "[name] == armet && [quality] == unique # [lifeleech] >= 6 && [manaleech] >= 6 && [damageresist] >= 15 // steel shade"
+      "// Steel Shade (100 < enhanced defense < 130)(10 < hp regen < 18)(4 < mana leech < 8)(5 < item absorb fire < 11)",
+      "[name] == armet && [quality] == unique # [enhanceddefense] >= 100 && [hpregen] >= 10 && [manaleech] >= 4 && [itemabsorbfire] >= 5"
     ],
     "description": "Add Steel Shade nip line"
-  },
-  "Eth Steel Shade": {
-    "prefix": "eth-steelshade",
-    "body": [
-      "[name] == armet && [quality] == unique && [flag] == ethereal # [lifeleech] >= 6 && [manaleech] >= 6 && [damageresist] >= 15 // steel shade"
-    ],
-    "description": "Add Eth Steel Shade nip line"
   },
   "Veil of Steel": {
     "prefix": "veilofsteel",
     "body": [
-      "[name] == greathelm && [quality] == unique # [defense] >= 150 && [damageresist] >= 30 // veil of steel"
+      "[name] == spiredhelm && [quality] == unique # [defense] >= 150 && [damageresist] >= 30 // Veil of Steel"
     ],
     "description": "Add Veil of Steel nip line"
   },
-  "Eth Veil of Steel": {
-    "prefix": "eth-veilofsteel",
-    "body": [
-      "[name] == greathelm && [quality] == unique && [flag] == ethereal # [defense] >= 150 && [damageresist] >= 30 // veil of steel"
-    ],
-    "description": "Add Eth Veil of Steel nip line"
-  },
   "Nightwing's Veil": {
-    "prefix": "nightwings",
+    "prefix": "nightwingsveil",
     "body": [
-      "[name] == spiredhelm && [quality] == unique && [flag] != ethereal # [enhanceddefense] >= 90 // nightwing's veil"
+      "// Nightwing's Veil (90 < enhanced defense < 120)(8 < cold skill damage < 15)(5 < item absorb cold < 9)",
+      "[name] == spiredhelm && [quality] == unique # [enhanceddefense] >= 90 && [passivecoldmastery] >= 8 && [itemabsorbcold] >= 5"
     ],
     "description": "Add Nightwing's Veil nip line"
   },
-  "Eth Nightwing's Veil": {
-    "prefix": "eth-nightwings",
-    "body": [
-      "[name] == spiredhelm && [quality] == unique && [flag] == ethereal # [enhanceddefense] >= 120 && [dexterity] >= 20 && [itemabsorbcoldpercent] >= 9 && [passivecoldmastery]+[passivecoldpierce] >= 15"
-    ],
-    "description": "Add Eth Nightwing's Veil nip line"
-  },
   "Andariel's Visage": {
-    "prefix": "andys",
+    "prefix": "andarielsvisage",
     "body": [
-      "[name] == demonhead && [quality] == unique // andariel's visage"
+      "// Andariel's Visage (100 < enhanced defense < 150)(8 < lifeleech < 10)(25 < strength < 30)",
+      "[name] == demonhead && [quality] == unique # [enhanceddefense] >= 100 && [lifeleech] >= 8 && [strength] >= 25"
     ],
     "description": "Add Andariel's Visage nip line"
   },
-  "Eth Andariel's Visage": {
-    "prefix": "eth-andys",
-    "body": [
-      "[name] == demonhead && [quality] == unique && [flag] == ethereal // andariel's visage"
-    ],
-    "description": "Add Eth Andariel's Visage nip line"
-  },
   "Crown of Ages": {
-    "prefix": "coa",
+    "prefix": "crownofages",
     "body": [
-      "[name] == corona && [quality] == unique # [sockets] == 2 && [defense] >= 170 && [damageresist] >= 30 // crown of ages"
+      "// Crown of Ages (349 < defense < 399)(10 < damage resist < 15)(20 < allres < 30)(1 < sockets < 2)",
+      "[name] == corona && [quality] == unique # [damageresist] >= 10 && [allres] >= 20 && [sockets] >= 1"
     ],
     "description": "Add Crown of Ages nip line"
   },
   "Giant Skull": {
     "prefix": "giantskull",
     "body": [
-      "[name] == bonevisage && [quality] == unique # [sockets] >= 2 && [defense] >= 400 && [strength] >= 30 // giant skull"
+      "// Giant Skull (350 < defense < 477)(25 < strength < 35)(1 < sockets < 2)",
+      "[name] == bonevisage && [quality] == unique # [strength] >= 25 && [sockets] >= 1"
     ],
     "description": "Add Giant Skull nip line"
   },
-  "Eth Giant Skull": {
-    "prefix": "eth-giantskull",
-    "body": [
-      "[name] == bonevisage && [quality] == unique && [flag] == ethereal # [sockets] >= 2 && [defense] >= 400 && [strength] >= 30 // giant skull"
-    ],
-    "description": "Add Eth Giant Skull nip line"
-  },
   "Arreat's Face": {
-    "prefix": "arreats",
+    "prefix": "arreatsface",
     "body": [
-      "[name] == slayerguard && [quality] == unique # [defense] >= 200 && [enhanceddamage] >= 200 // arreat's face"
+      "// Arreat's Face (302 < defense < 363)(150 < enhanced defense < 200)(3 < lifeleech < 6)",
+      "[name] == slayerguard && [quality] == unique # [enhanceddefense] >= 150 && [lifeleech] >= 3"
     ],
     "description": "Add Arreat's Face nip line"
-  },
-  "Eth Arreat's Face": {
-    "prefix": "eth-arreats",
-    "body": [
-      "[name] == slayerguard && [quality] == unique && [flag] == ethereal # [defense] >= 200 && [enhanceddamage] >= 200 // arreat's face"
-    ],
-    "description": "Add Eth Arreat's Face nip line"
   },
   "Wolfhowl": {
     "prefix": "Wolfhowl",
     "body": [
-      "[name] == furyvisor && [quality] == unique // Wolfhowl"
+      "// Wolfhowl (120 < enhanced defense < 150)(2 < warcriesskilltab < 3)(3 < skillferalrage < 6)(3 < skilllycanthropy < 6)(3 < skillwerewolf < 6)(8 < strength < 15)(8 < dexterity < 15)(8 < vitality < 15)",
+      "[name] == furyvisor && [quality] == unique # [enhanceddefense] >= 120 && [warcriesskilltab] >= 2 && [skillferalrage] >= 3 && [skilllycanthropy] >= 3 && [skillwerewolf] >= 3 && [strength] >= 8 && [dexterity] >= 8 && [vitality] >= 8"
     ],
     "description": "Add Wolfhowl nip line"
-  },
-  "Eth Wolfhowl": {
-    "prefix": "eth-wolfhowl",
-    "body": [
-      "[name] == furyvisor && [quality] == unique && [flag] == ethereal // Wolfhowl"
-    ],
-    "description": "Add Eth Wolfhowl nip line"
   },
   "Demonhorn's Edge": {
     "prefix": "demonhorns",
     "body": [
-      "[name] == destroyerhelm && [quality] == unique // Demonhorn's Edge"
+      "// Demonhorn's Edge (120 < enhanced defense < 160)(3 < lifeleech < 6)(1 < warcriesskilltab < 3)(1 < masteriesskilltab < 3)(1 < barbcombatskilltab < 3)",
+      "[name] == destroyerhelm && [quality] == unique # [enhanceddefense] >= 120 && [lifeleech] >= 3 && [warcriesskilltab] >= 1 && [masteriesskilltab] >= 1 && [barbcombatskilltab] >= 1"
     ],
     "description": "Add Demonhorn's Edge nip line"
   },
   "Halaberd's Reign": {
-    "prefix": "halaberds",
+    "prefix": "halaberdsreign",
     "body": [
-      "[name] == conquerorcrown && [quality] == unique // Halaberd's Reign"
+      "// Halaberd's Reign (140 < enhanced defense < 170)(15 < hp regen < 23)(1 < skillbattlecommand < 2)(1 < skillbattleorders < 2)",
+      "[name] == conquerorcrown && [quality] == unique # [hpregen] >= 15 && [enhanceddefense] >= 140 && [skillbattlecommand] >= 1 && [skillbattleorders] >= 1"
     ],
     "description": "Add Halaberd's Reign nip line"
   },
   "Jalal's Mane": {
-    "prefix": "jalals",
+    "prefix": "jalalsmane",
     "body": [
-      "[name] == totemicmask && [quality] == unique // Jalal's Mane"
+      "// Jalal's Mane (150 < enhanced defense < 200)",
+      "[name] == totemicmask && [quality] == unique # [enhanceddefense] >= 150"
     ],
     "description": "Add Jalal's Mane nip line"
   },
   "Cerebus Bite": {
     "prefix": "cerebusbite",
     "body": [
-      "[name] == bloodspirit && [quality] == unique // Cerebus Bite"
+      "// Cerebus Bite (130 < enhanced defense < 140)(60 < tohit < 120)(7 < lifeleech < 10)(2 < shapeshiftingskilltab < 4)(1 < skillferalrage < 2)",
+      "[name] == bloodspirit && [quality] == unique # [enhanceddefense] >= 130 && [tohit] >= 60 && [lifeleech] >= 7 && [shapeshiftingskilltab] >= 2 && [skillferalrage] >= 1"
     ],
     "description": "Add Cerebus Bite nip line"
   },
   "Ravenlore": {
     "prefix": "ravenlore",
     "body": [
-      "[name] == skyspirt && [quality] == unique // Ravenlore"
+      "// Ravenlore (120 < enhanced defense < 150)(20 < energy < 30)(10 < passivefirepierce < 20)(15 < allres < 25)",
+      "[name] == skyspirit && [quality] == unique # [enhanceddefense] >= 120 && [energy] >= 20 && [passivefirepierce] >= 10 && [allres] >= 15"
     ],
     "description": "Add Ravenlore nip line"
   },
   "Spirit Keeper": {
     "prefix": "spiritkeeper",
     "body": [
-      "[name] == earthspirit && [quality] == unique // Spirit Keeper"
+      "// Spirit Keeper (170 < enhanced defense < 190)(1 < druidskills < 2)(30 < fireresist < 40)(9 < itemabsorblight < 14)(15 < itemabsorbcoldpercent < 25)",
+      "[name] == earthspirit && [quality] == unique # [enhanceddefense] >= 170 && [druidskills] >= 1 && [fireresist] >= 30 && [itemabsorblight] >= 9 && [itemabsorbcoldpercent] >= 15"
     ],
     "description": "Add Spirit Keeper nip line"
   },
   "Kira's Guardian": {
     "prefix": "kiras",
     "body": [
-      "[name] == tiara && [quality] == unique // Kira's Guardian"
+      "// Kira's Guardian (90 < defense < 170)(50 < allres < 70)",
+      "[name] == tiara && [quality] == unique # [allres] >= 50"
     ],
     "description": "Add Kira's Guardian nip line"
-  },
-  "Eth Kira's Guardian": {
-    "prefix": "eth-kiras",
-    "body": [
-      "[name] == tiara && [quality] == unique && [flag] == ethereal // Kira's Guardian"
-    ],
-    "description": "Add Eth Kira's Guardian nip line"
   },
   "Griffon's Eye": {
     "prefix": "griffons",
     "body": [
-      "[name] == diadem && [quality] == unique # [enhanceddamage] >= 15 && [lightningdamage] >= 15 && [lightningresist] >= 15 // griffon's eye"
+      "// Griffon's Eye (15 < passiveltngpierce < 20)(10 < passiveltngmastery < 15)",
+      "[name] == diadem && [quality] == unique # [passiveltngpierce] >= 15 && [passiveltngmastery] >= 10"
     ],
     "description": "Add Griffon's Eye nip line"
   },
-  "Eth Griffon's Eye": {
-    "prefix": "eth-griffons",
+  "Greyform": {
+    "prefix": "greyform",
     "body": [
-      "[name] == diadem && [quality] == unique && [flag] == ethereal # [enhanceddamage] >= 15 && [lightningdamage] >= 15 && [lightningresist] >= 15 // griffon's eye"
+      "[name] == quiltedarmor && [quality] == unique # [coldresist]+[fireresist] == 40 // Greyform"
     ],
-    "description": "Add Eth Griffon's Eye nip line"
+    "description": "Add Greyform nip line"
+  },
+  "Blinkbat's Form": {
+    "prefix": "blinkbatsform",
+    "body": [
+      "[name] == leatherarmor && [quality] == unique # [fhr] == 40 // Blinkbat's Form"
+    ],
+    "description": "Add Blinkbat's Form nip line"
+  },
+  "The Centurion": {
+    "prefix": "thecenturion",
+    "body": [
+      "[name] == hardleatherarmor && [quality] == unique # [tohit] == 50  // The Centurion"
+    ],
+    "description": "Add The Centurian nip line"
+  },
+  "Twitchthroe": {
+    "prefix": "twitchthroe",
+    "body": [
+      "[name] == studdedleather && [quality] == unique # [ias] == 20 // Twitchthroe"
+    ],
+    "description": "Add Twitchthroe nip line"
+  },
+  "Darkglow": {
+    "prefix": "darkglow",
+    "body": [
+      "// Darkglow (70 < enhanced defense < 100)",
+      "[name] == ringmail && [quality] == unique # [enhanceddefense] >= 70"
+    ],
+    "description": "Add Darkglow nip line"
+  },
+  "Hawkmail": {
+    "prefix": "hawkmail",
+    "body": [
+      "// Hawkmail (80 < enhanced defense < 100)",
+      "[name] == scalemail && [quality] == unique # [enhanceddefense] >= 80"
+    ],
+    "description": "Add Hawkmail nip line"
+  },
+  "Venom Ward": {
+    "prefix": "venomward",
+    "body": [
+      "// Venom Ward (60 < enhanced defense < 100)",
+      "[name] == breastplate && [quality] == unique # [enhanceddefense] >= 60"
+    ],
+    "description": "Add Venom Ward nip line"
+  },
+  "Sparking Mail": {
+    "prefix": "sparkingmail",
+    "body": [
+      "// Sparking Mail (75 < enhanced defense < 85)",
+      "[name] == chainmail && [quality] == unique # [enhanceddefense] >= 75"
+    ],
+    "description": "Add Sparking Mail nip line"
+  },
+  "Iceblink": {
+    "prefix": "iceblink",
+    "body": [
+      "// Iceblink (70 < enhanced defense < 80)",
+      "[name] == lightplate && [quality] == unique # [enhanceddefense] >= 70"
+    ],
+    "description": "Add Iceblink nip line"
+  },
+  "Heavenly Garb": {
+    "prefix": "heavenlygarb",
+    "body": [
+      "[name] == lightplate && [quality] == unique # [allres] >= 10 // Heavenly Garb"
+    ],
+    "description": "Add Heavenly Garb nip line"
+  },
+  "Boneflesh": {
+    "prefix": "boneflesh",
+    "body": [
+      "// Boneflesh (100 < enhanced defense < 120)",
+      "[name] == platemail && [quality] == unique # [enhanceddefense] >= 100"
+    ],
+    "description": "Add Boneflesh nip line"
+  },
+  "Rockfleece": {
+    "prefix": "rockfleece",
+    "body": [
+      "// Rockfleece (100 < enhanced defense < 130)",
+      "[name] == fieldplate && [quality] == unique # [enhanceddefense] >= 100"
+    ],
+    "description": "Add Rockfleece nip line"
+  },
+  "Rattlecage": {
+    "prefix": "rattlecage",
+    "body": [
+      "[name] == gothicplate && [quality] == unique # [itemcrushingblow] == 25 // Rattlecage"
+    ],
+    "description": "Add Rattlecage nip line"
+  },
+  "Goldskin": {
+    "prefix": "goldskin",
+    "body": [
+      "// Goldskin (120 < enhanced defense < 150)",
+      "[name] == fullplatemail && [quality] == unique # [enhanceddefense] >= 120"
+    ],
+    "description": "Add Goldskin nip line"
+  },
+  "Silks of the Victor": {
+    "prefix": "silksofthevictor",
+    "body": [
+      "// Silks of the Victor (100 < enhanced defense < 120)",
+      "[name] == ancientarmor && [quality] == unique # [enhanceddefense] >= 100"
+    ],
+    "description": "Add Silks of the Victor nip line"
+  },
+  "The Spirit Shroud": {
+    "prefix": "thespiritshroud",
+    "body": [
+      "[name] == ghostarmor && [quality] == unique # [itemallskills] == 1 // The Spirit Shroud"
+    ],
+    "description": "Add The Spirit Shroud nip line"
+  },
+  "Skin of the Vipermagi": {
+    "prefix": "vipermagi",
+    "body": [
+      "// Skin of the Vipermagi (9 < magic damage reduction < 13)(20 < allres < 35)",
+      "[name] == serpentskinarmor && [quality] == unique # [magicdamagereduction] >= 9 && [allres] >= 20"
+    ],
+    "description": "Add Skin of the Vipermagi nip line"
+  },
+  "Skin of the Flayed One": {
+    "prefix": "skinoftheflayedone",
+    "body": [
+      "// Skin of the Flayed One (150 < enhanced defense < 190)(5 < lifeleech < 7)(15 < hp regen < 25)",
+      "[name] == demonhidearmor && [quality] == unique # [enhanceddefense] >= 150 && [lifeleech] >= 5 && [hpregen] >= 15"
+    ],
+    "description": "Add Skin of the Flayed One nip line"
+  },
+  "Iron Pelt": {
+    "prefix": "ironpelt",
+    "body": [
+      "// Iron Pelt (50 < enhanced defense < 100)(15 < normaldamagereduction < 20)(10 < magicdamagereduction < 16)",
+      "[name] == trellisedarmor && [quality] == unique # [enhanceddefense] >= 50 && [normaldamagereduction] >= 15 && [magicdamagereduction] >= 10"
+    ],
+    "description": "Add Iron Pelt nip line"
+  },
+  "Crow Caw": {
+    "prefix": "crowcaw",
+    "body": [
+      "// Crow Caw (150 < enhanced defense < 180)",
+      "[name] == tigulatedmail && [quality] == unique # [enhanceddefense] >= 150"
+    ],
+    "description": "Add Crow Caw nip line"
+  },
+  "Spirit Forge": {
+    "prefix": "spiritforge",
+    "body": [
+      "// Spirit Forge (120 < enhanced defense < 160)",
+      "[name] == linkedmail && [quality] == unique # [enhanceddefense] >= 120"
+    ],
+    "description": "Add Spirit Forge nip line"
+  },
+  "Duriel's Shell": {
+    "prefix": "durielsshell",
+    "body": [
+      "// Duriel's Shell (160 < enhanced defense < 200)",
+      "[name] == cuirass && [quality] == unique # [enhanceddefense] >= 160"
+    ],
+    "description": "Add Duriel's Shell nip line"
+  },
+  "Shaftstop": {
+    "prefix": "shaftstop",
+    "body": [
+      "// Shaftstop (180 < enhanced defense < 220)",
+      "[name] == mesharmor && [quality] == unique # [enhanceddefense] >= 180"
+    ],
+    "description": "Add Shaftstop nip line"
+  },
+  "Skullder's Ire": {
+    "prefix": "skullders",
+    "body": [
+      "// Skullder's Ire (160 < enhanced defense < 200)",
+      "[name] == russetarmor && [quality] == unique # [enhanceddefense] >= 160"
+    ],
+    "description": "Add Skullder's Ire nip line"
+  },
+  "Que-Hegan's Wisdom": {
+    "prefix": "quehegans",
+    "body": [
+      "// Que-Hegan's Wisdom (140 < enhanced defense < 160)(6 < magicdamagereduction < 10)",
+      "[name] == mageplate && [quality] == unique # [enhanceddefense] >= 140 && [magicdamagereduction] >= 6"
+    ],
+    "description": "Add Que-Hegan's Wisdom nip line"
+  },
+  "Guardian Angel": {
+    "prefix": "guardianangel",
+    "body": [
+      "// Guardian Angel (180 < enhanced defense < 200)",
+      "[name] == templarcoat && [quality] == unique # [enhanceddefense] >= 180"
+    ],
+    "description": "Add Guardian Angel nip line"
+  },
+  "Toothrow": {
+    "prefix": "toothrow",
+    "body": [
+      "// Toothrow (160 < enhanced defense < 220)(20 < itemattackertakesdamage < 40)",
+      "[name] == sharktootharmor && [quality] == unique # [enhanceddefense] >= 160 && [itemattackertakesdamage] >= 20"
+    ],
+    "description": "Add Toothrow nip line"
+  },
+  "Atma's Wail": {
+    "prefix": "atmaswail",
+    "body": [
+      "// Atma's Wail (120 < enhanced defense < 160)",
+      "[name] == embossedplate && [quality] == unique # [enhanceddefense] >= 120"
+    ],
+    "description": "Add Atma's Wail nip line"
+  },
+  "Black Hades": {
+    "prefix": "blackhades",
+    "body": [
+      "// Black Hades (140 < enhanced defense < 200)(30 < itemdemondamagepercent < 60)(200 < itemdemontohit < 250)",
+      "[name] == chaosarmor && [quality] == unique # [enhanceddefense] >= 140 && [itemdemondamagepercent] >= 30 && [itemdemontohit] >= 200"
+    ],
+    "description": "Add Black Hades nip line"
+  },
+  "Corpsemourn": {
+    "prefix": "corpsemourn",
+    "body": [
+      "// Corpsemourn (150 < enhanced defense < 180)",
+      "[name] == ornateplate && [quality] == unique # [enhanceddefense] >= 150"
+    ],
+    "description": "Add Corpsemourn nip line"
+  },
+  "Ormus' Robes": {
+    "prefix": "ormusrobes",
+    "body": [
+      "// Ormus' Robes (10 < passivecoldmastery < 15)(10 < passiveltngmastery < 15)(10 < passivefiremastery < 15)(10 < manarecovery < 15)(+3 bonus to sorceress skill)",
+      "[name] == duskshroud && [quality] == unique # [passivecoldmastery] >= 10 && [passiveltngmastery] >= 10 && [passivefiremastery] >= 10 && [manarecovery] >= 10 && [$1] == 3"
+    ],
+    "description": "Add Ormus' Robes nip line"
+  },
+  "The Gladiator's Bane": {
+    "prefix": "thegladiatorsbane",
+    "body": [
+      "// The Gladiator's Bane (150 < enhanced defense < 200)(15 < normaldamagereduction < 20)(15 < magicdamagereduction < 20)",
+      "[name] == wirefleece && [quality] == unique # [enhanceddefense] >= 150 && [normaldamagereduction] >= 15 && [magicdamagereduction] >= 15"
+    ],
+    "description": "Add The Gladiator's Bane nip line"
+  },
+  "Arkaine's Valor": {
+    "prefix": "arkainesvalor",
+    "body": [
+      "// Arkaine's Valor (150 < enhanced defense < 1800)(1 < itemallskills < 2)(10 < normaldamagereduction < 15)",
+      "[name] == balrogskin && [quality] == unique # [enhanceddefense] >= 150 && [itemallskills] >= 1 && [normaldamagereduction] >= 10"
+    ],
+    "description": "Add Arkaine's Valor nip line"
+  },
+  "Leviathan": {
+    "prefix": "leviathan",
+    "body": [
+      "// Leviathan (170 < enhanced defense < 200)(40 < strength < 50)(15 < damageresist < 25)",
+      "[name] == krakenshell && [quality] == unique # [enhanceddefense] >= 170 && [strength] >= 40 && [damageresist] >= 15"
+    ],
+    "description": "Add Leviathan nip line"
+  },
+  "Steel Carapace": {
+    "prefix": "steelcarapace",
+    "body": [
+      "// Steel Carapace (190 < enhanced defense < 220)(10 < manarecovery < 15)(40 < coldresist < 60)(9 < normaldamagereduction < 14)",
+      "[name] == shadowplate && [quality] == unique # [enhanceddefense] >= 190 && [manarecovery] >= 10 && [coldresist] >= 40 && [normaldamagereduction] >= 9"
+    ],
+    "description": "Add Steel Carapace nip line"
+  },
+  "Templar's Might": {
+    "prefix": "templarsmight",
+    "body": [
+      "// Templar's Might (170 < enhanced defense < 220)(250 < Defense vs Missle < 300)(10 < strength < 15)(10 < vitality < 15)(40 < maxstamina < 60)(1 < offensiveaurasskilltab < 2)",
+      "[name] == sacredarmor && [quality] == unique # [enhanceddefense] >= 170 && [armorclassvsmissile] >= 250 && [strength] >= 10 && [vitality] >= 10 && [maxstamina] >= 40 && [offensiveaurasskilltab] >= 1"
+    ],
+    "description": "Add Templar's Might nip line"
+  },
+  "Tyrael's Might": {
+    "prefix": "tyraels",
+    "body": [
+      "[name] == sacredarmor && [quality] == unique # [strength] >= 20 // tyrael's might"
+    ],
+    "description": "Add Tyrael's Might nip line"
+  },
+  "Lenymo": {
+    "prefix": "lenymo",
+    "body": [
+      "[name] == sash && [quality] == unique // Lenymo"
+    ],
+    "description": "Add Lenymo nip line"
+  },
+  "Snakecord": {
+    "prefix": "snakecord",
+    "body": [
+      "[name] == lightbelt && [quality] == unique // Snakecord"
+    ],
+    "description": "Add Snakecord nip line"
+  },
+  "Nightsmoke": {
+    "prefix": "nightsmoke",
+    "body": [
+      "[name] == belt && [quality] == unique // Nightsmoke"
+    ],
+    "description": "Add Nightsmoke nip line"
+  },
+  "Goldwrap": {
+    "prefix": "goldwrap",
+    "body": [
+      "[name] == heavybelt && [quality] == unique // Goldwrap"
+    ],
+    "description": "Add Goldwrap nip line"
+  },
+  "Bladebuckle": {
+    "prefix": "bladebuckle",
+    "body": [
+      "[name] == platedbelt && [quality] == unique // Bladebuckle"
+    ],
+    "description": "Add Bladebuckle nip line"
+  },
+  "String of Ears": {
+    "prefix": "soe",
+    "body": [
+      "[name] == demonhidearmor && [quality] == unique # [enhanceddefense] >= 165 && [damageresist] >= 12 && [lifeleech] >= 8 // string of ears"
+    ],
+    "description": "Add String of Ears nip line"
+  },
+  "Razortail": {
+    "prefix": "razortail",
+    "body": [
+      "[name] == sharkskinbelt && [quality] == unique // razortail"
+    ],
+    "description": "Add Razortail nip line"
+  },
+  "Gloom's Trap": {
+    "prefix": "gloomstrap",
+    "body": [
+      "[name] == meshbelt && [quality] == unique // Gloom's Trap"
+    ],
+    "description": "Add Gloom's Trap nip line"
+  },
+  "Snowclash": {
+    "prefix": "snowclash",
+    "body": [
+      "[name] == battlebelt && [quality] == unique # [defense] >= 100 && [coldresist] >= 15 // snowclash"
+    ],
+    "description": "Add Snowclash nip line"
+  },
+  "Thundergod's Vigor": {
+    "prefix": "thundergods",
+    "body": [
+      "[name] == warbelt && [quality] == unique # [enhanceddefense] >= 180 // thundergod's vigor"
+    ],
+    "description": "Add Thundergod's Vigor nip line"
+  },
+  "Arachnid Mesh": {
+    "prefix": "arachnid",
+    "body": [
+      "[name] == spiderwebsash && [quality] == unique # [itemallskills] >= 1 && [fcr] >= 20 // arachnid mesh"
+    ],
+    "description": "Add Arachnid Mesh nip line"
+  },
+  "Nosferatu's Coil": {
+    "prefix": "nosferatus",
+    "body": [
+      "[name] == vampirefangbelt && [quality] == unique # [lifeleech] >= 6 // nosferatu's coil"
+    ],
+    "description": "Add Nosferatu's Coil nip line"
+  },
+  "Verdungo's Hearty Cord": {
+    "prefix": "verdungos",
+    "body": [
+      "[name] == mithrilcoil && [quality] == unique # [vitality] >= 30 && [damageresist] >= 10 // verdungo's hearty cord"
+    ],
+    "description": "Add Verdungo's Hearty Cord nip line"
+  },
+  "Hotspur": {
+    "prefix": "hotspur",
+    "body": [
+      "[name] == boots && [quality] == unique // Hotspur"
+    ],
+    "description": "Add Hotspur nip line"
+  },
+  "Gorefoot": {
+    "prefix": "gorefoot",
+    "body": [
+      "[name] == heavyboots && [quality] == unique // Gorefoot"
+    ],
+    "description": "Add Gorefoot nip line"
+  },
+  "Treads of Cthon": {
+    "prefix": "treadsofcthon",
+    "body": [
+      "[name] == chainboots && [quality] == unique // Treads of Cthon"
+    ],
+    "description": "Add Treads of Cthon nip line"
+  },
+  "Goblin Toe": {
+    "prefix": "goblintoe",
+    "body": [
+      "[name] == lightplatedboots && [quality] == unique // Goblin Toe"
+    ],
+    "description": "Add Goblin Toe nip line"
+  },
+  "Tearhaunch": {
+    "prefix": "tearhaunch",
+    "body": [
+      "[name] == greaves && [quality] == unique // Tearhaunch"
+    ],
+    "description": "Add Tearhaunch nip line"
+  },
+  "Infernostride": {
+    "prefix": "infernostride",
+    "body": [
+      "[name] == demonhideboots && [quality] == unique // Infernostride"
+    ],
+    "description": "Add Infernostride nip line"
+  },
+  "Waterwalk": {
+    "prefix": "waterwalk",
+    "body": [
+      "[name] == sharkskinboots && [quality] == unique # [enhanceddefense] >= 210 && [maxhp] >= 65 // waterwalk"
+    ],
+    "description": "Add Waterwalk nip line"
+  },
+  "Silkweave": {
+    "prefix": "silkweave",
+    "body": [
+      "[name] == meshboots && [quality] == unique # [fcr] >= 30 // silkweave"
+    ],
+    "description": "Add Silkweave nip line"
+  },
+  "War Traveler": {
+    "prefix": "wartraveler",
+    "body": [
+      "[name] == battleboots && [quality] == unique # [enhanceddefense] >= 170 && [itemmagicbonus] >= 50 // war traveler"
+    ],
+    "description": "Add War Traveler nip line"
+  },
+  "Gore Rider": {
+    "prefix": "gorerider",
+    "body": [
+      "[name] == warboots && [quality] == unique # [enhanceddamage] >= 15 // gore rider"
+    ],
+    "description": "Add Gore Rider nip line"
+  },
+  "Sandstorm Trek": {
+    "prefix": "sandstormtrek",
+    "body": [
+      "[name] == scarabshellboots && [quality] == unique // Sandstorm Trek"
+    ],
+    "description": "Add Hotspur nip line"
+  },
+  "Marrowwalk": {
+    "prefix": "marrowwalk",
+    "body": [
+      "[name] == boneweaveboots && [quality] == unique // Marrowwalk"
+    ],
+    "description": "Add Marrowwalk nip line"
+  },
+  "Shadow Dancer": {
+    "prefix": "shadowdancer",
+    "body": [
+      "[name] == myrmidongreaves && [quality] == unique // Shadow Dancer"
+    ],
+    "description": "Add Shadow Dancer nip line"
+  },
+  "The Hand of Broc": {
+    "prefix": "handofbroc",
+    "body": [
+      "[name] == leathergloves && [quality] == unique // The Hand of Broc"
+    ],
+    "description": "Add The Hand of Broc nip line"
+  },
+  "Bloodfist": {
+    "prefix": "bloodfist",
+    "body": [
+      "[name] == heavygloves && [quality] == unique # [enhanceddefense] >= 30 && [maxhp] >= 40 // bloodfist"
+    ],
+    "description": "Add Bloodfist nip line"
+  },
+  "Chance Guards": {
+    "prefix": "chanceguards",
+    "body": [
+      "[name] == chaingloves && [quality] == unique # [itemmagicbonus] >= 20 // chance guards"
+    ],
+    "description": "Add Chance Guards nip line"
+  },
+  "Magefist": {
+    "prefix": "magefist",
+    "body": [
+      "[name] == lightgauntlets && [quality] == unique # [fcr] >= 20 // magefist"
+    ],
+    "description": "Add Magefist nip line"
+  },
+  "Frostburn": {
+    "prefix": "frostburn",
+    "body": [
+      "[name] == gauntlets && [quality] == unique # [enhanceddefense] >= 30 && [mana] >= 40 // frostburn"
+    ],
+    "description": "Add Frostburn nip line"
+  },
+  "Venom Grip": {
+    "prefix": "venomgrip",
+    "body": [
+      "[name] == demonhidegloves && [quality] == unique // Venom Grip"
+    ],
+    "description": "Add Venom Grip nip line"
+  },
+  "Gravepalm": {
+    "prefix": "gravepalm",
+    "body": [
+      "[name] == sharkskingloves && [quality] == unique // Gravepalm"
+    ],
+    "description": "Add Gravepalm nip line"
+  },
+  "Ghoulhide": {
+    "prefix": "ghoulhide",
+    "body": [
+      "[name] == heavybracers && [quality] == unique // Ghoulhide"
+    ],
+    "description": "Add Ghoulhide nip line"
+  },
+  "Lava Gout": {
+    "prefix": "lavagout",
+    "body": [
+      "[name] == battlegauntlets && [quality] == unique // Lava Gout"
+    ],
+    "description": "Add Lava Gout nip line"
+  },
+  "Hellmouth": {
+    "prefix": "hellmouth",
+    "body": [
+      "[name] == wargauntlets && [quality] == unique // Hellmouth"
+    ],
+    "description": "Add Hellmouth nip line"
+  },
+  "Dracul's Grasp": {
+    "prefix": "draculs",
+    "body": [
+      "[name] == vampirebonegloves && [quality] == unique # [lifeleech] >= 10 // dracul's grasp"
+    ],
+    "description": "Add Dracul's Grasp nip line"
+  },
+  "Soul Drainer": {
+    "prefix": "souldrainer",
+    "body": [
+      "[name] == vambraces && [quality] == unique // Soul Drainer"
+    ],
+    "description": "Add Soul Drainer nip line"
+  },
+  "Steelrend": {
+    "prefix": "steelrend",
+    "body": [
+      "[name] == ogregauntlets && [quality] == unique // Steelrend"
+    ],
+    "description": "Add Steelrend nip line"
+  },
+  "Pelta Lunata": {
+    "prefix": "peltalunata",
+    "body": [
+      "[name] == buckler && [quality] == unique // Pelta Lunata"
+    ],
+    "description": "Add Pelta Lunata nip line"
+  },
+  "Umbral Disk": {
+    "prefix": "umbraldisk",
+    "body": [
+      "[name] == smallshield && [quality] == unique // Umbral Disk"
+    ],
+    "description": "Add Umbral Disk nip line"
+  },
+  "Stormguild": {
+    "prefix": "stormguild",
+    "body": [
+      "[name] == largeshield && [quality] == unique // Stormguild"
+    ],
+    "description": "Add Stormguild nip line"
+  },
+  "Steelclash": {
+    "prefix": "steelclash",
+    "body": [
+      "[name] == kiteshield && [quality] == unique // Steelclash"
+    ],
+    "description": "Add Steelclash nip line"
+  },
+  "Swordback Hold": {
+    "prefix": "swordbackhold",
+    "body": [
+      "[name] == spikedshield && [quality] == unique // Swordback Hold"
+    ],
+    "description": "Add Swordback Hold nip line"
+  },
+  "Bverrit Keep": {
+    "prefix": "bverritkeep",
+    "body": [
+      "[name] == towershield && [quality] == unique // Bverrit Keep"
+    ],
+    "description": "Add Bverrit Keep nip line"
+  },
+  "Wall of the Eyeless": {
+    "prefix": "walloftheeyeless",
+    "body": [
+      "[name] == boneshield && [quality] == unique // Wall of the Eyeless"
+    ],
+    "description": "Add Wall of the Eyeless nip line"
+  },
+  "The Ward": {
+    "prefix": "theward",
+    "body": [
+      "[name] == gothicshield && [quality] == unique // The Ward"
+    ],
+    "description": "Add The Ward nip line"
+  },
+  "Visceratuant": {
+    "prefix": "visceratuant",
+    "body": [
+      "[name] == defender && [quality] == unique // Visceratuant"
+    ],
+    "description": "Add Visceratuant nip line"
+  },
+  "Moser's Blessed Circle": {
+    "prefix": "mosers",
+    "body": [
+      "[name] == roundshield && [quality] == unique // Moser's Blessed Circle"
+    ],
+    "description": "Add Moser's Blessed Circle nip line"
+  },
+  "Stormchaser": {
+    "prefix": "stormchaser",
+    "body": [
+      "[name] == scutum && [quality] == unique // Stormchaser"
+    ],
+    "description": "Add Stormchaser nip line"
+  },
+  "Tiamat's Rebuke": {
+    "prefix": "tiamatsrebuke",
+    "body": [
+      "[name] == dragonshield && [quality] == unique // Tiamat's Rebuke"
+    ],
+    "description": "Add Tiamat's Rebuke nip line"
+  },
+  "Lance Guard": {
+    "prefix": "lanceguard",
+    "body": [
+      "[name] == barbedshield && [quality] == unique // Lance Guard"
+    ],
+    "description": "Add Lance Guard nip line"
+  },
+  "Gerke's Sanctuary": {
+    "prefix": "gerkes",
+    "body": [
+      "[name] == pavise && [quality] == unique // Gerke's Sanctuary"
+    ],
+    "description": "Add Gerke's Sanctuary nip line"
+  },
+  "Lidless Wall": {
+    "prefix": "lidless",
+    "body": [
+      "[name] == grimshield && [quality] == unique // Lidless Wall"
+    ],
+    "description": "Add Lidless Wall nip line"
+  },
+  "Radament's Sphere": {
+    "prefix": "radaments",
+    "body": [
+      "[name] == ancientshield && [quality] == unique // Radament's Sphere"
+    ],
+    "description": "Add Radament's Sphere nip line"
+  },
+  "Blackoak Shield": {
+    "prefix": "blackoak",
+    "body": [
+      "[name] == luna && [quality] == unique // Blackoak Shield"
+    ],
+    "description": "Add Blackoak Shield nip line"
+  },
+  "Stormshield": {
+    "prefix": "stormshield",
+    "body": [
+      "[name] == monarch && [quality] == unique # [defense] >= 150 && [damageresist] >= 30 // stormshield"
+    ],
+    "description": "Add Stormshield nip line"
+  },
+  "Spike Thorn": {
+    "prefix": "spikethorn",
+    "body": [
+      "[name] == bladebarrier && [quality] == unique // Spike Thorn"
+    ],
+    "description": "Add Spike Thorn nip line"
+  },
+  "Medusa's Gaze": {
+    "prefix": "medusasgaze",
+    "body": [
+      "[name] == aegis && [quality] == unique // Medusa's Gaze"
+    ],
+    "description": "Add Medusa's Gaze nip line"
+  },
+  "Head Hunter's Glory": {
+    "prefix": "headhunters",
+    "body": [
+      "[name] == trollnest && [quality] == unique // Head Hunter's Glory"
+    ],
+    "description": "Add Head Hunter's Glory nip line"
+  },
+  "Spirit Ward": {
+    "prefix": "spiritward",
+    "body": [
+      "[name] == ward && [quality] == unique // Spirit Ward"
+    ],
+    "description": "Add Spirit Ward nip line"
+  },
+  "The Gnasher": {
+    "prefix": "thegnasher",
+    "body": [
+      "[name] == handaxe && [quality] == unique // The Gnasher"
+    ],
+    "description": "Add The Gnasher nip line"
+  },
+  "Deathspade": {
+    "prefix": "deathspade",
+    "body": [
+      "[name] == axe && [quality] == unique // Deathspade"
+    ],
+    "description": "Add Deathspade nip line"
+  },
+  "Bladebone": {
+    "prefix": "bladebone",
+    "body": [
+      "[name] == doubleaxe && [quality] == unique // Bladebone"
+    ],
+    "description": "Add Bladebone nip line"
+  },
+  "Skull Splitter": {
+    "prefix": "skullsplitter",
+    "body": [
+      "[name] == militarypick && [quality] == unique // Skull Splitter"
+    ],
+    "description": "Add Skull Splitter nip line"
+  },
+  "Rakescar": {
+    "prefix": "rakescar",
+    "body": [
+      "[name] == waraxe && [quality] == unique // Rakescar"
+    ],
+    "description": "Add Rakescar nip line"
+  },
+  "Axe of Fechmar": {
+    "prefix": "axeoffechmar",
+    "body": [
+      "[name] == largeaxe && [quality] == unique // Axe of Fechmar"
+    ],
+    "description": "Add Axe of Fechmar nip line"
+  },
+  "Goreshovel": {
+    "prefix": "goreshovel",
+    "body": [
+      "[name] == broadaxe && [quality] == unique // Goreshovel"
+    ],
+    "description": "Add Goreshovel nip line"
+  },
+  "The Chieftain": {
+    "prefix": "thechieftain",
+    "body": [
+      "[name] == battleaxe && [quality] == unique // The Chieftain"
+    ],
+    "description": "Add The Chieftain nip line"
+  },
+  "Brainhew": {
+    "prefix": "brainhew",
+    "body": [
+      "[name] == greataxe && [quality] == unique // Brainhew"
+    ],
+    "description": "Add Brainhew nip line"
+  },
+  "Humongous": {
+    "prefix": "humongous",
+    "body": [
+      "[name] == giantaxe && [quality] == unique // Humongous"
+    ],
+    "description": "Add Humongous nip line"
+  },
+  "Coldkill": {
+    "prefix": "coldkill",
+    "body": [
+      "[name] == hatchet && [quality] == unique // Coldkill"
+    ],
+    "description": "Add Coldkill nip line"
+  },
+  "Butcher's Pupil": {
+    "prefix": "butcherspupil",
+    "body": [
+      "[name] == cleaver && [quality] == unique // Butcher's Pupil"
+    ],
+    "description": "Add Butcher's Pupil nip line"
+  },
+  "Islestrike": {
+    "prefix": "islestrike",
+    "body": [
+      "[name] == twinaxe && [quality] == unique // Islestrike"
+    ],
+    "description": "Add Islestrike nip line"
+  },
+  "Pompeii's Wrath": {
+    "prefix": "pompeiiswrath",
+    "body": [
+      "[name] == crowbill && [quality] == unique // Pompeii's Wrath"
+    ],
+    "description": "Add Pompeii's Wrath nip line"
+  },
+  "Guardian Naga": {
+    "prefix": "guardiannaga",
+    "body": [
+      "[name] == naga && [quality] == unique // Guardian Naga"
+    ],
+    "description": "Add Guardian Naga nip line"
+  },
+  "Warlord's Trust": {
+    "prefix": "warlordstrust",
+    "body": [
+      "[name] == militaryaxe && [quality] == unique // Warlord's Trust"
+    ],
+    "description": "Add Warlord's Trust nip line"
+  },
+  "Spellsteel": {
+    "prefix": "spellsteel",
+    "body": [
+      "[name] == beardedaxe && [quality] == unique // Spellsteel"
+    ],
+    "description": "Add Spellsteel nip line"
+  },
+  "Stormrider": {
+    "prefix": "stormrider",
+    "body": [
+      "[name] == tabar && [quality] == unique // Stormrider"
+    ],
+    "description": "Add Stormrider nip line"
+  },
+  "Boneslayer Blade": {
+    "prefix": "boneslayerblade",
+    "body": [
+      "[name] == gothicaxe && [quality] == unique // Boneslayer Blade"
+    ],
+    "description": "Add Boneslayer Blade nip line"
+  },
+  "The Minotaur": {
+    "prefix": "theminotaur",
+    "body": [
+      "[name] == ancientaxe && [quality] == unique // The Minotaur"
+    ],
+    "description": "Add The Minotaur nip line"
+  },
+  "Razoredge": {
+    "prefix": "razoredge",
+    "body": [
+      "[name] == tomahawk && [quality] == unique // Razoredge"
+    ],
+    "description": "Add Razoredge nip line"
+  },
+  "Rune Master": {
+    "prefix": "runemaster",
+    "body": [
+      "[name] == ettinaxe && [quality] == unique // Rune Master"
+    ],
+    "description": "Add Rune Master nip line"
+  },
+  "Cranebeak": {
+    "prefix": "cranebeak",
+    "body": [
+      "[name] == warspike && [quality] == unique // Cranebeak"
+    ],
+    "description": "Add Cranebeak nip line"
+  },
+  "Death Cleaver": {
+    "prefix": "deathcleaver",
+    "body": [
+      "[name] == berserkeraxe && [quality] == unique // Death Cleaver"
+    ],
+    "description": "Add Death Cleaver nip line"
+  },
+  "Ethereal Edge": {
+    "prefix": "etherealedge",
+    "body": [
+      "[name] == silveredgedaxe && [quality] == unique // Ethereal Edge"
+    ],
+    "description": "Add Ethereal Edge nip line"
+  },
+  "Hellslayer": {
+    "prefix": "hellslayer",
+    "body": [
+      "[name] == decapitator && [quality] == unique // Hellslayer"
+    ],
+    "description": "Add Hellslayer nip line"
+  },
+  "Messerschmidt's Reaver": {
+    "prefix": "messerschmidts",
+    "body": [
+      "[name] == championaxe && [quality] == unique // Messerschmidt's Reaver"
+    ],
+    "description": "Add Messerschmidt's Reaver nip line"
+  },
+  "Executioner's Justice": {
+    "prefix": "executionersjustice",
+    "body": [
+      "[name] == gloriousaxe && [quality] == unique // Executioner's Justice"
+    ],
+    "description": "Add Executioner's Justice nip line"
+  },
+  "Pluckeye": {
+    "prefix": "pluckeye",
+    "body": [
+      "[name] == shortbow && [quality] == unique // Pluckeye"
+    ],
+    "description": "Add Pluckeye nip line"
+  },
+  "Witherstring": {
+    "prefix": "witherstring",
+    "body": [
+      "[name] == hunter'sbow && [quality] == unique // Witherstring"
+    ],
+    "description": "Add Pluckeye nip line"
+  },
+  "Raven Claw": {
+    "prefix": "ravenclaw",
+    "body": [
+      "[name] == longbow && [quality] == unique // Raven Claw"
+    ],
+    "description": "Add Raven Claw nip line"
+  },
+  "Rogue's Bow": {
+    "prefix": "roguesbow",
+    "body": [
+      "[name] == compositebow && [quality] == unique // Rogue's Bow"
+    ],
+    "description": "Add Rogue's Bow nip line"
+  },
+  "Stormstrike": {
+    "prefix": "stormstrike",
+    "body": [
+      "[name] == shortbattlebow && [quality] == unique // Stormstrike"
+    ],
+    "description": "Add Stormstrike nip line"
+  },
+  "Wizendraw": {
+    "prefix": "wizendraw",
+    "body": [
+      "[name] == longbattlebow && [quality] == unique // Wizendraw"
+    ],
+    "description": "Add Wizendraw nip line"
+  },
+  "Hellclap": {
+    "prefix": "hellclap",
+    "body": [
+      "[name] == shortwarbow && [quality] == unique // Hellclap"
+    ],
+    "description": "Add Hellclap nip line"
+  },
+  "Blastbark": {
+    "prefix": "blastbark",
+    "body": [
+      "[name] == longwarbow && [quality] == unique // Blastbark"
+    ],
+    "description": "Add Blastbark nip line"
+  },
+  "Skystrike": {
+    "prefix": "skystrike",
+    "body": [
+      "[name] == edgebow && [quality] == unique // Skystrike"
+    ],
+    "description": "Add Skystrike nip line"
+  },
+  "Riphook": {
+    "prefix": "riphook",
+    "body": [
+      "[name] == razorbow && [quality] == unique // Riphook"
+    ],
+    "description": "Add Riphook nip line"
+  },
+  "Kuko Shakaku": {
+    "prefix": "kukoshakaku",
+    "body": [
+      "[name] == cedarbow && [quality] == unique // Kuko Shakaku"
+    ],
+    "description": "Add Kuko Shakaku nip line"
+  },
+  "Endlesshail": {
+    "prefix": "endlesshail",
+    "body": [
+      "[name] == doublebow && [quality] == unique // Endlesshail"
+    ],
+    "description": "Add Endlesshail nip line"
+  },
+  "Witchwild String": {
+    "prefix": "witchwildstring",
+    "body": [
+      "[name] == shortsiegebow && [quality] == unique // Witchwild String"
+    ],
+    "description": "Add Witchwild String nip line"
+  },
+  "Cliffkiller": {
+    "prefix": "cliffkiller",
+    "body": [
+      "[name] == largesiegebow && [quality] == unique // Cliffkiller"
+    ],
+    "description": "Add Cliffkiller nip line"
+  },
+  "Magewrath": {
+    "prefix": "magewrath",
+    "body": [
+      "[name] == runebow && [quality] == unique // Magewrath"
+    ],
+    "description": "Add Magewrath nip line"
+  },
+  "Goldstrike Arch": {
+    "prefix": "goldstrikearch",
+    "body": [
+      "[name] == gothicbow && [quality] == unique // Goldstrike Arch"
+    ],
+    "description": "Add Goldstrike Arch nip line"
+  },
+  "Eagle Horn": {
+    "prefix": "eaglehorn",
+    "body": [
+      "[name] == crusaderbow && [quality] == unique // Eagle Horn"
+    ],
+    "description": "Add Eagle Horn nip line"
+  },
+  "Widowmaker": {
+    "prefix": "widowmaker",
+    "body": [
+      "[name] == wardbow && [quality] == unique // Widowmaker"
+    ],
+    "description": "Add Widowmaker nip line"
+  },
+  "Windforce": {
+    "prefix": "windforce",
+    "body": [
+      "[name] == hydrabow && [quality] == unique // Windforce"
+    ],
+    "description": "Add Windforce nip line"
+  },
+  "Leadcrow": {
+    "prefix": "leadcrow",
+    "body": [
+      "[name] == lightcrossbow && [quality] == unique // Leadcrow"
+    ],
+    "description": "Add Leadcrow nip line"
+  },
+  "Ichorsting": {
+    "prefix": "ichorsting",
+    "body": [
+      "[name] == crossbow && [quality] == unique // Ichorsting"
+    ],
+    "description": "Add Ichorsting nip line"
+  },
+  "Hellcast": {
+    "prefix": "hellcast",
+    "body": [
+      "[name] == heavycrossbow && [quality] == unique // Hellcast"
+    ],
+    "description": "Add Hellcast nip line"
+  },
+  "Doomslinger": {
+    "prefix": "doomslinger",
+    "body": [
+      "[name] == repeatingcrossbow && [quality] == unique // Doomslinger"
+    ],
+    "description": "Add Doomslinger nip line"
+  },
+  "Langer Briser": {
+    "prefix": "langerbriser",
+    "body": [
+      "[name] == arbalest && [quality] == unique // Langer Briser"
+    ],
+    "description": "Add Langer Briser nip line"
+  },
+  "Pus Spitter": {
+    "prefix": "pusspitter",
+    "body": [
+      "[name] == siegecrossbow && [quality] == unique // Pus Spitter"
+    ],
+    "description": "Add Pus Spitter nip line"
+  },
+  "Buriza-Do Kyanon": {
+    "prefix": "buriza",
+    "body": [
+      "[name] == ballista && [quality] == unique // Buriza-Do Kyanon"
+    ],
+    "description": "Add Buriza-Do Kyanon nip line"
+  },
+  "Demon Machine": {
+    "prefix": "demonmachine",
+    "body": [
+      "[name] == chukonu && [quality] == unique // Demon Machine"
+    ],
+    "description": "Add Demon Machine nip line"
+  },
+  "Hellrack": {
+    "prefix": "hellrack",
+    "body": [
+      "[name] == colossuscrossbow && [quality] == unique // Hellrack"
+    ],
+    "description": "Add Hellrack nip line"
+  },
+  "Gut Siphon": {
+    "prefix": "gutsiphon",
+    "body": [
+      "[name] == demoncrossbow && [quality] == unique // Gut Siphon"
+    ],
+    "description": "Add Gut Siphon nip line"
+  },
+  "Gull": {
+    "prefix": "gull",
+    "body": [
+      "[name] == dagger && [quality] == unique // Gull"
+    ],
+    "description": "Add Gull nip line"
+  },
+  "The Diggler": {
+    "prefix": "thediggler",
+    "body": [
+      "[name] == dirk && [quality] == unique // The Diggler"
+    ],
+    "description": "Add The Diggler nip line"
+  },
+  "The Jade Tan Do": {
+    "prefix": "thejadetando",
+    "body": [
+      "[name] == kris && [quality] == unique // The Jade Tan Do"
+    ],
+    "description": "Add The Jade Tan Do nip line"
+  },
+  "Spectral Shard": {
+    "prefix": "spectralshard",
+    "body": [
+      "[name] == blade && [quality] == unique // Spectral Shard"
+    ],
+    "description": "Add Spectral Shard nip line"
+  },
+  "Spineripper": {
+    "prefix": "spineripper",
+    "body": [
+      "[name] == poignard && [quality] == unique // Spineripper"
+    ],
+    "description": "Add Spineripper nip line"
+  },
+  "Heart Carver": {
+    "prefix": "heartcarver",
+    "body": [
+      "[name] == rondel && [quality] == unique // Heart Carver"
+    ],
+    "description": "Add Heart Carver nip line"
+  },
+  "Blackbog's Sharp": {
+    "prefix": "blackbogssharp",
+    "body": [
+      "[name] == cinquedeas && [quality] == unique // Blackbog's Sharp"
+    ],
+    "description": "Add Blackbog's Sharp nip line"
+  },
+  "Stormspike": {
+    "prefix": "stormspike",
+    "body": [
+      "[name] == stiletto && [quality] == unique // Stormspike"
+    ],
+    "description": "Add Stormspike nip line"
+  },
+  "Wizardspike": {
+    "prefix": "wizardspike",
+    "body": [
+      "[name] == boneknife && [quality] == unique // Wizardspike"
+    ],
+    "description": "Add Wizardspike nip line"
+  },
+  "Fleshripper": {
+    "prefix": "fleshripper",
+    "body": [
+      "[name] == fangedknife && [quality] == unique // Fleshripper"
+    ],
+    "description": "Add Fleshripper nip line"
+  },
+  "Ghostflame": {
+    "prefix": "ghostflame",
+    "body": [
+      "[name] == legendspike && [quality] == unique // Ghostflame"
+    ],
+    "description": "Add Ghostflame nip line"
+  },
+  "Demon's Arch": {
+    "prefix": "demonsarch",
+    "body": [
+      "[name] == balrogspear && [quality] == unique // Demon's Arch"
+    ],
+    "description": "Add Demon's Arch nip line"
+  },
+  "Wraith Flight": {
+    "prefix": "wraithflight",
+    "body": [
+      "[name] == ghostglaive && [quality] == unique // Wraith Flight"
+    ],
+    "description": "Add Wraith Flight nip line"
+  },
+  "Gargoyle's Bite": {
+    "prefix": "gargoylesbite",
+    "body": [
+      "[name] == wingedharpoon && [quality] == unique // Gargoyle's Bite"
+    ],
+    "description": "Add Gargoyle's Bite nip line"
+  },
+  "Felloak": {
+    "prefix": "felloak",
+    "body": [
+      "[name] == club && [quality] == unique // Felloak"
+    ],
+    "description": "Add Felloak nip line"
+  },
+  "Stoutnail": {
+    "prefix": "stoutnail",
+    "body": [
+      "[name] == spikedclub && [quality] == unique // Stoutnail"
+    ],
+    "description": "Add Stoutnail nip line"
+  },
+  "Crushflange": {
+    "prefix": "crushflange",
+    "body": [
+      "[name] == mace && [quality] == unique // Crushflange"
+    ],
+    "description": "Add Crushflange nip line"
+  },
+  "Bloodrise": {
+    "prefix": "bloodrise",
+    "body": [
+      "[name] == morningstar && [quality] == unique // Bloodrise"
+    ],
+    "description": "Add Bloodrise nip line"
+  },
+  "The Generals Tan Do Li Ga": {
+    "prefix": "thegeneralstan",
+    "body": [
+      "[name] == flail && [quality] == unique // The General's Tan Do Li Ga"
+    ],
+    "description": "Add The General's Tan Do Li Ga nip line"
+  },
+  "Ironstone": {
+    "prefix": "ironstone",
+    "body": [
+      "[name] == warhammer && [quality] == unique // Ironstone"
+    ],
+    "description": "Add Ironstone nip line"
+  },
+  "Bonesnap": {
+    "prefix": "bonesnap",
+    "body": [
+      "[name] == maul && [quality] == unique // Bonesnap"
+    ],
+    "description": "Add Bonesnap nip line"
+  },
+  "Steeldriver": {
+    "prefix": "steeldriver",
+    "body": [
+      "[name] == greatmaul && [quality] == unique // Steeldriver"
+    ],
+    "description": "Add Steeldriver nip line"
+  },
+  "Dark Clan Crusher": {
+    "prefix": "darkclancrusher",
+    "body": [
+      "[name] == cudgel && [quality] == unique // Dark Clan Crusher"
+    ],
+    "description": "Add Dark Clan Crusher nip line"
+  },
+  "Fleshrender": {
+    "prefix": "fleshrender",
+    "body": [
+      "[name] == barbedclub && [quality] == unique // Fleshrender"
+    ],
+    "description": "Add Fleshrender nip line"
+  },
+  "Sureshrill Frost": {
+    "prefix": "sureshrillfrost",
+    "body": [
+      "[name] == flangedmace && [quality] == unique // Sureshrill Frost"
+    ],
+    "description": "Add Sureshrill Frost nip line"
+  },
+  "Moonfall": {
+    "prefix": "moonfall",
+    "body": [
+      "[name] == jaggedstar && [quality] == unique // Moonfall"
+    ],
+    "description": "Add Moonfall nip line"
+  },
+  "Baezil's Vortex": {
+    "prefix": "baezilsvortex",
+    "body": [
+      "[name] == knout && [quality] == unique // Baezil's Vortex"
+    ],
+    "description": "Add Baezil's Vortex nip line"
+  },
+  "Earthshaker": {
+    "prefix": "earthshaker",
+    "body": [
+      "[name] == battlehammer && [quality] == unique // Earthshaker"
+    ],
+    "description": "Add Earthshaker nip line"
+  },
+  "Bloodtree Stump": {
+    "prefix": "bloodtreestump",
+    "body": [
+      "[name] == warclub && [quality] == unique // Bloodtree Stump"
+    ],
+    "description": "Add Bloodtree Stump nip line"
+  },
+  "The Gavel of Pain": {
+    "prefix": "thegavelofpain",
+    "body": [
+      "[name] == marteldefer && [quality] == unique // The Gavel of Pain"
+    ],
+    "description": "Add The Gavel of Pain nip line"
+  },
+  "Nord's Tenderizer": {
+    "prefix": "nordstenderizer",
+    "body": [
+      "[name] == truncheon && [quality] == unique // Nord's Tenderizer"
+    ],
+    "description": "Add Nord's Tenderizer nip line"
+  },
+  "Demon Limb": {
+    "prefix": "demonlimb",
+    "body": [
+      "[name] == tyrantclub && [quality] == unique // Demon Limb"
+    ],
+    "description": "Add Demon Limb nip line"
+  },
+  "Baranar's Star": {
+    "prefix": "baranarsstar",
+    "body": [
+      "[name] == devilstar && [quality] == unique // Baranar's Star"
+    ],
+    "description": "Add Baranar's Star nip line"
+  },
+  "Horizon's Tornado": {
+    "prefix": "horizonstornado",
+    "body": [
+      "[name] == scourge && [quality] == unique # [ias] == 50 // Horizon's Tornado"
+    ],
+    "description": "Add Horizon's Tornado nip line"
+  },
+  "Stormlash": {
+    "prefix": "stormlash",
+    "body": [
+      "[name] == scourge && [quality] == unique # [ias] == 30 // Stormlash"
+    ],
+    "description": "Add Stormlash nip line"
+  },
+  "Schaefer's Hammer": {
+    "prefix": "gull",
+    "body": [
+      "[name] == legendarymallet && [quality] == unique // Schaefer's Hammer"
+    ],
+    "description": "Add Schaefer's Hammer nip line"
+  },
+  "Windhammer": {
+    "prefix": "windhammer",
+    "body": [
+      "[name] == ogremaul && [quality] == unique // Windhammer"
+    ],
+    "description": "Add Windhammer nip line"
+  },
+  "Earthshifter": {
+    "prefix": "earthshifter",
+    "body": [
+      "[name] == thundermaul && [quality] == unique # [ias] == 10 // Earthshifter"
+    ],
+    "description": "Add Earthshifter nip line"
+  },
+  "The Cranium Basher": {
+    "prefix": "thecraniumbasher",
+    "body": [
+      "[name] == ogremaul && [quality] == unique # [ias] == 20 // The Cranium Basher"
+    ],
+    "description": "Add The Cranium Basher nip line"
+  },
+  "Dimoak's Hew": {
+    "prefix": "dimoakshew",
+    "body": [
+      "[name] == bardiche && [quality] == unique // Dimoak's Hew"
+    ],
+    "description": "Add Dimoak's Hew nip line"
+  },
+  "Steelgoad": {
+    "prefix": "steelgoad",
+    "body": [
+      "[name] == voulge && [quality] == unique // Steelgoad"
+    ],
+    "description": "Add Steelgoad nip line"
+  },
+  "Soul Harvest": {
+    "prefix": "soulharvest",
+    "body": [
+      "[name] == scythe && [quality] == unique // Soul Harvest"
+    ],
+    "description": "Add Soul Harvest nip line"
+  },
+  "The Battlebranch": {
+    "prefix": "thebattlebranch",
+    "body": [
+      "[name] == poleaxe && [quality] == unique // The Battlebranch"
+    ],
+    "description": "Add The Battlebranch nip line"
+  },
+  "Woestave": {
+    "prefix": "woestave",
+    "body": [
+      "[name] == halberd && [quality] == unique // Woestave"
+    ],
+    "description": "Add Woestave nip line"
+  },
+  "The Grim Reaper": {
+    "prefix": "thegrimreaper",
+    "body": [
+      "[name] == warscythe && [quality] == unique // The Grim Reaper"
+    ],
+    "description": "Add The Grim Reaper nip line"
+  },
+  "The Meat Scraper": {
+    "prefix": "themeatscraper",
+    "body": [
+      "[name] == lochaberaxe && [quality] == unique # [ias] == 10 // The Meat Scraper"
+    ],
+    "description": "Add The Meat Scraper nip line"
+  },
+  "Blackleach Blade": {
+    "prefix": "blackleachblade",
+    "body": [
+      "[name] == bill && [quality] == unique // Blackleach Blade"
+    ],
+    "description": "Add Blackleach Blade nip line"
+  },
+  "Athena's Wrath": {
+    "prefix": "athenaswrath",
+    "body": [
+      "[name] == battlescythe && [quality] == unique // Athena's Wrath"
+    ],
+    "description": "Add Athena's Wrath nip line"
+  },
+  "Pierre Tombale Couant": {
+    "prefix": "pierretombalecouant",
+    "body": [
+      "[name] == partizan && [quality] == unique // Pierre Tombale Couant"
+    ],
+    "description": "Add Pierre Tombale Couant nip line"
+  },
+  "Husoldal Evo": {
+    "prefix": "husoldalevo",
+    "body": [
+      "[name] == becdecorbin && [quality] == unique // Husoldal Evo"
+    ],
+    "description": "Add Husoldal Evo nip line"
+  },
+  "Grim's Burning Dead": {
+    "prefix": "grimsburningdead",
+    "body": [
+      "[name] == grimscythe && [quality] == unique // Grim's Burning Dead"
+    ],
+    "description": "Add Grim's Burning Dead nip line"
+  },
+  "Bonehew": {
+    "prefix": "bonehew",
+    "body": [
+      "[name] == ogreaxe && [quality] == unique // Bonehew"
+    ],
+    "description": "Add Bonehew nip line"
+  },
+  "The Reaper's Toll": {
+    "prefix": "thereaperstoll",
+    "body": [
+      "[name] == thresher && [quality] == unique // The Reaper's Toll"
+    ],
+    "description": "Add The Reaper's Toll nip line"
+  },
+  "Tomb Reaver": {
+    "prefix": "tombreaver",
+    "body": [
+      "[name] == crypticaxe && [quality] == unique // Tomb Reaver"
+    ],
+    "description": "Add Tomb Reaver nip line"
+  },
+  "Stormspire": {
+    "prefix": "stormspire",
+    "body": [
+      "[name] == giantthresher && [quality] == unique // Stormspire"
+    ],
+    "description": "Add Stormspire nip line"
+  },
+  "Knell Striker": {
+    "prefix": "knellstriker",
+    "body": [
+      "[name] == scepter && [quality] == unique // Knell Striker"
+    ],
+    "description": "Add Knell Striker nip line"
+  },
+  "Rusthandle": {
+    "prefix": "rusthandle",
+    "body": [
+      "[name] == grandscepter && [quality] == unique // Rusthandle"
+    ],
+    "description": "Add Rusthandle nip line"
+  },
+  "Stormeye": {
+    "prefix": "stormeye",
+    "body": [
+      "[name] == warscepter && [quality] == unique // Stormeye"
+    ],
+    "description": "Add Stormeye nip line"
+  },
+  "Zakarum's Hand": {
+    "prefix": "zakarumshand",
+    "body": [
+      "[name] == runescepter && [quality] == unique // Zakarum's Hand"
+    ],
+    "description": "Add Zakarum's Hand nip line"
+  },
+  "The Fetid Sprinkler": {
+    "prefix": "thefetidsprinkler",
+    "body": [
+      "[name] == holywatersprinkler && [quality] == unique // The Fetid Sprinkler"
+    ],
+    "description": "Add The Fetid Sprinkler nip line"
+  },
+  "Hand of Blessed Light": {
+    "prefix": "handofblessedlight",
+    "body": [
+      "[name] == divinescepter && [quality] == unique // Hand of Blessed Light"
+    ],
+    "description": "Add Hand of Blessed Light nip line"
+  },
+  "Heaven's Light": {
+    "prefix": "heavenslight",
+    "body": [
+      "[name] == mightyscepter && [quality] == unique # [ias] == 20 // Heaven's Light"
+    ],
+    "description": "Add Heaven's Light nip line"
+  },
+  "The Redeemer": {
+    "prefix": "theredeemer",
+    "body": [
+      "[name] == mightyscepter && [quality] == unique # [itemnormaldamage] >= 60 // The Redeemer"
+    ],
+    "description": "Add The Redeemer nip line"
+  },
+  "Astreon's Iron Ward": {
+    "prefix": "astreonsironward",
+    "body": [
+      "[name] == caduceus && [quality] == unique // Astreon's Iron Ward"
+    ],
+    "description": "Add Astreon's Iron Ward nip line"
+  },
+  "The Dragon Chang": {
+    "prefix": "thedragonchang",
+    "body": [
+      "[name] == spear && [quality] == unique // The Dragon Chang"
+    ],
+    "description": "Add The Dragon Chang nip line"
+  },
+  "Razortine": {
+    "prefix": "razortine",
+    "body": [
+      "[name] == trident && [quality] == unique // Razortine"
+    ],
+    "description": "Add Razortine nip line"
+  },
+  "Bloodthief": {
+    "prefix": "bloodthief",
+    "body": [
+      "[name] == brandistock && [quality] == unique // Bloodthief"
+    ],
+    "description": "Add Bloodthief nip line"
+  },
+  "Lance of Yaggai": {
+    "prefix": "lanceofyaggai",
+    "body": [
+      "[name] == spetum && [quality] == unique // Lance of Yaggai"
+    ],
+    "description": "Add Lance of Yaggai nip line"
+  },
+  "The Tannr Gorerod": {
+    "prefix": "thetannrgorerod",
+    "body": [
+      "[name] == pike && [quality] == unique // The Tannr Gorerod"
+    ],
+    "description": "Add The Tannr Gorerod nip line"
+  },
+  "The Impaler": {
+    "prefix": "theimpaler",
+    "body": [
+      "[name] == warspear && [quality] == unique // The Impaler"
+    ],
+    "description": "Add The Impaler nip line"
+  },
+  "Kelpie Snare": {
+    "prefix": "kelpiesnare",
+    "body": [
+      "[name] == fuscina && [quality] == unique // Kelpie Snare"
+    ],
+    "description": "Add Kelpie Snare nip line"
+  },
+  "Soulfeast Tine": {
+    "prefix": "soulfeasttine",
+    "body": [
+      "[name] == warfork && [quality] == unique // Soulfeast Tine"
+    ],
+    "description": "Add Soulfeast Tine nip line"
+  },
+  "Hone Sundan": {
+    "prefix": "honesundan",
+    "body": [
+      "[name] == yari && [quality] == unique // Hone Sundan"
+    ],
+    "description": "Add Hone Sundan nip line"
+  },
+  "Spire of Honor": {
+    "prefix": "spireoflazarus",
+    "body": [
+      "[name] == lance && [quality] == unique // Spire of Honor"
+    ],
+    "description": "Add Spire of Honor nip line"
+  },
+  "Arioc's Needle": {
+    "prefix": "ariocsneedle",
+    "body": [
+      "[name] == ogreaxe && [quality] == unique // Arioc's Needle"
+    ],
+    "description": "Add Arioc's Needle nip line"
+  },
+  "Viperfork": {
+    "prefix": "viperfork",
+    "body": [
+      "[name] == mancatcher && [quality] == unique // Viperfork"
+    ],
+    "description": "Add Viperfork nip line"
+  },
+  "Steel Pillar": {
+    "prefix": "steelpillar",
+    "body": [
+      "[name] == warpike && [quality] == unique // Steel Pillar"
+    ],
+    "description": "Add Steel Pillar nip line"
+  },
+  "Bane Ash": {
+    "prefix": "baneash",
+    "body": [
+      "[name] == shortstaff && [quality] == unique // Bane Ash"
+    ],
+    "description": "Add Bane Ash nip line"
+  },
+  "Serpent Lord": {
+    "prefix": "serpentlord",
+    "body": [
+      "[name] == longstaff && [quality] == unique // Serpent Lord"
+    ],
+    "description": "Add Serpent Lord nip line"
+  },
+  "Spire of Lazarus": {
+    "prefix": "spireoflazarus",
+    "body": [
+      "[name] == gnarledstaff && [quality] == unique // Spire of Lazarus"
+    ],
+    "description": "Add Spire of Lazarus nip line"
+  },
+  "The Salamander": {
+    "prefix": "thesalamander",
+    "body": [
+      "[name] == battlestaff && [quality] == unique // The Salamander"
+    ],
+    "description": "Add The Salamander nip line"
+  },
+  "The Iron Jang Bong": {
+    "prefix": "theironjangbong",
+    "body": [
+      "[name] == warstaff && [quality] == unique // The Iron Jang Bong"
+    ],
+    "description": "Add The Iron Jang Bong nip line"
+  },
+  "Razorswitch": {
+    "prefix": "razorswitch",
+    "body": [
+      "[name] == jostaff && [quality] == unique // Razorswitch"
+    ],
+    "description": "Add Razorswitch nip line"
+  },
+  "Ribcracker": {
+    "prefix": "ribcracker",
+    "body": [
+      "[name] == quarterstaff && [quality] == unique // Ribcracker"
+    ],
+    "description": "Add Ribcracker nip line"
+  },
+  "Chromatic Ire": {
+    "prefix": "chromaticire",
+    "body": [
+      "[name] == cedarstaff && [quality] == unique // Chromatic Ire"
+    ],
+    "description": "Add Chromatic Ire nip line"
+  },
+  "Warpspear": {
+    "prefix": "warpspear",
+    "body": [
+      "[name] == gothicstaff && [quality] == unique // Warpspear"
+    ],
+    "description": "Add Warpspear nip line"
+  },
+  "Skull Collector": {
+    "prefix": "skullcollector",
+    "body": [
+      "[name] == runestaff && [quality] == unique // Skull Collector"
+    ],
+    "description": "Add Skull Collector nip line"
+  },
+  "Ondal's Wisdom": {
+    "prefix": "ondalswisdom",
+    "body": [
+      "[name] == elderstaff && [quality] == unique // Ondal's Wisdom"
+    ],
+    "description": "Add Ondal's Wisdom nip line"
+  },
+  "Mang Song's Lesson": {
+    "prefix": "mangsongslesson",
+    "body": [
+      "[name] == archonstaff && [quality] == unique // Mang Song's Lesson"
+    ],
+    "description": "Add Mang Song's Lesson nip line"
+  },
+  "Rixot's Keen": {
+    "prefix": "rixotskeen",
+    "body": [
+      "[name] == shortsword && [quality] == unique // Rixot's Keen"
+    ],
+    "description": "Add Rixot's Keen nip line"
+  },
+  "Blood Crescent": {
+    "prefix": "bloodcrescent",
+    "body": [
+      "[name] == scimitar && [quality] == unique // Blood Crescent"
+    ],
+    "description": "Add Blood Crescent nip line"
+  },
+  "Skewer of Krintiz": {
+    "prefix": "skewerofkrintiz",
+    "body": [
+      "[name] == sabre && [quality] == unique // Skewer of Krintiz"
+    ],
+    "description": "Add Skewer of Krintiz nip line"
+  },
+  "Gleamscythe": {
+    "prefix": "gleamscythe",
+    "body": [
+      "[name] == falchion && [quality] == unique // Gleamscythe"
+    ],
+    "description": "Add Gleamscythe nip line"
+  },
+  "Griswold's Edge": {
+    "prefix": "griswoldsedge",
+    "body": [
+      "[name] == broadsword && [quality] == unique // Griswold's Edge"
+    ],
+    "description": "Add Griswold's Edge nip line"
+  },
+  "Hellplague": {
+    "prefix": "hellplague",
+    "body": [
+      "[name] == longsword && [quality] == unique // Hellplague"
+    ],
+    "description": "Add Hellplague nip line"
+  },
+  "Culwen's Point": {
+    "prefix": "culwenspoint",
+    "body": [
+      "[name] == warsword && [quality] == unique // Culwen's Point"
+    ],
+    "description": "Add Culwen's Point nip line"
+  },
+  "Shadowfang": {
+    "prefix": "shadowfang",
+    "body": [
+      "[name] == twohandedsword && [quality] == unique // Shadowfang"
+    ],
+    "description": "Add Shadowfang nip line"
+  },
+  "Soulflay": {
+    "prefix": "soulflay",
+    "body": [
+      "[name] == claymore && [quality] == unique // Soulflay"
+    ],
+    "description": "Add Soulflay nip line"
+  },
+  "Kinemil's Awl": {
+    "prefix": "kinemilsawl",
+    "body": [
+      "[name] == giantsword && [quality] == unique // Kinemil's Awl"
+    ],
+    "description": "Add Kinemil's Awl nip line"
+  },
+  "Blacktongue": {
+    "prefix": "blacktongue",
+    "body": [
+      "[name] == bastardsword && [quality] == unique // Blacktongue"
+    ],
+    "description": "Add Blacktongue nip line"
+  },
+  "Ripsaw": {
+    "prefix": "ripsaw",
+    "body": [
+      "[name] == flamberge && [quality] == unique // Ripsaw"
+    ],
+    "description": "Add Ripsaw nip line"
+  },
+  "The Patriarch": {
+    "prefix": "thepatriarch",
+    "body": [
+      "[name] == greatsword && [quality] == unique // The Patriarch"
+    ],
+    "description": "Add The Patriarch nip line"
+  },
+  "Bloodletter": {
+    "prefix": "bloodletter",
+    "body": [
+      "[name] == gladius && [quality] == unique // Bloodletter"
+    ],
+    "description": "Add Bloodletter nip line"
+  },
+  "Coldsteel Eye": {
+    "prefix": "coldsteeleye",
+    "body": [
+      "[name] == cutlass && [quality] == unique // Coldsteel Eye"
+    ],
+    "description": "Add Coldsteel Eye nip line"
+  },
+  "Hexfire": {
+    "prefix": "hexfire",
+    "body": [
+      "[name] == shamshir && [quality] == unique // Hexfire"
+    ],
+    "description": "Add Hexfire nip line"
+  },
+  "Blade of Ali Baba": {
+    "prefix": "bladeofalibaba",
+    "body": [
+      "[name] == tulwar && [quality] == unique // Blade of Ali Baba"
+    ],
+    "description": "Add Blade of Ali Baba nip line"
+  },
+  "Ginther's Rift": {
+    "prefix": "ginthersrift",
+    "body": [
+      "[name] == dimensionalblade && [quality] == unique // Ginther's Rift"
+    ],
+    "description": "Add Ginther's Rift nip line"
+  },
+  "Headstriker": {
+    "prefix": "headstriker",
+    "body": [
+      "[name] == battlesword && [quality] == unique // Headstriker"
+    ],
+    "description": "Add Headstriker nip line"
+  },
+  "Plague Bearer": {
+    "prefix": "plaguebearer",
+    "body": [
+      "[name] == runesword && [quality] == unique // Plague Bearer"
+    ],
+    "description": "Add Plague Bearer nip line"
+  },
+  "The Atlantean": {
+    "prefix": "theatlantean",
+    "body": [
+      "[name] == ancientsword && [quality] == unique // The Atlantean"
+    ],
+    "description": "Add The Atlantean nip line"
+  },
+  "Crainte Vomir": {
+    "prefix": "craintevomir",
+    "body": [
+      "[name] == espandon && [quality] == unique // Crainte Vomir"
+    ],
+    "description": "Add Crainte Vomir nip line"
+  },
+  "Bing Sz Wang": {
+    "prefix": "bingszwang",
+    "body": [
+      "[name] == dacianfalx && [quality] == unique // Bing Sz Wang"
+    ],
+    "description": "Add Bing Sz Wang nip line"
+  },
+  "The Vile Husk": {
+    "prefix": "thevilehusk",
+    "body": [
+      "[name] == tusksword && [quality] == unique // The Vile Husk"
+    ],
+    "description": "Add The Vile Husk nip line"
+  },
+  "Cloudcrack": {
+    "prefix": "cloudcrack",
+    "body": [
+      "[name] == gothicsword && [quality] == unique // Cloudcrack"
+    ],
+    "description": "Add Cloudcrack nip line"
+  },
+  "Todesfaelle Flamme": {
+    "prefix": "todesfaelleflamme",
+    "body": [
+      "[name] == zweihander && [quality] == unique // Todesfaelle Flamme"
+    ],
+    "description": "Add Todesfaelle Flamme nip line"
+  },
+  "Swordguard": {
+    "prefix": "swordguard",
+    "body": [
+      "[name] == executionersword && [quality] == unique // Swordguard"
+    ],
+    "description": "Add Swordguard nip line"
+  },
+  "Djinn Slayer": {
+    "prefix": "djinnslayer",
+    "body": [
+      "[name] == ataghan && [quality] == unique // Djinn Slayer"
+    ],
+    "description": "Add Djinn Slayer nip line"
+  },
+  "Bloodmoon": {
+    "prefix": "bloodmoon",
+    "body": [
+      "[name] == elegantblade && [quality] == unique // Bloodmoon"
+    ],
+    "description": "Add Bloodmoon nip line"
+  },
+  "Lightsabre": {
+    "prefix": "lightsabre",
+    "body": [
+      "[name] == phaseblade && [quality] == unique # [itemlightradius] == 7 // Lightsabre"
+    ],
+    "description": "Add Lightsabre nip line"
+  },
+  "Azurewrath": {
+    "prefix": "azurewrath",
+    "body": [
+      "[name] == phaseblade && [quality] == unique # [itemlightradius] == 3 // Azurewrath"
+    ],
+    "description": "Add Azurewrath nip line"
+  },
+  "Frostwind": {
+    "prefix": "frostwind",
+    "body": [
+      "[name] == crypticsword && [quality] == unique // Frostwind"
+    ],
+    "description": "Add Frostwind nip line"
+  },
+  "Flamebellow": {
+    "prefix": "flamebellow",
+    "body": [
+      "[name] == balrogblade && [quality] == unique // Flamebellow"
+    ],
+    "description": "Add Flamebellow nip line"
+  },
+  "Doombringer": {
+    "prefix": "doombringer",
+    "body": [
+      "[name] == championsword && [quality] == unique // Doombringer"
+    ],
+    "description": "Add Doombringer nip line"
+  },
+  "The Grandfather": {
+    "prefix": "thegrandfather",
+    "body": [
+      "[name] == colossusblade && [quality] == unique // The Grandfather"
+    ],
+    "description": "Add The Grandfather nip line"
+  },
+  "Deathbit": {
+    "prefix": "deathbit",
+    "body": [
+      "[name] == battledart && [quality] == unique // Deathbit"
+    ],
+    "description": "Add Deathbit nip line"
+  },
+  "The Scalper": {
+    "prefix": "thescalper",
+    "body": [
+      "[name] == francisca && [quality] == unique // The Scalper"
+    ],
+    "description": "Add The Scalper nip line"
+  },
+  "Warshrike": {
+    "prefix": "warshrike",
+    "body": [
+      "[name] == wingedknife && [quality] == unique // Warshrike"
+    ],
+    "description": "Add Warshrike nip line"
+  },
+  "Gimmershred": {
+    "prefix": "gimmershred",
+    "body": [
+      "[name] == flyingaxe && [quality] == unique // Gimmershred"
+    ],
+    "description": "Add Gimmershred nip line"
+  },
+  "Lacerator": {
+    "prefix": "lacerator",
+    "body": [
+      "[name] == wingedaxe && [quality] == unique // Lacerator"
+    ],
+    "description": "Add Lacerator nip line"
+  },
+  "Torch of Iro": {
+    "prefix": "torchofiro",
+    "body": [
+      "[name] == wand && [quality] == unique // Torch of Iro"
+    ],
+    "description": "Add Torch of Iro nip line"
+  },
+  "Maelstrom": {
+    "prefix": "maelstrom",
+    "body": [
+      "[name] == yewwand && [quality] == unique // Maelstrom"
+    ],
+    "description": "Add Maelstrom nip line"
+  },
+  "Gravenspine": {
+    "prefix": "gravenspine",
+    "body": [
+      "[name] == bonewand && [quality] == unique // Gravenspine"
+    ],
+    "description": "Add Gravenspine nip line"
+  },
+  "Ume's Lament": {
+    "prefix": "umeslament",
+    "body": [
+      "[name] == grimwand && [quality] == unique // Ume's Lament"
+    ],
+    "description": "Add Ume's Lament nip line"
+  },
+  "Suicide Branch": {
+    "prefix": "suicidebranch",
+    "body": [
+      "[name] == burntwand && [quality] == unique // Suicide Branch"
+    ],
+    "description": "Add Suicide Branch nip line"
+  },
+  "Carin Shard": {
+    "prefix": "carinshard",
+    "body": [
+      "[name] == petrifiedwand && [quality] == unique // Carin Shard"
+    ],
+    "description": "Add Carin Shard nip line"
+  },
+  "Arm of King Leoric": {
+    "prefix": "armofkingleoric",
+    "body": [
+      "[name] == tombwand && [quality] == unique // Arm of King Leoric"
+    ],
+    "description": "Add Arm of King Leoric nip line"
+  },
+  "Blackhand Key": {
+    "prefix": "blackhandkey",
+    "body": [
+      "[name] == gravewand && [quality] == unique // Blackhand Key"
+    ],
+    "description": "Add Blackhand Key nip line"
+  },
+  "Boneshade": {
+    "prefix": "boneshade",
+    "body": [
+      "[name] == lichwand && [quality] == unique // Boneshade"
+    ],
+    "description": "Add Boneshade nip line"
+  },
+  "Death's Web": {
+    "prefix": "deathsweb",
+    "body": [
+      "[name] == unearthedwand && [quality] == unique // Death's Web"
+    ],
+    "description": "Add Death's Web nip line"
+  },
+  "Nokozan Relic": {
+    "prefix": "nokozanrelic",
+    "body": [
+      "[name] == amulet && [quality] == unique // Nokozan Relic"
+    ],
+    "description": "Add Nokozan Relic nip line"
+  },
+  "The Eye of Etlich": {
+    "prefix": "theeyeofetlich",
+    "body": [
+      "[name] == amulet && [quality] == unique // The Eye of Etlich"
+    ],
+    "description": "Add The Eye of Etlich nip line"
+  },
+  "The Mahim-Oak Curio": {
+    "prefix": "themahimoakcurio",
+    "body": [
+      "[name] == amulet && [quality] == unique // The Mahim-Oak Curio"
+    ],
+    "description": "Add The Mahim-Oak Curio nip line"
+  },
+  "Saracen's Chance": {
+    "prefix": "saracenschance",
+    "body": [
+      "[name] == amulet && [quality] == unique // Saracen's Chance"
+    ],
+    "description": "Add Saracen's Chance nip line"
+  },
+  "The Cat's Eye": {
+    "prefix": "thecatseye",
+    "body": [
+      "[name] == amulet && [quality] == unique // The Cat's Eye"
+    ],
+    "description": "Add The Cat's Eye nip line"
+  },
+  "Crescent Moon": {
+    "prefix": "crescentmoon",
+    "body": [
+      "[name] == amulet && [quality] == unique // Crescent Moon"
+    ],
+    "description": "Add Crescent Moon nip line"
+  },
+  "Atma's Scarab": {
+    "prefix": "atmasscarab",
+    "body": [
+      "[name] == amulet && [quality] == unique // Atma's Scarab"
+    ],
+    "description": "Add Atma's Scarab nip line"
+  },
+  "The Rising Sun": {
+    "prefix": "therisingsun",
+    "body": [
+      "[name] == amulet && [quality] == unique // The Rising Sun"
+    ],
+    "description": "Add The Rising Sun nip line"
+  },
+  "Highlord's Wrath": {
+    "prefix": "highlordswrath",
+    "body": [
+      "[name] == amulet && [quality] == unique // Highlord's Wrath"
+    ],
+    "description": "Add Highlord's Wrath nip line"
+  },
+  "Maras Kaleidoscope": {
+    "prefix": "maraskaleidoscope",
+    "body": [
+      "[name] == amulet && [quality] == unique // Maras Kaleidoscope"
+    ],
+    "description": "Add Maras Kaleidoscope nip line"
+  },
+  "Seraph's Hymn": {
+    "prefix": "seraphshymn",
+    "body": [
+      "[name] == amulet && [quality] == unique // Seraph's Hymn"
+    ],
+    "description": "Add Seraph's Hymn nip line"
+  },
+  "Metalgrid": {
+    "prefix": "metalgrid",
+    "body": [
+      "[name] == amulet && [quality] == unique // Metalgrid"
+    ],
+    "description": "Add Metalgrid nip line"
+  },
+  "Nagelring": {
+    "prefix": "nagelring",
+    "body": [
+      "[name] == ring && [quality] == unique // Nagelring"
+    ],
+    "description": "Add Nagelring nip line"
+  },
+  "Manald Heal": {
+    "prefix": "manaldheal",
+    "body": [
+      "[name] == ring && [quality] == unique // Manald Heal"
+    ],
+    "description": "Add Manald Heal nip line"
+  },
+  "Stone of Jordan": {
+    "prefix": "stoneofjordan",
+    "body": [
+      "[name] == ring && [quality] == unique // Stone of Jordan"
+    ],
+    "description": "Add Stone of Jordan nip line"
+  },
+  "Dwarf Star": {
+    "prefix": "dwarfstar",
+    "body": [
+      "[name] == ring && [quality] == unique // Dwarf Star"
+    ],
+    "description": "Add Dwarf Star nip line"
+  },
+  "Raven Frost": {
+    "prefix": "ravenfrost",
+    "body": [
+      "[name] == ring && [quality] == unique // Raven Frost"
+    ],
+    "description": "Add Raven Frost nip line"
+  },
+  "Bul-Kathos' Wedding Band": {
+    "prefix": "bulkathosweddingband",
+    "body": [
+      "[name] == ring && [quality] == unique // Bul-Kathos' Wedding Band"
+    ],
+    "description": "Add Bul-Kathos' Wedding Band nip line"
+  },
+  "Carrion Wind": {
+    "prefix": "carrionwind",
+    "body": [
+      "[name] == ring && [quality] == unique // Carrion Wind"
+    ],
+    "description": "Add Carrion Wind nip line"
+  },
+  "Nature's Peace": {
+    "prefix": "naturespeace",
+    "body": [
+      "[name] == ring && [quality] == unique // Nature's Peace"
+    ],
+    "description": "Add Nature's Peace nip line"
+  },
+  "Wisp Projector": {
+    "prefix": "wispprojector",
+    "body": [
+      "[name] == ring && [quality] == unique // Wisp Projector"
+    ],
+    "description": "Add Wisp Projector nip line"
+  },
+  "Stoneraven": {
+    "prefix": "stoneraven",
+    "body": [
+      "[name] == matriarchalspear && [quality] == unique // Stoneraven"
+    ],
+    "description": "Add Stoneraven nip line"
+  },
+  "Lycander's Flank": {
+    "prefix": "lycandersflank",
+    "body": [
+      "[name] == ceremonialpike && [quality] == unique // Lycander's Flank"
+    ],
+    "description": "Add Lycander's Flank nip line"
+  },
+  "Lycander's Aim": {
+    "prefix": "lycandersaim",
+    "body": [
+      "[name] == ceremonialbow && [quality] == unique // Lycander's Aim"
+    ],
+    "description": "Add Lycander's Aim nip line"
+  },
+  "Titan's Revenge": {
+    "prefix": "titansrevenge",
+    "body": [
+      "[name] == ceremonialjavelin && [quality] == unique // Titan's Revenge"
+    ],
+    "description": "Add Titan's Revenge nip line"
+  },
+  "Thunderstroke": {
+    "prefix": "thunderstroke",
+    "body": [
+      "[name] == matriarchaljavelin && [quality] == unique // Thunderstroke"
+    ],
+    "description": "Add Thunderstroke nip line"
+  },
+  "Blood Raven's Charge": {
+    "prefix": "bloodravenscharge",
+    "body": [
+      "[name] == matriarchalbow && [quality] == unique // Blood Raven's Charge"
+    ],
+    "description": "Blood Raven's Charge nip line"
+  },
+  "Shadow Killer": {
+    "prefix": "shadowkiller",
+    "body": [
+      "[name] == battlecestus && [quality] == unique // Shadow Killer"
+    ],
+    "description": "Add Shadow Killer nip line"
+  },
+  "Bartuc's Cut-Throat": {
+    "prefix": "bartucscutthroat",
+    "body": [
+      "[name] == battlecestus && [quality] == unique // Bartuc's Cut-Throat"
+    ],
+    "description": "Add Bartuc's Cut-Throat nip line"
+  },
+  "Jade Talon": {
+    "prefix": "jadetalon",
+    "body": [
+      "[name] == wristsword && [quality] == unique // Jade Talon"
+    ],
+    "description": "Add Jade Talon nip line"
+  },
+  "Firelizard's Talons": {
+    "prefix": "firelizardstalons",
+    "body": [
+      "[name] == feralclaws && [quality] == unique // Firelizard's Talons"
+    ],
+    "description": "Add Firelizard's Talons nip line"
+  },
+  "Homunculus": {
+    "prefix": "homunculus",
+    "body": [
+      "[name] == hierophanttrophy && [quality] == unique // Homunculus"
+    ],
+    "description": "Add Homunculus nip line"
+  },
+  "Darkforce Spawn": {
+    "prefix": "darkforcespawn",
+    "body": [
+      "[name] == bloodlordskull && [quality] == unique // Darkforce Spawn"
+    ],
+    "description": "Add Darkforce Spawn nip line"
+  },
+  "Boneflame": {
+    "prefix": "boneflame",
+    "body": [
+      "[name] == succubusskull && [quality] == unique // Boneflame"
+    ],
+    "description": "Add Boneflame nip line"
+  },
+  "Alma Negra": {
+    "prefix": "almanegra",
+    "body": [
+      "[name] == sacredrondache && [quality] == unique // Alma Negra"
+    ],
+    "description": "Add Alma Negra nip line"
+  },
+  "Herald of Zakarum": {
+    "prefix": "heraldofzakarum",
+    "body": [
+      "[name] == gildedshield && [quality] == unique // Herald of Zakarum"
+    ],
+    "description": "Add Herald of Zakarum nip line"
+  },
+  "Dragonscale": {
+    "prefix": "dragonscale",
+    "body": [
+      "[name] == zakarumshield && [quality] == unique // Dragonscale"
+    ],
+    "description": "Add Dragonscale nip line"
+  },
+  "The Oculus": {
+    "prefix": "theoculus",
+    "body": [
+      "[name] == swirlingcrystal && [quality] == unique // The Oculus"
+    ],
+    "description": "Add The Oculus nip line"
+  },
+  "Eschuta's Temper": {
+    "prefix": "eschutastemper",
+    "body": [
+      "[name] == eldritchorb && [quality] == unique // Eschuta's Temper"
+    ],
+    "description": "Add Eschuta's Temper nip line"
+  },
+  "Death's Fathom": {
+    "prefix": "deathsfathom",
+    "body": [
+      "[name] == dimensionalshard && [quality] == unique // Death's Fathom"
+    ],
+    "description": "Add Death's Fathom nip line"
+  },
+  "Annihilus": {
+    "prefix": "annihilus",
+    "body": [
+      "[name] == smallcharm && [quality] == unique // Annihilus"
+    ],
+    "description": "Add Annihilus nip line"
+  },
+  "Hellfire Torch": {
+    "prefix": "hellfiretorch",
+    "body": [
+      "[name] == largecharm && [quality] == unique # [$1] == 3 // Hellfire Torch"
+    ],
+    "description": "Add Hellfire Torch nip line"
+  },
+  "Gheed's Fortune": {
+    "prefix": "gheedsfortune",
+    "body": [
+      "[name] == grandcharm && [quality] == unique // Gheed's Fortune"
+    ],
+    "description": "Add Gheed's Fortune nip line"
+  },
+  "Rainbow Facet": {
+    "prefix": "rainbowfacet",
+    "body": [
+      "[name] == jewel && [quality] == unique // Rainbow Facet"
+    ],
+    "description": "Add Rainbow Facet nip line"
+  },
+  "Skiller": {
+    "prefix": "skiller",
+    "body": [
+      "[name] == grandcharm && [quality] == magic # [$1] == 1 // Skiller"
+    ],
+    "description": "Add Skiller GrandCharm nip line"
   }
 }
