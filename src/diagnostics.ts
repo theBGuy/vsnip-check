@@ -288,7 +288,6 @@ export function activate(context: vscode.ExtensionContext) {
   // );
   vscode.workspace.onDidOpenTextDocument(document => validateTextDocument(document, diagnosticCollection));
   vscode.workspace.onDidSaveTextDocument(document => validateTextDocument(document, diagnosticCollection));
-  vscode.workspace.onDidOpenTextDocument(document => validateTextDocument(document, diagnosticCollection));
   vscode.workspace.onDidChangeTextDocument(event => validateTextDocument(event.document, diagnosticCollection));
   vscode.workspace.onDidCloseTextDocument(document => diagnosticCollection.delete(document.uri));
   
@@ -376,7 +375,7 @@ export function activate(context: vscode.ExtensionContext) {
     provideCompletionItems(document, position, token, context) {
       try {
         const completionItems: vscode.CompletionItem[] = [];
-        const line = document.lineAt(position).text;
+        const line = document.lineAt(position).text.slice(0, position.character);
         const segments = line.split('#');
 
         // Find which segment the cursor is in
@@ -403,6 +402,7 @@ export function activate(context: vscode.ExtensionContext) {
             const list = _lists.get(property);
             if (list) {
               for (const val of Object.keys(list)) {
+                if (["notused", "unused"].includes(val)) continue;
                 const completionItem = new vscode.CompletionItem(val, vscode.CompletionItemKind.Keyword);
                 if (val.length === 3) {
                   // we are dealing with the item code, find the corresponding name
