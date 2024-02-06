@@ -1,10 +1,11 @@
 # vsnip-check
 Syntax highlighting for .nip pickit files in vscode\
 Provides error checking on save and while typing\
+Provides tab completion of properties, stats, and ids
 Only tested with dark theme, but should work with others
 ## How to install
 
-### Extension from Visual Studio Marketplace
+### Extension from Visual Studio Marketplace (recommended)
 Visit https://marketplace.visualstudio.com/items?itemName=theBGuy.vsnip-check
 
 Or...
@@ -35,3 +36,4 @@ Linux: $HOME/.vscode/extensions
 
 ![image](https://github.com/theBGuy/vsnip-check/assets/60308670/f518555b-1553-4790-b9c3-c0f8ce6c22cd)
 
+https://github.com/theBGuy/vsnip-check/assets/60308670/0c246cfb-c4a6-4800-b571-d1b965033336
