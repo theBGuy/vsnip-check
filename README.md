@@ -1,3 +1,5 @@
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/theBGuy/vsnip-check/total?style=for-the-badge)
+
 # vsnip-check
 Syntax highlighting for .nip pickit files in vscode\
 Provides error checking on save and while typing\
