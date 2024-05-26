@@ -1,0 +1,12 @@
+{
+  "In Autocomplete": {
+    "prefix": "in",
+    "body": ["in ($1)"],
+    "description": "Autocomplete for 'in'"
+  },
+  "NotIn Autocomplete": {
+    "prefix": "notin",
+    "body": ["notin ($1)"],
+    "description": "Autocomplete for 'notin'"
+  }
+}

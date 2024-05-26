@@ -10,8 +10,10 @@
             "type": "extensionHost",
             "request": "launch",
             "args": [
-                "--extensionDevelopmentPath=${workspaceFolder}"
-            ]
+                "--disable-extensions",
+                "--extensionDevelopmentPath=${workspaceFolder}",
+                "--trace-deprecation",
+            ],
         }
     ]
 }

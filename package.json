@@ -2,7 +2,7 @@
   "name": "vsnip-check",
   "displayName": "vsnip-check",
   "description": "Syntax highlighting and error reporting for .nip pickit files",
-  "version": "1.1.5",
+  "version": "1.2.0",
   "publisher": "theBGuy",
   "repository": "https://github.com/theBGuy/vsnip-check",
   "engines": {
@@ -31,6 +31,12 @@
         "scopeName": "source.nip",
         "path": "./syntaxes/nip.tmLanguage.json"
       }
+    ],
+    "snippets": [
+      {
+        "language": "nip",
+        "path": "./snippits/snippits.json"
+      }
     ]
   },
   "main": "./out/diagnostics.js",
@@ -50,6 +56,7 @@
   "devDependencies": {
     "@types/node": "^20.11.13",
     "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^2.26.1",
     "tslint": "^6.1.3",
     "typescript": "^5.3.3"
   }

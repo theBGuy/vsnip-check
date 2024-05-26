@@ -52,7 +52,7 @@
 			"patterns": [
 				{
 					"name": "keyword.control",
-					"match": "(?:==|!=|&&|\\|\\||>=|<=)"
+					"match": "(?:==|!=|&&|\\|\\||>=|<=|in|notin)"
 				}
 			]
 		},

@@ -22,6 +22,13 @@ function isSyntaxInt (ch: string) {
   );
 }
 
+function isKeyword (str: string) {
+  return (
+    str === "in"
+    || str === "notin"
+  );
+}
+
 const validProperties = [
   "classid",
   "name",
@@ -98,6 +105,44 @@ const _aliases = new Map([
   ["clvl", "charlvl"],
 ]);
 
+// kinda hacky but it works
+const parseAliasIn = {
+  in: "\[([^\]]+)\]in\(",
+  notin: "\[([^\]]+)\]notin\(",
+  /**
+    * @param {string} input 
+    * @returns {boolean}
+    */
+  test: function (input: string): boolean {
+    return new RegExp(/\[([^\]]+)\](in|notin)\(/gi).test(input);
+  },
+  /**
+    * @param {string} input 
+    * @returns {string}
+    */
+  convert: function (input: string): string {
+    const regex = new RegExp(/\[([^\]]+)\](in|notin)\(([^)]+)\)/g);
+    let match;
+    let result = input;
+    while ((match = regex.exec(input)) !== null) {
+      if (match.index === regex.lastIndex) {
+        regex.lastIndex++;
+      }
+      const [_full, property, type, values] = match;
+      if (!property || !values) throw new Error("Invalid syntax");
+      const alias = "(" + values.split(",")
+        .filter(el => el.trim() !== '')
+        .map(function (el) {
+          return "[" + property + "]" + (type === "in" ? "==" : "!=") + el.trim();
+        })
+        .join(type === "in" ? "||" : "&&")
+        + ")";
+      result = result.replace(match[0], alias);
+    }
+    return result;
+  }
+};
+
 function validateTextDocument(textDocument: vscode.TextDocument, diagnosticCollection: vscode.DiagnosticCollection) {
   if (textDocument.languageId !== 'nip') {
     return;
@@ -141,7 +186,10 @@ function validateTextDocument(textDocument: vscode.TextDocument, diagnosticColle
 
       if (j === 0 && lineSection.length > 4) {
         let p_start: number = 0;
-        const p_section = lineSection.split('[');
+        const p_section = (parseAliasIn.test(lineSection)
+          ? parseAliasIn.convert(lineSection)
+          : lineSection
+        ).split('[');
         const section = (lines[i].split('#').at(0) || "");
 
         for (let k = 1; k < p_section.length; k++) {
@@ -182,6 +230,13 @@ function validateTextDocument(textDocument: vscode.TextDocument, diagnosticColle
             }
           }
 
+          if (isKeyword(p_section[k].substring(p_start, p_end))) {
+            for (p_start = p_end; p_end < p_section[k].length; p_end += 1) {
+              if (isSyntaxInt(p_section[k][p_end])) {
+                break;
+              }
+            }
+          }
           let p_keyword = p_section[k].substring(p_start, p_end);
 
           if (isNaN(Number(p_keyword))) {
@@ -389,38 +444,37 @@ export function activate(context: vscode.ExtensionContext) {
           }
           characterCount += 1;
         }
+        if (segmentIndex !== 0) return completionItems;
+        
+        const matches = segments[0].match(/\[([^\]]+)\]/g);
+        if (!matches) return completionItems;
+        
+        let property = (matches.at(-1)?.slice(1, -1) || "");
+        if (_aliases.has(property)) {
+          // @ts-ignore
+          property = _aliases.get(property);
+        }
+        if (!_lists.has(property)) return completionItems;
+        
+        const list = _lists.get(property);
+        if (!list) return completionItems;
 
-        if (segmentIndex === 0) {
-          const matches = segments[0].match(/\[([^\]]+)\]/g);
-          if (matches) {
-            let property = (matches.at(-1)?.slice(1, -1) || "");
-            if (_aliases.has(property)) {
-              // @ts-ignore
-              property = _aliases.get(property);
-            }
-            if (!_lists.has(property)) return completionItems;
-            const list = _lists.get(property);
-            if (list) {
-              for (const val of Object.keys(list)) {
-                if (["notused", "unused"].includes(val)) continue;
-                const completionItem = new vscode.CompletionItem(val, vscode.CompletionItemKind.Keyword);
-                if (val.length === 3) {
-                  // we are dealing with the item code, find the corresponding name
-                  for (const [key, value] of Object.entries(list)) {
-                    if (value === list[val] && key !== val) {
-                      completionItem.detail = key;
-                      break;
-                    }
-                  }
-                }
-                completionItems.push(completionItem);
+        for (const val of Object.keys(list)) {
+          if (["notused", "unused"].includes(val)) continue;
+          const completionItem = new vscode.CompletionItem(val, vscode.CompletionItemKind.Keyword);
+          if (val.length === 3) {
+            // we are dealing with the item code, find the corresponding name
+            for (const [key, value] of Object.entries(list)) {
+              if (value === list[val] && key !== val) {
+                completionItem.detail = key;
+                break;
               }
             }
           }
+          completionItems.push(completionItem);
         }
         return completionItems;
-      }
-      catch (e) {
+      } catch (e) {
         console.error(e);
       }
     }
