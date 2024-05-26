@@ -39,7 +39,7 @@
       }
     ]
   },
-  "main": "./out/diagnostics.js",
+  "main": "./dist/diagnostics.js",
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p .",
