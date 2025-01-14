@@ -1,4 +1,4 @@
-![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/theBGuy/vsnip-check/total?style=for-the-badge)
+![Visual Studio Marketplace Downloads](https://img.shields.io/visual-studio-marketplace/d/theBGuy.vsnip-check)
 
 # vsnip-check
 Syntax highlighting for .nip pickit files in vscode\
