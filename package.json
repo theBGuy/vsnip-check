@@ -53,13 +53,15 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
-    "compile": "npm run check-types && npm run lint && tsc -p .",
+    "vscode:prepublish": "npm run package",
+    "package": "npm run check-types && npm run lint && tsc -p .",
+    "compile": "npm run check-types && npm run lint && tsc .",
     "watch": "tsc -watch -p .",
     "build": "vsce package",
     "check-types": "tsc --noEmit",
     "lint": "biome check --write --organize-imports-enabled=true ./src/",
-    "release": "release-it"
+    "release": "release-it",
+    "publish": "vsce publish"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.3",
