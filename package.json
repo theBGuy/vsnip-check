@@ -3,6 +3,7 @@
   "displayName": "vsnip-check",
   "description": "Syntax highlighting and error reporting for .nip pickit files",
   "version": "1.2.0",
+  "author": "theBGuy <theBGuy.github@gmail.com>",
   "publisher": "theBGuy",
   "repository": "https://github.com/theBGuy/vsnip-check",
   "engines": {
@@ -11,6 +12,18 @@
   "categories": [
     "Programming Languages"
   ],
+  "license": "MIT",
+  "icon": "logo.png",
+  "activationEvents": [
+    "onDidOpenTextDocument",
+    "onDidSaveTextDocument",
+    "onDidChangeActiveTextEditor",
+    "onDidOpenTextDocument",
+    "onStartupFinished",
+    "onDidCloseTextDocument",
+    "onLanguage:javascript"
+  ],
+  "main": "./dist/diagnostics.js",
   "contributes": {
     "languages": [
       {
@@ -39,24 +52,21 @@
       }
     ]
   },
-  "main": "./dist/diagnostics.js",
   "scripts": {
     "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p .",
-    "watch": "tsc -watch -p ."
+    "compile": "npm run check-types && npm run lint && tsc -p .",
+    "watch": "tsc -watch -p .",
+    "build": "vsce package",
+    "check-types": "tsc --noEmit",
+    "lint": "biome check --write --organize-imports-enabled=true ./src/",
+    "release": "release-it"
   },
-  "activationEvents": [
-    "onDidOpenTextDocument",
-    "onDidSaveTextDocument",
-    "onDidChangeActiveTextEditor",
-    "onDidOpenTextDocument",
-    "onStartupFinished",
-    "onDidCloseTextDocument"
-  ],
   "devDependencies": {
+    "@biomejs/biome": "^1.9.3",
     "@types/node": "^20.11.13",
     "@types/vscode": "^1.85.0",
     "@vscode/vsce": "^2.26.1",
+    "release-it": "^18.1.2",
     "tslint": "^6.1.3",
     "typescript": "^5.3.3"
   }
