@@ -2,7 +2,7 @@
   "name": "vsnip-check",
   "displayName": "vsnip-check",
   "description": "Syntax highlighting and error reporting for .nip pickit files",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "author": "theBGuy <theBGuy.github@gmail.com>",
   "publisher": "theBGuy",
   "repository": "https://github.com/theBGuy/vsnip-check",
