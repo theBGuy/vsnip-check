@@ -22,9 +22,7 @@
     "onStartupFinished",
     "onDidCloseTextDocument",
     "onLanguage:javascript",
-    "onLanguage:typescript",
-    "onLanguage:javascriptreact",
-    "onLanguage:typescriptreact"
+    "onLanguage:typescript"
   ],
   "main": "./dist/diagnostics.js",
   "contributes": {

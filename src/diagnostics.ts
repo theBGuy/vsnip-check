@@ -23,7 +23,7 @@ interface NipDiagnosticResult {
   endOffset: number; // Relative to string start
 }
 
-const JS_LANGUAGES = ["javascript", "typescript", "javascriptreact", "typescriptreact"];
+const JS_LANGUAGES = ["javascript", "typescript"];
 
 // Regex patterns for detecting NIP strings in JS/TS files
 const JSDOC_TYPE_PATTERN = /\/\*\*\s*@type\s*\{(NipString(?:\[\])?|Record<string,\s*NipString>)\}\s*\*\//;
@@ -1108,28 +1108,12 @@ export function activate(context: vscode.ExtensionContext) {
     ...numerics,
     "[",
   );
-  const propsProviderJSX = vscode.languages.registerCompletionItemProvider(
-    "javascriptreact",
-    jstsPropsAndStatsProvider,
-    ...alphas,
-    ...numerics,
-    "[",
-  );
-  const propsProviderTSX = vscode.languages.registerCompletionItemProvider(
-    "typescriptreact",
-    jstsPropsAndStatsProvider,
-    ...alphas,
-    ...numerics,
-    "[",
-  );
 
   // Register IDs completion providers for all JS/TS languages
   const idsProviderJS = vscode.languages.registerCompletionItemProvider("javascript", jstsIdsProvider, ...alphas);
   const idsProviderTS = vscode.languages.registerCompletionItemProvider("typescript", jstsIdsProvider, ...alphas);
-  const idsProviderJSX = vscode.languages.registerCompletionItemProvider("javascriptreact", jstsIdsProvider, ...alphas);
-  const idsProviderTSX = vscode.languages.registerCompletionItemProvider("typescriptreact", jstsIdsProvider, ...alphas);
 
   context.subscriptions.push(propsAndStatsProvider, idsProvider);
-  context.subscriptions.push(propsProviderJS, propsProviderTS, propsProviderJSX, propsProviderTSX);
-  context.subscriptions.push(idsProviderJS, idsProviderTS, idsProviderJSX, idsProviderTSX);
+  context.subscriptions.push(propsProviderJS, propsProviderTS);
+  context.subscriptions.push(idsProviderJS, idsProviderTS);
 }
