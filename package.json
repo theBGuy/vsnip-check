@@ -60,12 +60,12 @@
     "watch": "tsc -watch -p .",
     "build": "vsce package",
     "check-types": "tsc --noEmit",
-    "lint": "biome check --write --organize-imports-enabled=true ./src/",
+    "lint": "biome check --write .",
     "release": "release-it",
     "publish": "vsce publish"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.3",
+    "@biomejs/biome": "2.0.6",
     "@types/node": "^20.11.13",
     "@types/vscode": "^1.85.0",
     "@vscode/vsce": "^2.26.1",

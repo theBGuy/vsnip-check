@@ -636,7 +636,7 @@ function validateTextDocument(textDocument: vscode.TextDocument, diagnosticColle
           const statIdx = 1 + sectionIndex + section.indexOf(`[${stat}]`);
 
           if (Number.isNaN(Number(stat))) {
-            // biome-ignore lint/suspicious/noPrototypeBuiltins: <explanation>
+            // biome-ignore lint/suspicious/noPrototypeBuiltins: Works as intended, checking if stat exists
             if (!NTIPAliasStat.hasOwnProperty(stat)) {
               diagnostics.push(
                 new vscode.Diagnostic(new vscode.Range(i, statIdx, i, statIdx + stat.length), `Unknown stat: ${stat}`),
@@ -789,7 +789,7 @@ export function activate(context: vscode.ExtensionContext) {
   const propsAndStatsProvider = vscode.languages.registerCompletionItemProvider(
     "nip",
     {
-      provideCompletionItems(document, position, token, context) {
+      provideCompletionItems(document, position, _token, _contextt) {
         try {
           const completionItems: vscode.CompletionItem[] = [];
           const line = document.lineAt(position).text;
@@ -876,7 +876,7 @@ export function activate(context: vscode.ExtensionContext) {
   const idsProvider = vscode.languages.registerCompletionItemProvider(
     "nip",
     {
-      provideCompletionItems(document, position, token, context) {
+      provideCompletionItems(document, position, _token, _contextt) {
         try {
           const completionItems: vscode.CompletionItem[] = [];
           const line = document.lineAt(position).text.slice(0, position.character);
