@@ -21,7 +21,8 @@
     "onDidOpenTextDocument",
     "onStartupFinished",
     "onDidCloseTextDocument",
-    "onLanguage:javascript"
+    "onLanguage:javascript",
+    "onLanguage:typescript"
   ],
   "main": "./dist/diagnostics.js",
   "contributes": {
@@ -68,7 +69,7 @@
     "@types/node": "^20.11.13",
     "@types/vscode": "^1.85.0",
     "@vscode/vsce": "^2.26.1",
-    "release-it": "^18.1.2",
+    "release-it": "^19.2.3",
     "tslint": "^6.1.3",
     "typescript": "^5.3.3"
   }
