@@ -21,7 +21,10 @@
     "onDidOpenTextDocument",
     "onStartupFinished",
     "onDidCloseTextDocument",
-    "onLanguage:javascript"
+    "onLanguage:javascript",
+    "onLanguage:typescript",
+    "onLanguage:javascriptreact",
+    "onLanguage:typescriptreact"
   ],
   "main": "./dist/diagnostics.js",
   "contributes": {
