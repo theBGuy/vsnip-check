@@ -32,10 +32,12 @@ const LINE_COMMENT_NIP_ABOVE = /^\s*\/\/\s*nip\s*$/i;
 const TRAILING_COMMENT_NIP = /["'`]([^"'`]+)["'`]\s*,?\s*\/\/\s*nip\s*$/i;
 const STRING_LITERAL = /["'`]([^"'`]+)["'`]/g;
 
-/**
- * Finds all NIP strings in a JavaScript/TypeScript document based on annotations.
- */
+const nipStringCache = new Map<string, { version: number; matches: NipStringMatch[] }>();
+
 function findNipStringsInJS(document: vscode.TextDocument): NipStringMatch[] {
+  const key = document.uri.toString();
+  const cached = nipStringCache.get(key);
+  if (cached?.version === document.version) return cached.matches;
   const matches: NipStringMatch[] = [];
   const text = document.getText();
   const lines = text.split(/\r?\n/);
@@ -178,6 +180,7 @@ function findNipStringsInJS(document: vscode.TextDocument): NipStringMatch[] {
     }
   }
 
+  nipStringCache.set(key, { version: document.version, matches });
   return matches;
 }
 
@@ -816,19 +819,24 @@ export function activate(context: vscode.ExtensionContext) {
   //     }
   //   )
   // );
-  vscode.workspace.onDidOpenTextDocument((document) => {
-    validateTextDocument(document, diagnosticCollection);
-    validateJSNipStrings(document, diagnosticCollection);
-  });
-  vscode.workspace.onDidSaveTextDocument((document) => {
-    validateTextDocument(document, diagnosticCollection);
-    validateJSNipStrings(document, diagnosticCollection);
-  });
-  vscode.workspace.onDidChangeTextDocument((event) => {
-    validateTextDocument(event.document, diagnosticCollection);
-    validateJSNipStrings(event.document, diagnosticCollection);
-  });
-  vscode.workspace.onDidCloseTextDocument((document) => diagnosticCollection.delete(document.uri));
+  context.subscriptions.push(
+    vscode.workspace.onDidOpenTextDocument((document) => {
+      validateTextDocument(document, diagnosticCollection);
+      validateJSNipStrings(document, diagnosticCollection);
+    }),
+    vscode.workspace.onDidSaveTextDocument((document) => {
+      validateTextDocument(document, diagnosticCollection);
+      validateJSNipStrings(document, diagnosticCollection);
+    }),
+    vscode.workspace.onDidChangeTextDocument((event) => {
+      validateTextDocument(event.document, diagnosticCollection);
+      validateJSNipStrings(event.document, diagnosticCollection);
+    }),
+    vscode.workspace.onDidCloseTextDocument((document) => {
+      diagnosticCollection.delete(document.uri);
+      nipStringCache.delete(document.uri.toString());
+    }),
+  );
 
   context.subscriptions.push(
     vscode.workspace.onDidChangeTextDocument(async (event) => {
@@ -837,6 +845,7 @@ export function activate(context: vscode.ExtensionContext) {
       if (!JS_LANGUAGES.includes(event.document.languageId)) return;
 
       for (const change of event.contentChanges) {
+        if (change.text.length !== 1) continue;
         if (change.text !== "[" && change.text !== "(") continue;
         if (change.rangeLength > 0) continue;
 

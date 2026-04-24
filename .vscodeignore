@@ -1,4 +1,11 @@
 .vscode/**
 .vscode-test/**
+.github/**
 .gitignore
+.release-it.json
+biome.json
+tsconfig.json
+pnpm-lock.yaml
+src/
+*.vsix
 vsc-extension-quickstart.md

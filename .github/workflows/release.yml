@@ -16,7 +16,7 @@ jobs:
 
       - uses: pnpm/action-setup@v4
         with:
-          version: latest
+          version: 10
 
       - uses: actions/setup-node@v4
         with:
@@ -30,7 +30,9 @@ jobs:
         run: pnpm exec vsce package
 
       - name: Publish to VS Code Marketplace
-        run: pnpm exec vsce publish --pat ${{ secrets.VSCE_PAT }}
+        run: pnpm exec vsce publish
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
 
       - name: Upload .vsix to GitHub Release
         uses: softprops/action-gh-release@v2

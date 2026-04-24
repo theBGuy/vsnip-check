@@ -13,6 +13,6 @@
     "publish": false
   },
   "hooks": {
-    "after:bump": "pnpm run build"
+    "after:bump": "pnpm run check-types && pnpm run lint && tsc -p . && pnpm exec vsce package"
   }
 }
