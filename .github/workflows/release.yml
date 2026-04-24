@@ -1,8 +1,9 @@
 name: Release
+
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
 
 permissions:
   contents: write
@@ -11,41 +12,27 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: pnpm/action-setup@v4
         with:
-          node-version: '22'
+          version: latest
 
-      - name: Install Dependencies
-        run: npm ci
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "pnpm"
 
-      - name: Build
-        run: npm run vscode:prepublish
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Package
-        run: npx vsce package
-        id: package
+        run: pnpm exec vsce package
 
-      - name: Create Release
-        uses: actions/create-release@v1
-        id: create_release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: false
-          prerelease: false
+      - name: Publish to VS Code Marketplace
+        run: pnpm exec vsce publish --pat ${{ secrets.VSCE_PAT }}
 
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload .vsix to GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./${{ steps.package.outputs.name }}
-          asset_name: ${{ steps.package.outputs.name }}
-          asset_content_type: application/zip
+          files: "*.vsix"

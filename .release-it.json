@@ -1,9 +1,18 @@
 {
   "$schema": "https://unpkg.com/release-it/schema/release-it.json",
+  "git": {
+    "commitMessage": "Release ${version}",
+    "tagName": "v${version}"
+  },
   "github": {
-    "release": true
+    "release": true,
+    "releaseName": "v${version}",
+    "assets": ["*.vsix"]
   },
   "npm": {
     "publish": false
+  },
+  "hooks": {
+    "after:bump": "pnpm run build"
   }
 }
