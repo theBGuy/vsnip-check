@@ -181,6 +181,16 @@ function findNipStringsInJS(document: vscode.TextDocument): NipStringMatch[] {
   return matches;
 }
 
+function isPositionInNipString(document: vscode.TextDocument, position: vscode.Position): boolean {
+  const nipStrings = findNipStringsInJS(document);
+  return nipStrings.some(
+    (match) =>
+      match.lineNumber === position.line &&
+      position.character >= match.startColumn &&
+      position.character <= match.endColumn,
+  );
+}
+
 /**
  * Validates NIP strings embedded in JavaScript/TypeScript files.
  */
@@ -567,7 +577,7 @@ function validateTextDocument(textDocument: vscode.TextDocument, diagnosticColle
           const propIdx = section.indexOf(`[${_property}]`);
 
           if (_aliases.has(property)) {
-            // @ts-ignore - TS doesn't know that the key exists even though we check it above
+            // @ts-expect-error - TS doesn't know that the key exists even though we check it above
             property = _aliases.get(property);
           }
 
@@ -703,6 +713,91 @@ function validateTextDocument(textDocument: vscode.TextDocument, diagnosticColle
   diagnosticCollection.set(textDocument.uri, diagnostics);
 }
 
+const extrasValues = ["tier", "merctier", "charmtier", "maxquantity", "mq"];
+
+function levenshtein(a: string, b: string): number {
+  const m = a.length;
+  const n = b.length;
+  const dp = Array.from({ length: m + 1 }, (_, i) =>
+    Array.from({ length: n + 1 }, (_, j) => (i === 0 ? j : j === 0 ? i : 0)),
+  );
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      dp[i][j] = a[i - 1] === b[j - 1] ? dp[i - 1][j - 1] : 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
+    }
+  }
+  return dp[m][n];
+}
+
+function getFuzzySuggestions(query: string, list: string[], limit = 3): string[] {
+  const q = query.toLowerCase();
+  const threshold = Math.max(1, Math.floor(q.length / 3));
+  return list
+    .map((item) => ({ item, dist: levenshtein(q, item.toLowerCase()) }))
+    .filter(({ dist }) => dist <= threshold)
+    .sort((a, b) => a.dist - b.dist)
+    .slice(0, limit)
+    .map(({ item }) => item);
+}
+
+function makeReplaceAction(
+  document: vscode.TextDocument,
+  diagnostic: vscode.Diagnostic,
+  suggestion: string,
+): vscode.CodeAction {
+  const action = new vscode.CodeAction(`Replace with '${suggestion}'`, vscode.CodeActionKind.QuickFix);
+  action.diagnostics = [diagnostic];
+  action.edit = new vscode.WorkspaceEdit();
+  action.edit.replace(document.uri, diagnostic.range, suggestion);
+  return action;
+}
+
+function provideNipQuickFixes(
+  document: vscode.TextDocument,
+  _range: vscode.Range,
+  context: vscode.CodeActionContext,
+): vscode.CodeAction[] {
+  const actions: vscode.CodeAction[] = [];
+
+  for (const diagnostic of context.diagnostics) {
+    const msg = diagnostic.message;
+    let m: RegExpMatchArray | null;
+
+    if ((m = msg.match(/^Invalid property: (.+)$/))) {
+      for (const s of getFuzzySuggestions(m[1], validProperties)) {
+        actions.push(makeReplaceAction(document, diagnostic, s));
+      }
+    } else if ((m = msg.match(/^Unknown stat: (.+)$/))) {
+      for (const s of getFuzzySuggestions(m[1], Object.keys(NTIPAliasStat))) {
+        actions.push(makeReplaceAction(document, diagnostic, s));
+      }
+    } else if ((m = msg.match(/^Invalid extra: (.+)$/))) {
+      for (const s of getFuzzySuggestions(m[1], extrasValues)) {
+        actions.push(makeReplaceAction(document, diagnostic, s));
+      }
+    } else if ((m = msg.match(/^Unknown keyword: (.+)$/))) {
+      const typo = m[1];
+      const lineText = document.lineAt(diagnostic.range.start.line).text;
+      const textBefore = lineText.slice(0, diagnostic.range.start.character);
+      const propMatch = textBefore.match(/\[([^\]]+)\][^[]*$/);
+      if (propMatch) {
+        let property = propMatch[1].toLowerCase();
+        const resolved = _aliases.get(property);
+        if (resolved) property = resolved;
+        const list = _lists.get(property);
+        if (list) {
+          const keys = Object.keys(list).filter((k) => !["notused", "unused"].includes(k));
+          for (const s of getFuzzySuggestions(typo, keys)) {
+            actions.push(makeReplaceAction(document, diagnostic, s));
+          }
+        }
+      }
+    }
+  }
+
+  return actions;
+}
+
 export function activate(context: vscode.ExtensionContext) {
   const diagnosticCollection = vscode.languages.createDiagnosticCollection("vsnip-check");
   // context.subscriptions.push(
@@ -734,6 +829,32 @@ export function activate(context: vscode.ExtensionContext) {
     validateJSNipStrings(event.document, diagnosticCollection);
   });
   vscode.workspace.onDidCloseTextDocument((document) => diagnosticCollection.delete(document.uri));
+
+  context.subscriptions.push(
+    vscode.workspace.onDidChangeTextDocument(async (event) => {
+      const editor = vscode.window.activeTextEditor;
+      if (!editor || editor.document !== event.document) return;
+      if (!JS_LANGUAGES.includes(event.document.languageId)) return;
+
+      for (const change of event.contentChanges) {
+        if (change.text !== "[" && change.text !== "(") continue;
+        if (change.rangeLength > 0) continue;
+
+        const insertPos = new vscode.Position(change.range.start.line, change.range.start.character + 1);
+        if (!isPositionInNipString(event.document, insertPos)) continue;
+
+        const closing = change.text === "[" ? "]" : ")";
+        const lineText = event.document.lineAt(insertPos.line).text;
+        if (lineText[insertPos.character] === closing) continue;
+
+        await editor.edit((editBuilder) => {
+          editBuilder.insert(insertPos, closing);
+        });
+        editor.selection = new vscode.Selection(insertPos, insertPos);
+        break;
+      }
+    }),
+  );
 
   const alphas = [
     "a",
@@ -848,7 +969,6 @@ export function activate(context: vscode.ExtensionContext) {
             for (const val of validProperties) {
               const completionItem = new vscode.CompletionItem(val, vscode.CompletionItemKind.Keyword);
               if (_aliases.has(val)) {
-                // @ts-ignore
                 completionItem.detail = _aliases.get(val);
               }
               completionItems.push(completionItem);
@@ -907,7 +1027,7 @@ export function activate(context: vscode.ExtensionContext) {
 
           let property = matches.at(-1)?.slice(1, -1) || "";
           if (_aliases.has(property)) {
-            // @ts-ignore
+            // @ts-expect-error
             property = _aliases.get(property);
           }
           if (!_lists.has(property)) return completionItems;
@@ -952,12 +1072,7 @@ export function activate(context: vscode.ExtensionContext) {
         const linePrefix = line.slice(0, position.character);
         const lineSuffix = line.slice(position.character);
 
-        // Check if the cursor is inside a quoted string
-        const isInsideDoubleQuotes =
-          (linePrefix.match(/"/g) || []).length % 2 === 1 && (lineSuffix.match(/"/g) || []).length % 2 === 1;
-        const isInsideSingleQuotes =
-          (linePrefix.match(/'/g) || []).length % 2 === 1 && (lineSuffix.match(/'/g) || []).length % 2 === 1;
-        if (!isInsideDoubleQuotes && !isInsideSingleQuotes) {
+        if (!isPositionInNipString(document, position)) {
           return completionItems;
         }
 
@@ -1005,7 +1120,6 @@ export function activate(context: vscode.ExtensionContext) {
           for (const val of validProperties) {
             const completionItem = new vscode.CompletionItem(val, vscode.CompletionItemKind.Keyword);
             if (_aliases.has(val)) {
-              // @ts-ignore
               completionItem.detail = _aliases.get(val);
             }
             completionItems.push(completionItem);
@@ -1039,10 +1153,7 @@ export function activate(context: vscode.ExtensionContext) {
         const line = document.lineAt(position).text.slice(0, position.character);
         const segments = line.split("#");
 
-        // Check if the cursor is inside a quoted string
-        const isInsideDoubleQuotes = (line.match(/"/g) || []).length % 2 === 1;
-        const isInsideSingleQuotes = (line.match(/'/g) || []).length % 2 === 1;
-        if (!isInsideDoubleQuotes && !isInsideSingleQuotes) {
+        if (!isPositionInNipString(document, position)) {
           return completionItems;
         }
 
@@ -1064,7 +1175,7 @@ export function activate(context: vscode.ExtensionContext) {
 
         let property = matches.at(-1)?.slice(1, -1) || "";
         if (_aliases.has(property)) {
-          // @ts-ignore
+          // @ts-expect-error
           property = _aliases.get(property);
         }
         if (!_lists.has(property)) return completionItems;
@@ -1113,7 +1224,15 @@ export function activate(context: vscode.ExtensionContext) {
   const idsProviderJS = vscode.languages.registerCompletionItemProvider("javascript", jstsIdsProvider, ...alphas);
   const idsProviderTS = vscode.languages.registerCompletionItemProvider("typescript", jstsIdsProvider, ...alphas);
 
+  const quickFixProvider = { provideCodeActions: provideNipQuickFixes };
+  const quickFixMeta = { providedCodeActionKinds: [vscode.CodeActionKind.QuickFix] };
+
   context.subscriptions.push(propsAndStatsProvider, idsProvider);
   context.subscriptions.push(propsProviderJS, propsProviderTS);
   context.subscriptions.push(idsProviderJS, idsProviderTS);
+  context.subscriptions.push(
+    vscode.languages.registerCodeActionsProvider("nip", quickFixProvider, quickFixMeta),
+    vscode.languages.registerCodeActionsProvider("javascript", quickFixProvider, quickFixMeta),
+    vscode.languages.registerCodeActionsProvider("typescript", quickFixProvider, quickFixMeta),
+  );
 }
