@@ -2,7 +2,7 @@
   "name": "vsnip-check",
   "displayName": "vsnip-check",
   "description": "Syntax highlighting and error reporting for .nip pickit files",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "author": "theBGuy <theBGuy.github@gmail.com>",
   "publisher": "theBGuy",
   "repository": "https://github.com/theBGuy/vsnip-check",
@@ -56,32 +56,62 @@
       {
         "id": "nip.property",
         "description": "Color for NIP property brackets [...] in JS/TS strings",
-        "defaults": { "dark": "#CE9178", "light": "#A31515", "highContrast": "#CE9178", "highContrastLight": "#A31515" }
+        "defaults": {
+          "dark": "#CE9178",
+          "light": "#A31515",
+          "highContrast": "#CE9178",
+          "highContrastLight": "#A31515"
+        }
       },
       {
         "id": "nip.operator",
         "description": "Color for NIP operators (==, !=, &&, ||, etc.) in JS/TS strings",
-        "defaults": { "dark": "#C586C0", "light": "#AF00DB", "highContrast": "#C586C0", "highContrastLight": "#AF00DB" }
+        "defaults": {
+          "dark": "#C586C0",
+          "light": "#AF00DB",
+          "highContrast": "#C586C0",
+          "highContrastLight": "#AF00DB"
+        }
       },
       {
         "id": "nip.keyword",
         "description": "Color for NIP keywords (in / notin) in JS/TS strings",
-        "defaults": { "dark": "#C586C0", "light": "#AF00DB", "highContrast": "#C586C0", "highContrastLight": "#AF00DB" }
+        "defaults": {
+          "dark": "#C586C0",
+          "light": "#AF00DB",
+          "highContrast": "#C586C0",
+          "highContrastLight": "#AF00DB"
+        }
       },
       {
         "id": "nip.number",
         "description": "Color for NIP numeric values in JS/TS strings",
-        "defaults": { "dark": "#B5CEA8", "light": "#098658", "highContrast": "#B5CEA8", "highContrastLight": "#098658" }
+        "defaults": {
+          "dark": "#B5CEA8",
+          "light": "#098658",
+          "highContrast": "#B5CEA8",
+          "highContrastLight": "#098658"
+        }
       },
       {
         "id": "nip.separator",
         "description": "Color for NIP section separator (#) in JS/TS strings",
-        "defaults": { "dark": "#D7BA7D", "light": "#800000", "highContrast": "#D7BA7D", "highContrastLight": "#800000" }
+        "defaults": {
+          "dark": "#D7BA7D",
+          "light": "#800000",
+          "highContrast": "#D7BA7D",
+          "highContrastLight": "#800000"
+        }
       },
       {
         "id": "nip.value",
         "description": "Color for NIP value identifiers in JS/TS strings",
-        "defaults": { "dark": "#9CDCFE", "light": "#0070C1", "highContrast": "#9CDCFE", "highContrastLight": "#0070C1" }
+        "defaults": {
+          "dark": "#9CDCFE",
+          "light": "#0070C1",
+          "highContrast": "#9CDCFE",
+          "highContrastLight": "#0070C1"
+        }
       }
     ]
   },
