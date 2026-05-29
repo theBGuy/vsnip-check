@@ -976,43 +976,40 @@ function tokenizeNipContent(content: string): NipToken[] {
   return tokens;
 }
 
-// Semantic token types — order must match the legend below
-const NIP_SEMANTIC_TOKEN_TYPES = [
-  "nipProperty",
-  "nipOperator",
-  "nipKeyword",
-  "nipNumber",
-  "nipSeparator",
-  "nipValue",
-] as const;
-const nipTokensLegend = new vscode.SemanticTokensLegend([...NIP_SEMANTIC_TOKEN_TYPES], []);
+type NipDecorationsMap = Record<NipTokenType, vscode.TextEditorDecorationType>;
 
-const NIP_TYPE_INDEX: Record<NipTokenType, number> = {
-  property: 0,
-  operator: 1,
-  keyword: 2,
-  number: 3,
-  separator: 4,
-  value: 5,
-};
+function updateNipDecorations(editor: vscode.TextEditor, decorations: NipDecorationsMap) {
+  if (!JS_LANGUAGES.includes(editor.document.languageId)) {
+    for (const dt of Object.values(decorations)) {
+      editor.setDecorations(dt, []);
+    }
+    return;
+  }
 
-const nipSemanticTokensProvider: vscode.DocumentSemanticTokensProvider = {
-  provideDocumentSemanticTokens(document) {
-    if (!JS_LANGUAGES.includes(document.languageId)) return;
-    const builder = new vscode.SemanticTokensBuilder(nipTokensLegend);
-    const nipStrings = findNipStringsInJS(document);
-    for (const match of nipStrings) {
-      for (const token of tokenizeNipContent(match.content)) {
+  const nipStrings = findNipStringsInJS(editor.document);
+  const rangeMap: Record<NipTokenType, vscode.Range[]> = {
+    property: [],
+    operator: [],
+    keyword: [],
+    number: [],
+    separator: [],
+    value: [],
+  };
+
+  for (const match of nipStrings) {
+    for (const token of tokenizeNipContent(match.content)) {
+      const len = token.end - token.start;
+      if (len > 0) {
         const col = match.startColumn + token.start;
-        const len = token.end - token.start;
-        if (len > 0) {
-          builder.push(match.lineNumber, col, len, NIP_TYPE_INDEX[token.type], 0);
-        }
+        rangeMap[token.type].push(new vscode.Range(match.lineNumber, col, match.lineNumber, col + len));
       }
     }
-    return builder.build();
-  },
-};
+  }
+
+  for (const [type, ranges] of Object.entries(rangeMap) as [NipTokenType, vscode.Range[]][]) {
+    editor.setDecorations(decorations[type], ranges);
+  }
+}
 
 export function activate(context: vscode.ExtensionContext) {
   const diagnosticCollection = vscode.languages.createDiagnosticCollection("vsnip-check");
@@ -1032,12 +1029,26 @@ export function activate(context: vscode.ExtensionContext) {
   //     }
   //   )
   // );
+  const nipDecorations: NipDecorationsMap = {
+    property: vscode.window.createTextEditorDecorationType({ color: new vscode.ThemeColor("nip.property") }),
+    operator: vscode.window.createTextEditorDecorationType({ color: new vscode.ThemeColor("nip.operator") }),
+    keyword: vscode.window.createTextEditorDecorationType({ color: new vscode.ThemeColor("nip.keyword") }),
+    number: vscode.window.createTextEditorDecorationType({ color: new vscode.ThemeColor("nip.number") }),
+    separator: vscode.window.createTextEditorDecorationType({ color: new vscode.ThemeColor("nip.separator") }),
+    value: vscode.window.createTextEditorDecorationType({ color: new vscode.ThemeColor("nip.value") }),
+  };
+  for (const dt of Object.values(nipDecorations)) context.subscriptions.push(dt);
+
+  // Seed decorations for any editors already open when the extension activates.
+  for (const editor of vscode.window.visibleTextEditors) updateNipDecorations(editor, nipDecorations);
+
   context.subscriptions.push(
-    vscode.languages.registerDocumentSemanticTokensProvider(
-      JS_LANGUAGES.map((lang) => ({ language: lang })),
-      nipSemanticTokensProvider,
-      nipTokensLegend,
-    ),
+    vscode.window.onDidChangeActiveTextEditor((editor) => {
+      if (editor) updateNipDecorations(editor, nipDecorations);
+    }),
+    vscode.window.onDidChangeVisibleTextEditors((editors) => {
+      for (const editor of editors) updateNipDecorations(editor, nipDecorations);
+    }),
   );
 
   context.subscriptions.push(
@@ -1052,6 +1063,9 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.workspace.onDidChangeTextDocument((event) => {
       validateTextDocument(event.document, diagnosticCollection);
       validateJSNipStrings(event.document, diagnosticCollection);
+      for (const editor of vscode.window.visibleTextEditors) {
+        if (editor.document === event.document) updateNipDecorations(editor, nipDecorations);
+      }
     }),
     vscode.workspace.onDidCloseTextDocument((document) => {
       diagnosticCollection.delete(document.uri);

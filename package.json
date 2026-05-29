@@ -52,60 +52,36 @@
         "path": "./snippits/snippits.json"
       }
     ],
-    "semanticTokenTypes": [
+    "colors": [
       {
-        "id": "nipProperty",
-        "superType": "property",
-        "description": "NIP property bracket [...]"
+        "id": "nip.property",
+        "description": "Color for NIP property brackets [...] in JS/TS strings",
+        "defaults": { "dark": "#CE9178", "light": "#A31515", "highContrast": "#CE9178", "highContrastLight": "#A31515" }
       },
       {
-        "id": "nipOperator",
-        "superType": "keyword",
-        "description": "NIP operator (==, !=, &&, ||, etc.)"
+        "id": "nip.operator",
+        "description": "Color for NIP operators (==, !=, &&, ||, etc.) in JS/TS strings",
+        "defaults": { "dark": "#C586C0", "light": "#AF00DB", "highContrast": "#C586C0", "highContrastLight": "#AF00DB" }
       },
       {
-        "id": "nipKeyword",
-        "superType": "keyword",
-        "description": "NIP keyword (in / notin)"
+        "id": "nip.keyword",
+        "description": "Color for NIP keywords (in / notin) in JS/TS strings",
+        "defaults": { "dark": "#C586C0", "light": "#AF00DB", "highContrast": "#C586C0", "highContrastLight": "#AF00DB" }
       },
       {
-        "id": "nipNumber",
-        "superType": "number",
-        "description": "NIP numeric value"
+        "id": "nip.number",
+        "description": "Color for NIP numeric values in JS/TS strings",
+        "defaults": { "dark": "#B5CEA8", "light": "#098658", "highContrast": "#B5CEA8", "highContrastLight": "#098658" }
       },
       {
-        "id": "nipSeparator",
-        "superType": "operator",
-        "description": "NIP section separator #"
+        "id": "nip.separator",
+        "description": "Color for NIP section separator (#) in JS/TS strings",
+        "defaults": { "dark": "#D7BA7D", "light": "#800000", "highContrast": "#D7BA7D", "highContrastLight": "#800000" }
       },
       {
-        "id": "nipValue",
-        "superType": "enumMember",
-        "description": "NIP value identifier"
-      }
-    ],
-    "semanticTokenScopes": [
-      {
-        "scopes": {
-          "nipProperty": [
-            "string.regexp"
-          ],
-          "nipOperator": [
-            "keyword.control"
-          ],
-          "nipKeyword": [
-            "keyword.control"
-          ],
-          "nipNumber": [
-            "constant.numeric.nip"
-          ],
-          "nipSeparator": [
-            "constant.character.escape"
-          ],
-          "nipValue": [
-            "keyword.other"
-          ]
-        }
+        "id": "nip.value",
+        "description": "Color for NIP value identifiers in JS/TS strings",
+        "defaults": { "dark": "#9CDCFE", "light": "#0070C1", "highContrast": "#9CDCFE", "highContrastLight": "#0070C1" }
       }
     ]
   },
