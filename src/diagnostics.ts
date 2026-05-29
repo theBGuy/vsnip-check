@@ -102,7 +102,9 @@ function findNipStringsInJS(document: vscode.TextDocument): NipStringMatch[] {
 
     // A line ending with // nip (standalone or after other code, with no string before it)
     // marks the next line's first string as a NIP string.
-    if (LINE_ENDS_WITH_NIP.test(line)) {
+    // Guard with !inNipBlock so a redundant // nip annotation inside a @type {NipString[]}
+    // or Record<string, NipString> block doesn't skip block extraction and depth tracking.
+    if (!inNipBlock && LINE_ENDS_WITH_NIP.test(line)) {
       nextLineIsNip = true;
       continue;
     }
