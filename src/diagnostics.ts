@@ -940,7 +940,12 @@ function tokenizeNipContent(content: string): NipToken[] {
 type NipDecorationsMap = Record<NipTokenType, vscode.TextEditorDecorationType>;
 
 function updateNipDecorations(editor: vscode.TextEditor, decorations: NipDecorationsMap) {
-  if (!JS_LANGUAGES.includes(editor.document.languageId)) return;
+  if (!JS_LANGUAGES.includes(editor.document.languageId)) {
+    for (const dt of Object.values(decorations)) {
+      editor.setDecorations(dt, []);
+    }
+    return;
+  }
 
   const nipStrings = findNipStringsInJS(editor.document);
   const rangeMap: Record<NipTokenType, vscode.Range[]> = {
