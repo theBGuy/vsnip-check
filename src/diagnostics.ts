@@ -599,9 +599,7 @@ function validateTextDocument(textDocument: vscode.TextDocument, diagnosticColle
       while ((cm = commaPat.exec(lines[i])) !== null) {
         const pos = cm.index;
         if (!validRanges.some(([s, e]) => pos >= s && pos < e)) {
-          diagnostics.push(
-            new vscode.Diagnostic(new vscode.Range(i, pos, i, pos + 1), "Unexpected comma"),
-          );
+          diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, pos, i, pos + 1), "Unexpected comma"));
         }
       }
     }
