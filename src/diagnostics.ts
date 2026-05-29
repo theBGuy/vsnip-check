@@ -150,8 +150,12 @@ function findNipStringsInJS(document: vscode.TextDocument): NipStringMatch[] {
 
     // Track block depth and extract strings when inside a NIP block
     if (inNipBlock) {
+      // Strip JSDoc comments before counting brackets/braces so that the `[]` inside
+      // `/** @type {NipString[]} */` on a standalone line isn't counted as array depth.
+      const lineForDepth = line.replace(/\/\*\*.*?\*\//g, "");
+
       // Count opening and closing brackets/braces
-      for (const ch of line) {
+      for (const ch of lineForDepth) {
         if (blockType === "array" && ch === "[") blockDepth++;
         if (blockType === "array" && ch === "]") blockDepth--;
         if (blockType === "object" && ch === "{") blockDepth++;
@@ -180,7 +184,7 @@ function findNipStringsInJS(document: vscode.TextDocument): NipStringMatch[] {
       }
 
       // Check if block has ended
-      if (blockDepth <= 0 && (line.includes("]") || line.includes("}"))) {
+      if (blockDepth <= 0 && (lineForDepth.includes("]") || lineForDepth.includes("}"))) {
         inNipBlock = false;
         blockType = null;
       }
