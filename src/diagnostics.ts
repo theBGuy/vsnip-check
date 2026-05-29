@@ -326,6 +326,26 @@ function validateNipString(nipLine: string, originalLine: string): NipDiagnostic
 
   if (line.length < 5) return results;
 
+  // Flag commas that are not inside an in/notin list, e.g. "shield, 2" is invalid.
+  {
+    const validRanges: [number, number][] = [];
+    const inPat = /\b(?:in|notin)\s*\([^)]*\)/gi;
+    let inm: RegExpExecArray | null;
+    const commentIndex = originalLine.indexOf("//");
+    const lineWithoutComment = commentIndex === -1 ? originalLine : originalLine.slice(0, commentIndex);
+    while ((inm = inPat.exec(lineWithoutComment)) !== null) {
+      validRanges.push([inm.index, inm.index + inm[0].length]);
+    }
+    const commaPat = /,/g;
+    let cm: RegExpExecArray | null;
+    while ((cm = commaPat.exec(lineWithoutComment)) !== null) {
+      const pos = cm.index;
+      if (!validRanges.some(([s, e]) => pos >= s && pos < e)) {
+        results.push({ message: "Unexpected comma", startOffset: pos, endOffset: pos + 1 });
+      }
+    }
+  }
+
   const sections = line.split("#");
 
   for (let j = 0; j < sections.length; j++) {
@@ -567,6 +587,25 @@ function validateTextDocument(textDocument: vscode.TextDocument, diagnosticColle
 
     const line = lines[i].replace(/\s+/g, "").toLowerCase();
     if (line.length < 5) continue;
+
+    // Flag commas that are not inside an in/notin list.
+    {
+      const validRanges: [number, number][] = [];
+      const inPat = /\b(?:in|notin)\s*\([^)]*\)/gi;
+      let inm: RegExpExecArray | null;
+      while ((inm = inPat.exec(lines[i])) !== null) {
+        validRanges.push([inm.index, inm.index + inm[0].length]);
+      }
+      const commaPat = /,/g;
+      let cm: RegExpExecArray | null;
+      while ((cm = commaPat.exec(lines[i])) !== null) {
+        const pos = cm.index;
+        if (!validRanges.some(([s, e]) => pos >= s && pos < e)) {
+          diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, pos, i, pos + 1), "Unexpected comma"));
+        }
+      }
+    }
+
     const sections = line.split("#");
 
     for (let j = 0; j < sections.length; j++) {
