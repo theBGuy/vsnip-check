@@ -331,12 +331,14 @@ function validateNipString(nipLine: string, originalLine: string): NipDiagnostic
     const validRanges: [number, number][] = [];
     const inPat = /\b(?:in|notin)\s*\([^)]*\)/gi;
     let inm: RegExpExecArray | null;
-    while ((inm = inPat.exec(originalLine)) !== null) {
+    const commentIndex = originalLine.indexOf("//");
+    const lineWithoutComment = commentIndex === -1 ? originalLine : originalLine.slice(0, commentIndex);
+    while ((inm = inPat.exec(lineWithoutComment)) !== null) {
       validRanges.push([inm.index, inm.index + inm[0].length]);
     }
     const commaPat = /,/g;
     let cm: RegExpExecArray | null;
-    while ((cm = commaPat.exec(originalLine)) !== null) {
+    while ((cm = commaPat.exec(lineWithoutComment)) !== null) {
       const pos = cm.index;
       if (!validRanges.some(([s, e]) => pos >= s && pos < e)) {
         results.push({ message: "Unexpected comma", startOffset: pos, endOffset: pos + 1 });
