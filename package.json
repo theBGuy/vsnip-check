@@ -51,6 +51,26 @@
         "language": "nip",
         "path": "./snippits/snippits.json"
       }
+    ],
+    "semanticTokenTypes": [
+      { "id": "nipProperty", "superType": "property", "description": "NIP property bracket [...]" },
+      { "id": "nipOperator", "superType": "keyword", "description": "NIP operator (==, !=, &&, ||, etc.)" },
+      { "id": "nipKeyword", "superType": "keyword", "description": "NIP keyword (in / notin)" },
+      { "id": "nipNumber", "superType": "number", "description": "NIP numeric value" },
+      { "id": "nipSeparator", "superType": "operator", "description": "NIP section separator #" },
+      { "id": "nipValue", "superType": "enumMember", "description": "NIP value identifier" }
+    ],
+    "semanticTokenScopes": [
+      {
+        "scopes": {
+          "nipProperty": ["string.regexp"],
+          "nipOperator": ["keyword.control"],
+          "nipKeyword": ["keyword.control"],
+          "nipNumber": ["constant.numeric.nip"],
+          "nipSeparator": ["constant.character.escape"],
+          "nipValue": ["keyword.other"]
+        }
+      }
     ]
   },
   "scripts": {
