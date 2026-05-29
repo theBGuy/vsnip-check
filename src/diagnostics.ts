@@ -28,7 +28,8 @@ const JS_LANGUAGES = ["javascript", "typescript"];
 // Regex patterns for detecting NIP strings in JS/TS files
 const JSDOC_TYPE_PATTERN = /\/\*\*\s*@type\s*\{(NipString(?:\[\])?|Record<string,\s*NipString>)\}\s*\*\//;
 const INLINE_NIP_JSDOC = /\/\*\*\s*nip\s*\*\/\s*["'`]([^"'`]+)["'`]/i;
-const LINE_COMMENT_NIP_ABOVE = /^\s*\/\/\s*nip\s*$/i;
+// Matches a line that ends with a standalone `// nip` annotation (possibly preceded by other code)
+const LINE_ENDS_WITH_NIP = /\/\/\s*nip\s*$/i;
 const TRAILING_COMMENT_NIP = /["'`]([^"'`]+)["'`]\s*,?\s*\/\/\s*nip\s*$/i;
 const STRING_LITERAL = /["'`]([^"'`]+)["'`]/g;
 
@@ -50,7 +51,7 @@ function findNipStringsInJS(document: vscode.TextDocument): NipStringMatch[] {
   for (let lineNum = 0; lineNum < lines.length; lineNum++) {
     const line = lines[lineNum];
 
-    // Pattern 1: Check if previous line was // nip
+    // Pattern 1: Previous line ended with // nip — the first string on this line is the NIP string
     if (nextLineIsNip) {
       nextLineIsNip = false;
       const stringMatch = line.match(/["'`]([^"'`]+)["'`]/);
@@ -63,13 +64,8 @@ function findNipStringsInJS(document: vscode.TextDocument): NipStringMatch[] {
           startColumn,
           endColumn: startColumn + content.length,
         });
+        continue;
       }
-    }
-
-    // Check for // nip comment (marks next line)
-    if (LINE_COMMENT_NIP_ABOVE.test(line)) {
-      nextLineIsNip = true;
-      continue;
     }
 
     // Pattern 2: /** nip */ inline before string
@@ -88,7 +84,9 @@ function findNipStringsInJS(document: vscode.TextDocument): NipStringMatch[] {
       continue;
     }
 
-    // Pattern 7: Trailing // nip comment on same line
+    // Pattern 7: "string" // nip — string and annotation on the same line.
+    // Must be checked BEFORE LINE_ENDS_WITH_NIP so a line like `"string" // nip`
+    // captures the inline string rather than setting nextLineIsNip for the next line.
     const trailingMatch = line.match(TRAILING_COMMENT_NIP);
     if (trailingMatch?.[1] && !inNipBlock) {
       const content = trailingMatch[1];
@@ -99,6 +97,13 @@ function findNipStringsInJS(document: vscode.TextDocument): NipStringMatch[] {
         startColumn: stringStart,
         endColumn: stringStart + content.length,
       });
+      continue;
+    }
+
+    // A line ending with // nip (standalone or after other code, with no string before it)
+    // marks the next line's first string as a NIP string.
+    if (LINE_ENDS_WITH_NIP.test(line)) {
+      nextLineIsNip = true;
       continue;
     }
 
@@ -352,6 +357,18 @@ function validateNipString(nipLine: string, originalLine: string): NipDiagnostic
       const p_section = (parseAliasIn.test(lineSection) ? parseAliasIn.convert(lineSection) : lineSection).split("[");
       const section = originalLine.split("#").at(0) || "";
 
+      // Check for trailing commas in in/notin lists, e.g. [name] in (a, b, )
+      const inListTrailingComma = /\b(?:in|notin)\s*\([^)]*,\s*\)/gi;
+      let tcm: RegExpExecArray | null;
+      while ((tcm = inListTrailingComma.exec(section)) !== null) {
+        const commaIdx = tcm.index + tcm[0].lastIndexOf(",");
+        results.push({
+          message: "Trailing comma in list",
+          startOffset: commaIdx,
+          endOffset: commaIdx + 1,
+        });
+      }
+
       for (let k = 1; k < p_section.length; k++) {
         let p_end = p_section[k].indexOf("]") + 1;
         let property = p_section[k].substring(0, p_end - 1);
@@ -572,6 +589,16 @@ function validateTextDocument(textDocument: vscode.TextDocument, diagnosticColle
         let p_start = 0;
         const p_section = (parseAliasIn.test(lineSection) ? parseAliasIn.convert(lineSection) : lineSection).split("[");
         const section = lines[i].split("#").at(0) || "";
+
+        // Check for trailing commas in in/notin lists, e.g. [name] in (a, b, )
+        const inListTrailingComma = /\b(?:in|notin)\s*\([^)]*,\s*\)/gi;
+        let tcm: RegExpExecArray | null;
+        while ((tcm = inListTrailingComma.exec(section)) !== null) {
+          const commaIdx = tcm.index + tcm[0].lastIndexOf(",");
+          diagnostics.push(
+            new vscode.Diagnostic(new vscode.Range(i, commaIdx, i, commaIdx + 1), "Trailing comma in list"),
+          );
+        }
 
         for (let k = 1; k < p_section.length; k++) {
           let p_end = p_section[k].indexOf("]") + 1;
@@ -795,11 +822,156 @@ function provideNipQuickFixes(
           }
         }
       }
+    } else if (msg === "Trailing comma in list") {
+      const lineText = document.lineAt(diagnostic.range.start.line).text;
+      const commaCol = diagnostic.range.start.character;
+      const closeParen = lineText.indexOf(")", commaCol);
+      if (closeParen !== -1) {
+        const fix = new vscode.CodeAction("Remove trailing comma", vscode.CodeActionKind.QuickFix);
+        fix.edit = new vscode.WorkspaceEdit();
+        fix.diagnostics = [diagnostic];
+        fix.isPreferred = true;
+        // Delete from the comma up to (but not including) the closing paren,
+        // removing ", " or "," so e.g. "in (a, b, )" → "in (a, b)"
+        fix.edit.delete(
+          document.uri,
+          new vscode.Range(diagnostic.range.start.line, commaCol, diagnostic.range.start.line, closeParen),
+        );
+        actions.push(fix);
+      }
     }
   }
 
   return actions;
 }
+
+// ---------------------------------------------------------------------------
+// NIP syntax highlighting inside JS/TS string literals
+// ---------------------------------------------------------------------------
+
+type NipTokenType = "property" | "operator" | "keyword" | "number" | "separator" | "value";
+
+interface NipToken {
+  start: number; // offset within the NIP string content
+  end: number;
+  type: NipTokenType;
+}
+
+function tokenizeNipContent(content: string): NipToken[] {
+  const tokens: NipToken[] = [];
+  let i = 0;
+  while (i < content.length) {
+    const ch = content[i];
+
+    if (/\s/.test(ch)) {
+      i++;
+      continue;
+    }
+
+    // Section separator #
+    if (ch === "#") {
+      tokens.push({ start: i, end: i + 1, type: "separator" });
+      i++;
+      continue;
+    }
+
+    // Bracket expression [property]
+    if (ch === "[") {
+      const closeIdx = content.indexOf("]", i + 1);
+      if (closeIdx !== -1) {
+        tokens.push({ start: i, end: closeIdx + 1, type: "property" });
+        i = closeIdx + 1;
+      } else {
+        i++;
+      }
+      continue;
+    }
+
+    // Parentheses
+    if (ch === "(" || ch === ")") {
+      tokens.push({ start: i, end: i + 1, type: "operator" });
+      i++;
+      continue;
+    }
+
+    // Multi-character operators
+    if (i + 1 < content.length) {
+      const two = content.slice(i, i + 2);
+      if (two === "==" || two === "!=" || two === "&&" || two === "||" || two === ">=" || two === "<=") {
+        tokens.push({ start: i, end: i + 2, type: "operator" });
+        i += 2;
+        continue;
+      }
+    }
+
+    // Single-character operators
+    if ("!><+-*/".includes(ch)) {
+      tokens.push({ start: i, end: i + 1, type: "operator" });
+      i++;
+      continue;
+    }
+
+    // Numbers
+    if (/\d/.test(ch)) {
+      let end = i;
+      while (end < content.length && /[\d.]/.test(content[end])) end++;
+      tokens.push({ start: i, end, type: "number" });
+      i = end;
+      continue;
+    }
+
+    // Words (keywords or value identifiers)
+    if (/[a-zA-Z_]/.test(ch)) {
+      let end = i;
+      while (end < content.length && /\w/.test(content[end])) end++;
+      const word = content.slice(i, end).toLowerCase();
+      tokens.push({ start: i, end, type: word === "in" || word === "notin" ? "keyword" : "value" });
+      i = end;
+      continue;
+    }
+
+    i++;
+  }
+  return tokens;
+}
+
+// Semantic token types — order must match the legend below
+const NIP_SEMANTIC_TOKEN_TYPES = [
+  "nipProperty",
+  "nipOperator",
+  "nipKeyword",
+  "nipNumber",
+  "nipSeparator",
+  "nipValue",
+] as const;
+const nipTokensLegend = new vscode.SemanticTokensLegend([...NIP_SEMANTIC_TOKEN_TYPES], []);
+
+const NIP_TYPE_INDEX: Record<NipTokenType, number> = {
+  property: 0,
+  operator: 1,
+  keyword: 2,
+  number: 3,
+  separator: 4,
+  value: 5,
+};
+
+const nipSemanticTokensProvider: vscode.DocumentSemanticTokensProvider = {
+  provideDocumentSemanticTokens(document) {
+    if (!JS_LANGUAGES.includes(document.languageId)) return;
+    const builder = new vscode.SemanticTokensBuilder(nipTokensLegend);
+    const nipStrings = findNipStringsInJS(document);
+    for (const match of nipStrings) {
+      for (const token of tokenizeNipContent(match.content)) {
+        const col = match.startColumn + token.start;
+        const len = token.end - token.start;
+        if (len > 0) {
+          builder.push(match.lineNumber, col, len, NIP_TYPE_INDEX[token.type], 0);
+        }
+      }
+    }
+    return builder.build();
+  },
+};
 
 export function activate(context: vscode.ExtensionContext) {
   const diagnosticCollection = vscode.languages.createDiagnosticCollection("vsnip-check");
@@ -819,6 +991,14 @@ export function activate(context: vscode.ExtensionContext) {
   //     }
   //   )
   // );
+  context.subscriptions.push(
+    vscode.languages.registerDocumentSemanticTokensProvider(
+      JS_LANGUAGES.map((lang) => ({ language: lang })),
+      nipSemanticTokensProvider,
+      nipTokensLegend,
+    ),
+  );
+
   context.subscriptions.push(
     vscode.workspace.onDidOpenTextDocument((document) => {
       validateTextDocument(document, diagnosticCollection);
