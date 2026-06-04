@@ -1096,12 +1096,6 @@ function updateNipDecorations(editor: vscode.TextEditor, decorations: NipDecorat
 }
 
 export function activate(context: vscode.ExtensionContext) {
-  context.subscriptions.push(
-    vscode.commands.registerCommand("vsnip-check.restartExtension", async () => {
-      await vscode.commands.executeCommand("workbench.action.restartExtensionHost");
-    }),
-  );
-
   const diagnosticCollection = vscode.languages.createDiagnosticCollection("vsnip-check");
   // context.subscriptions.push(
   //   vscode.languages.registerCodeActionsProvider(
@@ -1160,6 +1154,13 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.workspace.onDidCloseTextDocument((document) => {
       diagnosticCollection.delete(document.uri);
       nipStringCache.delete(document.uri.toString());
+    }),
+    vscode.workspace.onDidChangeConfiguration((event) => {
+      if (!event.affectsConfiguration(CONFIG_SECTION)) return;
+      for (const document of vscode.workspace.textDocuments) {
+        validateTextDocument(document, diagnosticCollection);
+        validateJSNipStrings(document, diagnosticCollection);
+      }
     }),
   );
 

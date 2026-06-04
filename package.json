@@ -26,12 +26,6 @@
   ],
   "main": "./dist/diagnostics.js",
   "contributes": {
-    "commands": [
-      {
-        "command": "vsnip-check.restartExtension",
-        "title": "vsnip-check: Restart Extension"
-      }
-    ],
     "languages": [
       {
         "id": "nip",
