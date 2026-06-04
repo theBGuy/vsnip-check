@@ -24,6 +24,16 @@ interface NipDiagnosticResult {
 }
 
 const JS_LANGUAGES = ["javascript", "typescript"];
+const CONFIG_SECTION = "vsnip-check";
+
+interface NipValidationLists {
+  validProperties: string[];
+  validPropertiesSet: Set<string>;
+  validStats: string[];
+  validStatsSet: Set<string>;
+  validExtras: string[];
+  validExtrasSet: Set<string>;
+}
 
 // Regex patterns for detecting NIP strings in JS/TS files
 const JSDOC_TYPE_PATTERN = /@type\s*\{(NipString(?:\[\])?|Record<string,\s*NipString(?:\[\])?>)\}/;
@@ -290,7 +300,7 @@ function isKeyword(str: string) {
   return str === "in" || str === "notin";
 }
 
-const validProperties = [
+const baseValidProperties = [
   "classid",
   "name",
   "type",
@@ -328,12 +338,52 @@ const validProperties = [
   "clvl",
 ];
 
-function isValidProperty(property: string) {
-  return validProperties.includes(property);
+const baseExtrasValues = ["tier", "secondarytier", "merctier", "charmtier", "maxquantity", "mq"];
+
+function uniqueLowercase(values: string[]): string[] {
+  const uniq = new Set<string>();
+  for (const value of values) {
+    uniq.add(value.toLowerCase());
+  }
+  return [...uniq];
 }
 
-function isValidExtra(property: string) {
-  return ["tier", "secondarytier", "merctier", "charmtier", "maxquantity", "mq"].includes(property);
+function getConfiguredStringArray(settingKey: string): string[] {
+  const configValue = vscode.workspace.getConfiguration(CONFIG_SECTION).get<unknown>(settingKey, []);
+  if (!Array.isArray(configValue)) {
+    return [];
+  }
+
+  return configValue
+    .filter((value): value is string => typeof value === "string")
+    .map((value) => value.trim().toLowerCase())
+    .filter((value) => value.length > 0);
+}
+
+function getValidationLists(): NipValidationLists {
+  const validProperties = uniqueLowercase([
+    ...baseValidProperties,
+    ...getConfiguredStringArray("additionalProperties"),
+  ]);
+  const validStats = uniqueLowercase([...Object.keys(NTIPAliasStat), ...getConfiguredStringArray("additionalStats")]);
+  const validExtras = uniqueLowercase([...baseExtrasValues, ...getConfiguredStringArray("additionalExtras")]);
+
+  return {
+    validProperties,
+    validPropertiesSet: new Set(validProperties),
+    validStats,
+    validStatsSet: new Set(validStats),
+    validExtras,
+    validExtrasSet: new Set(validExtras),
+  };
+}
+
+function isValidProperty(property: string, validationLists: NipValidationLists) {
+  return validationLists.validPropertiesSet.has(property);
+}
+
+function isValidExtra(property: string, validationLists: NipValidationLists) {
+  return validationLists.validExtrasSet.has(property);
 }
 
 const _lists = new Map([
@@ -366,6 +416,7 @@ const _aliases = new Map([
  */
 function validateNipString(nipLine: string, originalLine: string): NipDiagnosticResult[] {
   const results: NipDiagnosticResult[] = [];
+  const validationLists = getValidationLists();
   const line = nipLine.replace(/\s+/g, "").toLowerCase();
 
   if (line.length < 5) return results;
@@ -444,7 +495,7 @@ function validateNipString(nipLine: string, originalLine: string): NipDiagnostic
           property = _aliases.get(property) as string;
         }
 
-        if (!isValidProperty(property)) {
+        if (!isValidProperty(property, validationLists)) {
           results.push({
             message: `Invalid property: ${_property}`,
             startOffset: propIdx >= 0 ? propIdx + 1 : 0,
@@ -506,15 +557,12 @@ function validateNipString(nipLine: string, originalLine: string): NipDiagnostic
         const stat = p_section[k].substring(0, p_end - 1);
         const statIdx = 1 + sectionIndex + section.toLowerCase().indexOf(`[${stat}]`);
 
-        if (Number.isNaN(Number(stat))) {
-          // biome-ignore lint/suspicious/noPrototypeBuiltins: checking if stat exists
-          if (!NTIPAliasStat.hasOwnProperty(stat)) {
-            results.push({
-              message: `Unknown stat: ${stat}`,
-              startOffset: statIdx >= 0 ? statIdx + 1 : 0,
-              endOffset: statIdx >= 0 ? statIdx + 1 + stat.length : stat.length,
-            });
-          }
+        if (Number.isNaN(Number(stat)) && !validationLists.validStatsSet.has(stat)) {
+          results.push({
+            message: `Unknown stat: ${stat}`,
+            startOffset: statIdx >= 0 ? statIdx + 1 : 0,
+            endOffset: statIdx >= 0 ? statIdx + 1 + stat.length : stat.length,
+          });
         }
 
         for (p_start = p_end; p_end < p_section[k].length; p_end += 1) {
@@ -544,7 +592,7 @@ function validateNipString(nipLine: string, originalLine: string): NipDiagnostic
         const property = p_section[k].substring(0, p_end - 1);
         const propIdx = 1 + sectionIndex + section.toLowerCase().indexOf(`[${property}]`);
 
-        if (!isValidExtra(property)) {
+        if (!isValidExtra(property, validationLists)) {
           results.push({
             message: `Invalid extra: ${property}`,
             startOffset: propIdx >= 0 ? propIdx + 1 : 0,
@@ -618,6 +666,7 @@ function validateTextDocument(textDocument: vscode.TextDocument, diagnosticColle
     return;
   }
 
+  const validationLists = getValidationLists();
   const diagnostics: vscode.Diagnostic[] = [];
   const lines = textDocument.getText().split(/\r?\n/g);
 
@@ -691,7 +740,7 @@ function validateTextDocument(textDocument: vscode.TextDocument, diagnosticColle
             property = _aliases.get(property);
           }
 
-          if (!isValidProperty(property)) {
+          if (!isValidProperty(property, validationLists)) {
             diagnostics.push(
               new vscode.Diagnostic(
                 new vscode.Range(i, propIdx, i, propIdx + _property.length),
@@ -755,13 +804,10 @@ function validateTextDocument(textDocument: vscode.TextDocument, diagnosticColle
           const stat = p_section[k].substring(0, p_end - 1);
           const statIdx = 1 + sectionIndex + section.indexOf(`[${stat}]`);
 
-          if (Number.isNaN(Number(stat))) {
-            // biome-ignore lint/suspicious/noPrototypeBuiltins: Works as intended, checking if stat exists
-            if (!NTIPAliasStat.hasOwnProperty(stat)) {
-              diagnostics.push(
-                new vscode.Diagnostic(new vscode.Range(i, statIdx, i, statIdx + stat.length), `Unknown stat: ${stat}`),
-              );
-            }
+          if (Number.isNaN(Number(stat)) && !validationLists.validStatsSet.has(stat)) {
+            diagnostics.push(
+              new vscode.Diagnostic(new vscode.Range(i, statIdx, i, statIdx + stat.length), `Unknown stat: ${stat}`),
+            );
           }
 
           for (p_start = p_end; p_end < p_section[k].length; p_end += 1) {
@@ -791,7 +837,7 @@ function validateTextDocument(textDocument: vscode.TextDocument, diagnosticColle
           const property = p_section[k].substring(0, p_end - 1);
           const propIdx = 1 + sectionIndex + section.indexOf(`[${property}]`);
 
-          if (!isValidExtra(property)) {
+          if (!isValidExtra(property, validationLists)) {
             diagnostics.push(
               new vscode.Diagnostic(
                 new vscode.Range(i, propIdx, i, propIdx + property.length),
@@ -822,8 +868,6 @@ function validateTextDocument(textDocument: vscode.TextDocument, diagnosticColle
 
   diagnosticCollection.set(textDocument.uri, diagnostics);
 }
-
-const extrasValues = ["tier", "secondarytier", "merctier", "charmtier", "maxquantity", "mq"];
 
 function levenshtein(a: string, b: string): number {
   const m = a.length;
@@ -868,21 +912,22 @@ function provideNipQuickFixes(
   context: vscode.CodeActionContext,
 ): vscode.CodeAction[] {
   const actions: vscode.CodeAction[] = [];
+  const validationLists = getValidationLists();
 
   for (const diagnostic of context.diagnostics) {
     const msg = diagnostic.message;
     let m: RegExpMatchArray | null;
 
     if ((m = msg.match(/^Invalid property: (.+)$/))) {
-      for (const s of getFuzzySuggestions(m[1], validProperties)) {
+      for (const s of getFuzzySuggestions(m[1], validationLists.validProperties)) {
         actions.push(makeReplaceAction(document, diagnostic, s));
       }
     } else if ((m = msg.match(/^Unknown stat: (.+)$/))) {
-      for (const s of getFuzzySuggestions(m[1], Object.keys(NTIPAliasStat))) {
+      for (const s of getFuzzySuggestions(m[1], validationLists.validStats)) {
         actions.push(makeReplaceAction(document, diagnostic, s));
       }
     } else if ((m = msg.match(/^Invalid extra: (.+)$/))) {
-      for (const s of getFuzzySuggestions(m[1], extrasValues)) {
+      for (const s of getFuzzySuggestions(m[1], validationLists.validExtras)) {
         actions.push(makeReplaceAction(document, diagnostic, s));
       }
     } else if ((m = msg.match(/^Unknown keyword: (.+)$/))) {
@@ -1110,6 +1155,13 @@ export function activate(context: vscode.ExtensionContext) {
       diagnosticCollection.delete(document.uri);
       nipStringCache.delete(document.uri.toString());
     }),
+    vscode.workspace.onDidChangeConfiguration((event) => {
+      if (!event.affectsConfiguration(CONFIG_SECTION)) return;
+      for (const document of vscode.workspace.textDocuments) {
+        validateTextDocument(document, diagnosticCollection);
+        validateJSNipStrings(document, diagnosticCollection);
+      }
+    }),
   );
 
   context.subscriptions.push(
@@ -1195,6 +1247,7 @@ export function activate(context: vscode.ExtensionContext) {
     {
       provideCompletionItems(document, position, _token, _contextt) {
         try {
+          const validationLists = getValidationLists();
           const completionItems: vscode.CompletionItem[] = [];
           const line = document.lineAt(position).text;
           const linePrefix = line.slice(0, position.character);
@@ -1249,7 +1302,7 @@ export function activate(context: vscode.ExtensionContext) {
           }
 
           if (segmentIndex === 0) {
-            for (const val of validProperties) {
+            for (const val of validationLists.validProperties) {
               const completionItem = new vscode.CompletionItem(val, vscode.CompletionItemKind.Keyword);
               if (_aliases.has(val)) {
                 completionItem.detail = _aliases.get(val);
@@ -1257,11 +1310,11 @@ export function activate(context: vscode.ExtensionContext) {
               completionItems.push(completionItem);
             }
           } else if (segmentIndex === 1) {
-            for (const val of Object.keys(NTIPAliasStat)) {
+            for (const val of validationLists.validStats) {
               completionItems.push(new vscode.CompletionItem(val, vscode.CompletionItemKind.Keyword));
             }
           } else {
-            for (const val of extrasValues) {
+            for (const val of validationLists.validExtras) {
               completionItems.push(new vscode.CompletionItem(val, vscode.CompletionItemKind.Keyword));
             }
           }
@@ -1350,6 +1403,7 @@ export function activate(context: vscode.ExtensionContext) {
       _context: vscode.CompletionContext,
     ) {
       try {
+        const validationLists = getValidationLists();
         const completionItems: vscode.CompletionItem[] = [];
         const line = document.lineAt(position).text;
         const linePrefix = line.slice(0, position.character);
@@ -1400,7 +1454,7 @@ export function activate(context: vscode.ExtensionContext) {
         }
 
         if (segmentIndex === 0) {
-          for (const val of validProperties) {
+          for (const val of validationLists.validProperties) {
             const completionItem = new vscode.CompletionItem(val, vscode.CompletionItemKind.Keyword);
             if (_aliases.has(val)) {
               completionItem.detail = _aliases.get(val);
@@ -1408,11 +1462,11 @@ export function activate(context: vscode.ExtensionContext) {
             completionItems.push(completionItem);
           }
         } else if (segmentIndex === 1) {
-          for (const val of Object.keys(NTIPAliasStat)) {
+          for (const val of validationLists.validStats) {
             completionItems.push(new vscode.CompletionItem(val, vscode.CompletionItemKind.Keyword));
           }
         } else {
-          for (const val of extrasValues) {
+          for (const val of validationLists.validExtras) {
             completionItems.push(new vscode.CompletionItem(val, vscode.CompletionItemKind.Keyword));
           }
         }

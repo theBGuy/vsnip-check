@@ -113,7 +113,36 @@
           "highContrastLight": "#0070C1"
         }
       }
-    ]
+    ],
+    "configuration": {
+      "title": "vsnip-check",
+      "properties": {
+        "vsnip-check.additionalProperties": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "description": "Additional valid NIP properties to accept in the first section."
+        },
+        "vsnip-check.additionalStats": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "description": "Additional valid NIP stats to accept in the second section."
+        },
+        "vsnip-check.additionalExtras": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "description": "Additional valid NIP extras to accept in extra sections."
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "pnpm run package",
