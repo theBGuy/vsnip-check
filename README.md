@@ -5,6 +5,21 @@ Syntax highlighting for .nip pickit files in vscode\
 Provides error checking on save and while typing\
 Provides tab completion of properties, stats, and ids
 Only tested with dark theme, but should work with others
+
+## Configuration
+
+You can extend parser validation and completion lists from settings:
+
+```json
+{
+	"vsnip-check.additionalProperties": ["mycustomproperty"],
+	"vsnip-check.additionalStats": ["mycustomstat"],
+	"vsnip-check.additionalExtras": ["mycustomextra"]
+}
+```
+
+These additions are merged with built-in values and apply to `.nip` files and NIP strings embedded in JavaScript/TypeScript.
+
 ## How to install
 
 ### Extension from Visual Studio Marketplace (recommended)
