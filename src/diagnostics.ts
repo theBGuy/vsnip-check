@@ -35,6 +35,42 @@ const STRING_LITERAL = /(["'`])((?:\\.|(?!\1).)*)\1/g;
 
 const nipStringCache = new Map<string, { version: number; matches: NipStringMatch[] }>();
 
+function stripInlineCommentOutsideStrings(input: string): string {
+  let quote: '"' | "'" | "`" | null = null;
+  let escaped = false;
+
+  for (let i = 0; i < input.length; i++) {
+    const ch = input[i];
+
+    if (escaped) {
+      escaped = false;
+      continue;
+    }
+
+    if (quote) {
+      if (ch === "\\") {
+        escaped = true;
+        continue;
+      }
+      if (ch === quote) {
+        quote = null;
+      }
+      continue;
+    }
+
+    if (ch === '"' || ch === "'" || ch === "`") {
+      quote = ch;
+      continue;
+    }
+
+    if (ch === "/" && i + 1 < input.length && input[i + 1] === "/") {
+      return input.slice(0, i);
+    }
+  }
+
+  return input;
+}
+
 function findNipStringsInJS(document: vscode.TextDocument): NipStringMatch[] {
   const key = document.uri.toString();
   const cached = nipStringCache.get(key);
@@ -167,8 +203,7 @@ function findNipStringsInJS(document: vscode.TextDocument): NipStringMatch[] {
 
       // Extract all strings on this line when inside the block
       if (blockDepth > 0) {
-        const commentIndex = line.indexOf("//");
-        const lineWithoutComment = commentIndex === -1 ? line : line.slice(0, commentIndex);
+        const lineWithoutComment = stripInlineCommentOutsideStrings(line);
         STRING_LITERAL.lastIndex = 0;
         let strMatch: RegExpExecArray | null;
         while ((strMatch = STRING_LITERAL.exec(lineWithoutComment)) !== null) {
@@ -340,8 +375,7 @@ function validateNipString(nipLine: string, originalLine: string): NipDiagnostic
     const validRanges: [number, number][] = [];
     const inPat = /\b(?:in|notin|tierscore|secondaryscore|mercscore)\s*\([^)]*\)/gi;
     let inm: RegExpExecArray | null;
-    const commentIndex = originalLine.indexOf("//");
-    const lineWithoutComment = commentIndex === -1 ? originalLine : originalLine.slice(0, commentIndex);
+    const lineWithoutComment = stripInlineCommentOutsideStrings(originalLine);
     while ((inm = inPat.exec(lineWithoutComment)) !== null) {
       validRanges.push([inm.index, inm.index + inm[0].length]);
     }
@@ -588,11 +622,7 @@ function validateTextDocument(textDocument: vscode.TextDocument, diagnosticColle
   const lines = textDocument.getText().split(/\r?\n/g);
 
   for (let i = 0; i < lines.length; i++) {
-    const commentIndex = lines[i].indexOf("//");
-
-    if (commentIndex !== -1) {
-      lines[i] = lines[i].slice(0, commentIndex);
-    }
+    lines[i] = stripInlineCommentOutsideStrings(lines[i]);
 
     const line = lines[i].replace(/\s+/g, "").toLowerCase();
     if (line.length < 5) continue;
