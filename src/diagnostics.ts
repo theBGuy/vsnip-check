@@ -26,14 +26,50 @@ interface NipDiagnosticResult {
 const JS_LANGUAGES = ["javascript", "typescript"];
 
 // Regex patterns for detecting NIP strings in JS/TS files
-const JSDOC_TYPE_PATTERN = /\/\*\*\s*@type\s*\{(NipString(?:\[\])?|Record<string,\s*NipString>)\}\s*\*\//;
-const INLINE_NIP_JSDOC = /\/\*\*\s*nip\s*\*\/\s*["'`]([^"'`]+)["'`]/i;
+const JSDOC_TYPE_PATTERN = /@type\s*\{(NipString(?:\[\])?|Record<string,\s*NipString(?:\[\])?>)\}/;
+const INLINE_NIP_JSDOC = /\/\*\*\s*nip\s*\*\/\s*(["'`])((?:\\.|(?!\1).)*)\1/i;
 // Matches a line that ends with a standalone `// nip` annotation (possibly preceded by other code)
 const LINE_ENDS_WITH_NIP = /\/\/\s*nip\s*$/i;
-const TRAILING_COMMENT_NIP = /["'`]([^"'`]+)["'`]\s*,?\s*\/\/\s*nip\s*$/i;
-const STRING_LITERAL = /["'`]([^"'`]+)["'`]/g;
+const TRAILING_COMMENT_NIP = /(["'`])((?:\\.|(?!\1).)*)\1\s*,?\s*\/\/\s*nip\s*$/i;
+const STRING_LITERAL = /(["'`])((?:\\.|(?!\1).)*)\1/g;
 
 const nipStringCache = new Map<string, { version: number; matches: NipStringMatch[] }>();
+
+function stripInlineCommentOutsideStrings(input: string): string {
+  let quote: '"' | "'" | "`" | null = null;
+  let escaped = false;
+
+  for (let i = 0; i < input.length; i++) {
+    const ch = input[i];
+
+    if (escaped) {
+      escaped = false;
+      continue;
+    }
+
+    if (quote) {
+      if (ch === "\\") {
+        escaped = true;
+        continue;
+      }
+      if (ch === quote) {
+        quote = null;
+      }
+      continue;
+    }
+
+    if (ch === '"' || ch === "'" || ch === "`") {
+      quote = ch;
+      continue;
+    }
+
+    if (ch === "/" && i + 1 < input.length && input[i + 1] === "/") {
+      return input.slice(0, i);
+    }
+  }
+
+  return input;
+}
 
 function findNipStringsInJS(document: vscode.TextDocument): NipStringMatch[] {
   const key = document.uri.toString();
@@ -54,9 +90,9 @@ function findNipStringsInJS(document: vscode.TextDocument): NipStringMatch[] {
     // Pattern 1: Previous line ended with // nip — the first string on this line is the NIP string
     if (nextLineIsNip) {
       nextLineIsNip = false;
-      const stringMatch = line.match(/["'`]([^"'`]+)["'`]/);
-      if (stringMatch?.[1]) {
-        const content = stringMatch[1];
+      const stringMatch = line.match(/(["'`])((?:\\.|(?!\1).)*)\1/);
+      if (stringMatch?.[2]) {
+        const content = stringMatch[2];
         const startColumn = line.indexOf(stringMatch[0]) + 1; // +1 to skip the quote
         matches.push({
           content,
@@ -70,8 +106,8 @@ function findNipStringsInJS(document: vscode.TextDocument): NipStringMatch[] {
 
     // Pattern 2: /** nip */ inline before string
     const inlineMatch = line.match(INLINE_NIP_JSDOC);
-    if (inlineMatch?.[1]) {
-      const content = inlineMatch[1];
+    if (inlineMatch?.[2]) {
+      const content = inlineMatch[2];
       const fullMatch = inlineMatch[0];
       const matchIndex = line.indexOf(fullMatch);
       const stringStart = line.indexOf(content, matchIndex);
@@ -88,8 +124,8 @@ function findNipStringsInJS(document: vscode.TextDocument): NipStringMatch[] {
     // Must be checked BEFORE LINE_ENDS_WITH_NIP so a line like `"string" // nip`
     // captures the inline string rather than setting nextLineIsNip for the next line.
     const trailingMatch = line.match(TRAILING_COMMENT_NIP);
-    if (trailingMatch?.[1] && !inNipBlock) {
-      const content = trailingMatch[1];
+    if (trailingMatch?.[2] && !inNipBlock) {
+      const content = trailingMatch[2];
       const stringStart = line.indexOf(content);
       matches.push({
         content,
@@ -116,16 +152,16 @@ function findNipStringsInJS(document: vscode.TextDocument): NipStringMatch[] {
 
       if (typeAnnotation === "NipString") {
         // Pattern 3: Single NipString - look for string on this line or next line
-        let stringMatch = line.match(/["'`]([^"'`]+)["'`]/);
+        let stringMatch = line.match(/(["'`])((?:\\.|(?!\1).)*)\1/);
         let targetLine = lineNum;
 
         if (!stringMatch && lineNum + 1 < lines.length) {
-          stringMatch = lines[lineNum + 1].match(/["'`]([^"'`]+)["'`]/);
+          stringMatch = lines[lineNum + 1].match(/(["'`])((?:\\.|(?!\1).)*)\1/);
           targetLine = lineNum + 1;
         }
 
-        if (stringMatch?.[1]) {
-          const content = stringMatch[1];
+        if (stringMatch?.[2]) {
+          const content = stringMatch[2];
           const targetLineText = lines[targetLine];
           const stringStart = targetLineText.indexOf(content);
           matches.push({
@@ -150,9 +186,12 @@ function findNipStringsInJS(document: vscode.TextDocument): NipStringMatch[] {
 
     // Track block depth and extract strings when inside a NIP block
     if (inNipBlock) {
-      // Strip JSDoc comments before counting brackets/braces so that the `[]` inside
-      // `/** @type {NipString[]} */` on a standalone line isn't counted as array depth.
-      const lineForDepth = line.replace(/\/\*\*.*?\*\//g, "");
+      // Strip JSDoc content before counting brackets/braces so type annotations like
+      // `@type {Record<string, NipString[]>}` do not affect depth tracking.
+      const lineForDepth = line
+        .replace(/\/\*\*.*?\*\//g, "")
+        .replace(/^\s*\*\/\s*$/, "")
+        .replace(/^\s*\*.*$/, "");
 
       // Count opening and closing brackets/braces
       for (const ch of lineForDepth) {
@@ -164,12 +203,13 @@ function findNipStringsInJS(document: vscode.TextDocument): NipStringMatch[] {
 
       // Extract all strings on this line when inside the block
       if (blockDepth > 0) {
+        const lineWithoutComment = stripInlineCommentOutsideStrings(line);
         STRING_LITERAL.lastIndex = 0;
         let strMatch: RegExpExecArray | null;
-        while ((strMatch = STRING_LITERAL.exec(line)) !== null) {
-          const content = strMatch[1];
+        while ((strMatch = STRING_LITERAL.exec(lineWithoutComment)) !== null) {
+          const content = strMatch[2];
           // Skip if this looks like an object key (followed by :)
-          const afterMatch = line.slice(strMatch.index + strMatch[0].length).trim();
+          const afterMatch = lineWithoutComment.slice(strMatch.index + strMatch[0].length).trim();
           if (blockType === "object" && afterMatch.startsWith(":")) {
             continue; // This is a key, not a value
           }
@@ -293,7 +333,7 @@ function isValidProperty(property: string) {
 }
 
 function isValidExtra(property: string) {
-  return ["tier", "merctier", "charmtier", "maxquantity", "mq"].includes(property);
+  return ["tier", "secondarytier", "merctier", "charmtier", "maxquantity", "mq"].includes(property);
 }
 
 const _lists = new Map([
@@ -330,13 +370,12 @@ function validateNipString(nipLine: string, originalLine: string): NipDiagnostic
 
   if (line.length < 5) return results;
 
-  // Flag commas that are not inside an in/notin list, e.g. "shield, 2" is invalid.
+  // Flag commas that are not inside an in/notin list or known scoring-function args.
   {
     const validRanges: [number, number][] = [];
-    const inPat = /\b(?:in|notin)\s*\([^)]*\)/gi;
+    const inPat = /\b(?:in|notin|tierscore|secondaryscore|mercscore)\s*\([^)]*\)/gi;
     let inm: RegExpExecArray | null;
-    const commentIndex = originalLine.indexOf("//");
-    const lineWithoutComment = commentIndex === -1 ? originalLine : originalLine.slice(0, commentIndex);
+    const lineWithoutComment = stripInlineCommentOutsideStrings(originalLine);
     while ((inm = inPat.exec(lineWithoutComment)) !== null) {
       validRanges.push([inm.index, inm.index + inm[0].length]);
     }
@@ -583,19 +622,15 @@ function validateTextDocument(textDocument: vscode.TextDocument, diagnosticColle
   const lines = textDocument.getText().split(/\r?\n/g);
 
   for (let i = 0; i < lines.length; i++) {
-    const commentIndex = lines[i].indexOf("//");
-
-    if (commentIndex !== -1) {
-      lines[i] = lines[i].slice(0, commentIndex);
-    }
+    lines[i] = stripInlineCommentOutsideStrings(lines[i]);
 
     const line = lines[i].replace(/\s+/g, "").toLowerCase();
     if (line.length < 5) continue;
 
-    // Flag commas that are not inside an in/notin list.
+    // Flag commas that are not inside an in/notin list or known scoring-function args.
     {
       const validRanges: [number, number][] = [];
-      const inPat = /\b(?:in|notin)\s*\([^)]*\)/gi;
+      const inPat = /\b(?:in|notin|tierscore|secondaryscore|mercscore)\s*\([^)]*\)/gi;
       let inm: RegExpExecArray | null;
       while ((inm = inPat.exec(lines[i])) !== null) {
         validRanges.push([inm.index, inm.index + inm[0].length]);
@@ -788,7 +823,7 @@ function validateTextDocument(textDocument: vscode.TextDocument, diagnosticColle
   diagnosticCollection.set(textDocument.uri, diagnostics);
 }
 
-const extrasValues = ["tier", "merctier", "charmtier", "maxquantity", "mq"];
+const extrasValues = ["tier", "secondarytier", "merctier", "charmtier", "maxquantity", "mq"];
 
 function levenshtein(a: string, b: string): number {
   const m = a.length;
@@ -1226,7 +1261,7 @@ export function activate(context: vscode.ExtensionContext) {
               completionItems.push(new vscode.CompletionItem(val, vscode.CompletionItemKind.Keyword));
             }
           } else {
-            for (const val of ["tier", "merctier", "charmtier", "maxquantity", "mq"]) {
+            for (const val of extrasValues) {
               completionItems.push(new vscode.CompletionItem(val, vscode.CompletionItemKind.Keyword));
             }
           }
@@ -1377,7 +1412,7 @@ export function activate(context: vscode.ExtensionContext) {
             completionItems.push(new vscode.CompletionItem(val, vscode.CompletionItemKind.Keyword));
           }
         } else {
-          for (const val of ["tier", "merctier", "charmtier", "maxquantity", "mq"]) {
+          for (const val of extrasValues) {
             completionItems.push(new vscode.CompletionItem(val, vscode.CompletionItemKind.Keyword));
           }
         }
