@@ -30,9 +30,11 @@ jobs:
       - name: Type check
         run: pnpm run check-types
 
-      # TODO: add extension tests once @vscode/test-electron is configured
-      # - name: Test
-      #   run: pnpm test
+      # Unit tests for the pure scanner (src/scanner.ts) - includes ReDoS canaries that run every
+      # scan regex against adversarial input in kill-timeouted child processes, so a reintroduced
+      # catastrophic regex fails CI instead of freezing the editor's extension host.
+      - name: Test
+        run: pnpm test
 
       - name: Package
         run: pnpm exec vsce package

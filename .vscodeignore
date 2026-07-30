@@ -7,5 +7,6 @@ biome.json
 tsconfig.json
 pnpm-lock.yaml
 src/
+dist/test/**
 *.vsix
 vsc-extension-quickstart.md
