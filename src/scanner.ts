@@ -151,8 +151,7 @@ export function findNipStringsInJS(document: ScannableDocument): NipStringMatch[
       const stringMatch = line.match(FIRST_STRING_LITERAL);
       if (stringMatch?.[2]) {
         const content = stringMatch[2];
-        // match.index for uniformity with the other pattern sites (the old indexOf(match[0])
-        // here was provably equivalent - leftmost match is the leftmost occurrence).
+        // Column derives from match.index so it binds to this match.
         const startColumn = (stringMatch.index ?? 0) + 1; // +1 to skip the quote
         matches.push({
           content,

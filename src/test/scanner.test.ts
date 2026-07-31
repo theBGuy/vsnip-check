@@ -170,7 +170,19 @@ describe("NIP string detection patterns", () => {
     const inlineUses = [...outside.matchAll(/\.(?:match|test|exec|replace|replaceAll|split|search)\(\s*\//g)];
     assert.equal(inlineUses.length, 1, "only the documented /\\r?\\n/ document split may use an inline regex");
     const defs = [...outside.matchAll(/[=:]\s*\/(?![/*])/g)];
-    assert.equal(defs.length, 1, "only FIRST_STRING_LITERAL may be defined outside the registry object");
+    assert.equal(
+      defs.length,
+      1,
+      "unexpected regex-literal-like `= /` or `: /` outside the registry - regex literals must live in LINE_SCANNING_REGEXES",
+    );
+    // The registry's own derived STRING_LITERAL entry sits inside the object and is therefore
+    // already excluded from `outside` - no carve-out needed here.
+    const constructed = [...outside.matchAll(/new\s+RegExp\s*\(/g)];
+    assert.equal(
+      constructed.length,
+      0,
+      "new RegExp(...) outside the registry escapes the canaries - define it in LINE_SCANNING_REGEXES",
+    );
   });
 
   test("registry regex sources compose from FIRST_STRING_LITERAL (copies cannot drift)", () => {
@@ -210,6 +222,23 @@ describe("NIP string detection patterns", () => {
     const matches = findNipStringsInJS(doc(text));
     assert.equal(matches.length, 1);
     assert.equal(matches[0].content, "[name] == ring");
+  });
+
+  test("a JSDoc segment interrupted by U+2028 still strips (documented stripper delta)", () => {
+    // Locks the deliberate delta noted at stripInlineJsdocSegments: the old lazy `.*?` stopped
+    // at U+2028, leaving the segment's `]` in the depth count and closing the block early.
+    const text = [
+      "/** @type {NipString[]} */",
+      "const picks = [",
+      '  "[name] == a", /** ]\u2028 */',
+      '  "[name] == b",',
+      "];",
+    ].join("\n");
+    const matches = findNipStringsInJS(doc(text));
+    assert.deepEqual(
+      matches.map((m) => m.content),
+      ["[name] == a", "[name] == b"],
+    );
   });
 
   test("pattern 3: @type {NipString} binds string on same or next line", () => {
