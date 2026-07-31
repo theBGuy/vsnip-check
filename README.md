@@ -47,6 +47,22 @@ Linux: $HOME/.vscode/extensions
 ```
 **Enjoy!**
 
+## Development
+
+Requires Node >= 22 and pnpm.
+
+```
+pnpm install
+pnpm test        # cleans dist, compiles, runs the unit tests (incl. the ReDoS canaries)
+pnpm run build   # package a .vsix (runs the tests via vscode:prepublish)
+```
+
+One rule to know before touching the JS/TS scanner: every regex it runs against document lines
+lives in `LINE_SCANNING_REGEXES` in `src/scanner.ts` — the ReDoS canary tests iterate that
+object (and a guard test rejects regex literals defined outside it), so new scan regexes are
+guarded automatically and must be defined there. The `.nip` validator in `src/diagnostics.ts`
+is not yet under the same guard — see issue #11 before adding regexes there.
+
 ![image](https://user-images.githubusercontent.com/1103794/232825340-28ee3222-70c8-462b-b6da-c5b55a2322f3.png)
 
 ![image](https://github.com/theBGuy/vsnip-check/assets/60308670/aaaf4667-6d46-4c0f-8431-55f8b5b8dd3a)

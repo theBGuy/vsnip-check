@@ -7,7 +7,8 @@
   "publisher": "theBGuy",
   "repository": "https://github.com/theBGuy/vsnip-check",
   "engines": {
-    "vscode": "^1.85.5"
+    "vscode": "^1.85.5",
+    "node": ">=22"
   },
   "categories": [
     "Programming Languages"
@@ -146,12 +147,14 @@
   },
   "scripts": {
     "vscode:prepublish": "pnpm run package",
-    "package": "pnpm run check-types && pnpm run lint && tsc -p .",
+    "package": "pnpm run check-types && pnpm run lint && node -e \"fs.rmSync('dist',{recursive:true,force:true})\" && tsc -p . && pnpm run test:run",
     "compile": "pnpm run check-types && pnpm run lint && tsc .",
     "watch": "tsc -watch -p .",
     "build": "vsce package",
     "check-types": "tsc --noEmit",
     "lint": "biome check --write .",
+    "test": "node -e \"fs.rmSync('dist',{recursive:true,force:true})\" && tsc -p . && pnpm run test:run",
+    "test:run": "node scripts/check-tests-compiled.cjs && node --test \"dist/test/**/*.test.js\"",
     "release": "release-it",
     "publish": "vsce publish"
   },
