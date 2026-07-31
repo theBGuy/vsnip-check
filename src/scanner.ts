@@ -18,21 +18,33 @@ export interface ScannableDocument {
 }
 
 // Regex patterns for detecting NIP strings in JS/TS files.
-// String bodies must keep the escape branch and the plain-char branch DISJOINT
-// ((?:\\.|(?!\1)[^\\\r\n])*) - if the plain-char branch can also eat a backslash, the scan
-// backtracks exponentially on backslash-dense lines with an unclosed quote candidate and
-// freezes the extension host (kolbot's ControlBot.js has a 32-backslash regex line with a
-// backtick that never finishes under the overlapping form).
 const JSDOC_TYPE_PATTERN = /@type\s*\{(NipString(?:\[\])?|Record<string,\s*NipString(?:\[\])?>)\}/;
-const INLINE_NIP_JSDOC = /\/\*\*\s*nip\s*\*\/\s*(["'`])((?:\\.|(?!\1)[^\\\r\n])*)\1/i;
-// Matches a line that ends with a standalone `// nip` annotation (possibly preceded by other code)
+// Matches a line that ends with a standalone `// nip` annotation (possibly preceded by other code).
+// Must never carry the g flag: it is .test()ed twice per line (pattern-7 prefilter + pattern-1
+// arming), and a stateful lastIndex would silently desync the second call.
 const LINE_ENDS_WITH_NIP = /\/\/\s*nip\s*$/i;
-const TRAILING_COMMENT_NIP = /(["'`])((?:\\.|(?!\1)[^\\\r\n])*)\1\s*,?\s*\/\/\s*nip\s*$/i;
-const FIRST_STRING_LITERAL = /(["'`])((?:\\.|(?!\1)[^\\\r\n])*)\1/;
-const STRING_LITERAL = /(["'`])((?:\\.|(?!\1)[^\\\r\n])*)\1/g;
 
-// Every regex the scanner runs against document lines. New scan regexes MUST be added here -
-// the test suite's ReDoS canaries iterate this registry.
+// String bodies must keep the escape branch and the plain-char branch DISJOINT
+// ((?:\\.|(?!\1)[^\\\r\n\u2028\u2029])*) - if the plain-char branch can also eat a backslash, the
+// scan backtracks exponentially on backslash-dense lines with an unclosed quote candidate and
+// freezes the extension host (kolbot's ControlBot.js has a 32-backslash regex line with a
+// backtick that never finishes under the overlapping form). The class excludes exactly what `.`
+// excluded, minus the backslash, so the rewrite stays match-equivalent for terminated bodies.
+const INLINE_NIP_JSDOC = /\/\*\*\s*nip\s*\*\/\s*(["'`])((?:\\.|(?!\1)[^\\\r\n\u2028\u2029])*)\1/i;
+const TRAILING_COMMENT_NIP = /(["'`])((?:\\.|(?!\1)[^\\\r\n\u2028\u2029])*)\1\s*,?\s*\/\/\s*nip\s*$/i;
+const FIRST_STRING_LITERAL = /(["'`])((?:\\.|(?!\1)[^\\\r\n\u2028\u2029])*)\1/;
+const STRING_LITERAL = /(["'`])((?:\\.|(?!\1)[^\\\r\n\u2028\u2029])*)\1/g;
+
+// Line-level JSDoc strippers used for block depth tracking (both ^-anchored: single start,
+// linear). Inline `/** ... */` segments are stripped by stripInlineJsdocSegments below - ANY
+// regex formulation of that strip is super-linear on unterminated input (each `/**` start
+// re-scans the tail for a `*/` that never comes), which the ReDoS canaries flag at 192KB.
+const JSDOC_CLOSE_LINE = /^\s*\*\/\s*$/;
+const JSDOC_STAR_LINE = /^\s*\*.*$/;
+
+// Every regex the scanner matches against document LINES. New line-scanning regexes MUST be added
+// here - the test suite's ReDoS canaries iterate this registry. (The only exemption is the
+// document-split /\r?\n/ in findNipStringsInJS: one linear pass per document, no line input.)
 export const SCANNER_REGEXES: ReadonlyArray<{ name: string; regex: RegExp }> = [
   { name: "JSDOC_TYPE_PATTERN", regex: JSDOC_TYPE_PATTERN },
   { name: "INLINE_NIP_JSDOC", regex: INLINE_NIP_JSDOC },
@@ -40,7 +52,29 @@ export const SCANNER_REGEXES: ReadonlyArray<{ name: string; regex: RegExp }> = [
   { name: "TRAILING_COMMENT_NIP", regex: TRAILING_COMMENT_NIP },
   { name: "FIRST_STRING_LITERAL", regex: FIRST_STRING_LITERAL },
   { name: "STRING_LITERAL", regex: STRING_LITERAL },
+  { name: "JSDOC_CLOSE_LINE", regex: JSDOC_CLOSE_LINE },
+  { name: "JSDOC_STAR_LINE", regex: JSDOC_STAR_LINE },
 ];
+
+// Strips every terminated inline `/** ... */` segment (nearest `*/` wins, matching the lazy
+// regex this replaces) in one left-to-right pass - see the note above JSDOC_CLOSE_LINE for why
+// this must not be a regex. One deliberate delta from the old regex: a segment interrupted by
+// U+2028/U+2029 is still stripped here (the old `.*?` stopped at those, leaving the segment in
+// the depth count - stripping is the more correct reading).
+function stripInlineJsdocSegments(line: string): string {
+  if (!line.includes("/**")) return line;
+  let out = "";
+  let i = 0;
+  for (;;) {
+    const open = line.indexOf("/**", i);
+    if (open < 0) break;
+    const close = line.indexOf("*/", open + 3);
+    if (close < 0) break; // unterminated: keep the remainder, like the lazy regex did
+    out += line.slice(i, open);
+    i = close + 2;
+  }
+  return out + line.slice(i);
+}
 
 const nipStringCache = new Map<string, { version: number; matches: NipStringMatch[] }>();
 
@@ -207,10 +241,7 @@ export function findNipStringsInJS(document: ScannableDocument): NipStringMatch[
     if (inNipBlock) {
       // Strip JSDoc content before counting brackets/braces so type annotations like
       // `@type {Record<string, NipString[]>}` do not affect depth tracking.
-      const lineForDepth = line
-        .replace(/\/\*\*.*?\*\//g, "")
-        .replace(/^\s*\*\/\s*$/, "")
-        .replace(/^\s*\*.*$/, "");
+      const lineForDepth = stripInlineJsdocSegments(line).replace(JSDOC_CLOSE_LINE, "").replace(JSDOC_STAR_LINE, "");
 
       // Count opening and closing brackets/braces
       for (const ch of lineForDepth) {

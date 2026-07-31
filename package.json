@@ -153,7 +153,7 @@
     "check-types": "tsc --noEmit",
     "lint": "biome check --write .",
     "test": "tsc -p . && pnpm run test:run",
-    "test:run": "node --test \"dist/test/**/*.test.js\"",
+    "test:run": "node scripts/check-tests-compiled.cjs && node --test \"dist/test/**/*.test.js\"",
     "release": "release-it",
     "publish": "vsce publish"
   },

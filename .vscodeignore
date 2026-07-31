@@ -3,10 +3,11 @@
 .github/**
 .gitignore
 .release-it.json
-biome.json
+biome.jsonc
 tsconfig.json
 pnpm-lock.yaml
 src/
+scripts/**
 dist/test/**
 *.vsix
 vsc-extension-quickstart.md
