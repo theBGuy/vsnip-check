@@ -1,5 +1,7 @@
 import * as assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { before, describe, test } from "node:test";
 import {
   clearNipStringCache,
@@ -43,7 +45,7 @@ describe("ReDoS canaries (SCANNER_REGEXES entries vs adversarial lines)", () => 
     "new RegExp(process.argv[1], process.argv[2]).exec(input);" +
     "console.log(Number(process.hrtime.bigint() - t0) / 1e6);";
 
-  function execInChild(source: string, flags: string, input: string): { ok: boolean; execMs: number } {
+  function execInChild(source: string, flags: string, input: string): { ok: boolean; execMs: number; cause: string } {
     const res = spawnSync(process.execPath, ["-e", CHILD_SRC, source, flags], {
       input,
       timeout: 3000,
@@ -51,22 +53,38 @@ describe("ReDoS canaries (SCANNER_REGEXES entries vs adversarial lines)", () => 
       encoding: "utf8",
     });
     const ok = res.status === 0 && !res.error;
-    return { ok, execMs: ok ? Number(res.stdout.trim()) : Number.POSITIVE_INFINITY };
+    // Distinguish a genuine 3s kill from a spawn failure or a RegExp constructor throw - all are
+    // failures, but only a timeout means "catastrophic backtracking". A real timeout surfaces as
+    // res.error ETIMEDOUT (status null, stderr empty); the last fallback is an unexplained exit.
+    const cause = res.error
+      ? res.error.message
+      : (res.stderr || "").trim() || `exit status=${res.status} signal=${res.signal}`;
+    return { ok, execMs: ok ? Number(res.stdout.trim()) : Number.POSITIVE_INFINITY, cause };
   }
 
+  // Coverage caveat: these canaries only guard regexes registered in SCANNER_REGEXES, and only
+  // against this battery's shapes (backslash floods, unterminated-JSDoc floods). A differently
+  // triggered pathology - or an unregistered regex - passes green.
   for (const { name, regex } of SCANNER_REGEXES) {
     test(`${name} completes on adversarial input`, () => {
       for (const line of ADVERSARIAL_LINES) {
-        const { ok, execMs } = execInChild(regex.source, regex.flags.replace("g", ""), line);
-        assert.ok(ok, `${name} was killed after 3s on: ${line.slice(0, 60)}...`);
+        const { ok, execMs, cause } = execInChild(regex.source, regex.flags.replace("g", ""), line);
+        assert.ok(ok, `${name} failed (${cause}) on: ${line.slice(0, 60)}...`);
         assert.ok(execMs < 500, `${name} exec took ${execMs.toFixed(1)}ms on: ${line.slice(0, 60)}...`);
       }
     });
   }
 
-  test("unterminated-JSDoc flood inside a NipString block scans fast", () => {
-    // Exercises stripInlineJsdocSegments on its worst case, in the only context it runs.
-    const text = ["/** @type {NipString[]} */", "const picks = [", "/** a ".repeat(32000), "];"].join("\n");
+  test("JSDoc floods inside a NipString block scan fast", () => {
+    // Locks the 1.5.0 regression shape (unterminated flood - the OLD lazy regex's worst case;
+    // the indexOf pass does one linear scan, then breaks) plus the new stripper's many-segment path.
+    const text = [
+      "/** @type {NipString[]} */",
+      "const picks = [",
+      "/** a ".repeat(32000),
+      "/** a */".repeat(24000),
+      "];",
+    ].join("\n");
     const t0 = process.hrtime.bigint();
     const matches = findNipStringsInJS(doc(text));
     const ms = Number(process.hrtime.bigint() - t0) / 1e6;
@@ -120,6 +138,66 @@ describe("NIP string detection patterns", () => {
     // plain-char branch, so a body containing them never matches.
     const matches = findNipStringsInJS(doc('"[name] == a\u2028b", // nip\n"[name] == c\u2029d", // nip'));
     assert.equal(matches.length, 0);
+  });
+
+  test("columns bind to the matched string, not an earlier copy of its text", () => {
+    // Each line deliberately contains the content text BEFORE the annotated string - a naive
+    // indexOf(content) binds to the earlier copy and reports wrong ranges.
+    const p2 = findNipStringsInJS(doc('const x = /** nip */ "nip";'));
+    assert.equal(p2[0].content, "nip");
+    assert.equal(p2[0].startColumn, 'const x = /** nip */ "'.length);
+
+    const p7line = 'let nip = "nip" // nip';
+    const p7 = findNipStringsInJS(doc(p7line));
+    assert.equal(p7[0].content, "nip");
+    assert.equal(p7[0].startColumn, 'let nip = "'.length);
+
+    const p3lines = ["/** @type {NipString} */", 'const nipx = "nipx";'];
+    const p3 = findNipStringsInJS(doc(p3lines.join("\n")));
+    assert.equal(p3[0].content, "nipx");
+    assert.equal(p3[0].startColumn, 'const nipx = "'.length);
+    assert.equal(p3[0].lineNumber, 1);
+  });
+
+  test("no regex literal exists in scanner.ts outside LINE_SCANNING_REGEXES", () => {
+    // Makes the registry's "registering here IS being canaried" claim mechanical: a scan regex
+    // added at module scope (and thus invisible to the canaries) fails this test, not a review.
+    const src = readFileSync(join(__dirname, "../../src/scanner.ts"), "utf8");
+    const objStart = src.indexOf("LINE_SCANNING_REGEXES = {");
+    const objEnd = src.indexOf("} as const;");
+    assert.ok(objStart > 0 && objEnd > objStart, "registry object not found - update this guard");
+    const outside = src.slice(0, objStart) + src.slice(objEnd);
+    const inlineUses = [...outside.matchAll(/\.(?:match|test|exec|replace|replaceAll|split|search)\(\s*\//g)];
+    assert.equal(inlineUses.length, 1, "only the documented /\\r?\\n/ document split may use an inline regex");
+    const defs = [...outside.matchAll(/[=:]\s*\/(?![/*])/g)];
+    assert.equal(defs.length, 1, "only FIRST_STRING_LITERAL may be defined outside the registry object");
+  });
+
+  test("registry regex sources compose from FIRST_STRING_LITERAL (copies cannot drift)", () => {
+    const byName = Object.fromEntries(SCANNER_REGEXES.map((e) => [e.name, e.regex]));
+    const body = byName.FIRST_STRING_LITERAL.source;
+    assert.equal(byName.STRING_LITERAL.source, body);
+    assert.equal(byName.STRING_LITERAL.flags, "g");
+    assert.ok(
+      byName.INLINE_NIP_JSDOC.source.endsWith(body),
+      "INLINE_NIP_JSDOC no longer embeds the shared string body",
+    );
+    assert.ok(
+      byName.TRAILING_COMMENT_NIP.source.startsWith(body),
+      "TRAILING_COMMENT_NIP no longer embeds the shared string body",
+    );
+  });
+
+  test("clearNipStringCache(key) evicts only that document", () => {
+    const a = "test://evict-a";
+    const b = "test://evict-b";
+    const firstA = findNipStringsInJS(doc('"[name] == a", // nip', 1, a));
+    const firstB = findNipStringsInJS(doc('"[name] == b", // nip', 1, b));
+    clearNipStringCache(a);
+    const rescanA = findNipStringsInJS(doc('"[name] == a", // nip', 1, a));
+    const cachedB = findNipStringsInJS(doc("ignored", 1, b));
+    assert.notEqual(rescanA, firstA);
+    assert.equal(cachedB, firstB);
   });
 
   test("multiple inline /** */ segments strip before depth counting", () => {

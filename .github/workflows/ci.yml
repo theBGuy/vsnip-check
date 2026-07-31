@@ -30,11 +30,8 @@ jobs:
       - name: Type check
         run: pnpm run check-types
 
-      # Unit tests for the pure scanner (src/scanner.ts) - includes ReDoS canaries that run every
-      # SCANNER_REGEXES entry against adversarial input (backslash floods, unterminated-JSDoc
-      # floods) in kill-timeouted child processes. Scope: a catastrophic regex REGISTERED there
-      # fails CI instead of freezing the extension host; regexes outside the registry, or
-      # pathologies unlike the battery's shapes, are not covered.
+      # Pure-scanner unit tests incl. the ReDoS canaries (scope + caveats documented at the
+      # canary describe block in src/test/scanner.test.ts).
       - name: Test
         run: pnpm test
 

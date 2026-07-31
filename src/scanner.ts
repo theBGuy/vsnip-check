@@ -17,44 +17,51 @@ export interface ScannableDocument {
   getText(): string;
 }
 
-// Regex patterns for detecting NIP strings in JS/TS files.
-const JSDOC_TYPE_PATTERN = /@type\s*\{(NipString(?:\[\])?|Record<string,\s*NipString(?:\[\])?>)\}/;
-// Matches a line that ends with a standalone `// nip` annotation (possibly preceded by other code).
-// Must never carry the g flag: it is .test()ed twice per line (pattern-7 prefilter + pattern-1
-// arming), and a stateful lastIndex would silently desync the second call.
-const LINE_ENDS_WITH_NIP = /\/\/\s*nip\s*$/i;
-
 // String bodies must keep the escape branch and the plain-char branch DISJOINT
 // ((?:\\.|(?!\1)[^\\\r\n\u2028\u2029])*) - if the plain-char branch can also eat a backslash, the
 // scan backtracks exponentially on backslash-dense lines with an unclosed quote candidate and
 // freezes the extension host (kolbot's ControlBot.js has a 32-backslash regex line with a
 // backtick that never finishes under the overlapping form). The class excludes exactly what `.`
 // excluded, minus the backslash, so the rewrite stays match-equivalent for terminated bodies.
-const INLINE_NIP_JSDOC = /\/\*\*\s*nip\s*\*\/\s*(["'`])((?:\\.|(?!\1)[^\\\r\n\u2028\u2029])*)\1/i;
-const TRAILING_COMMENT_NIP = /(["'`])((?:\\.|(?!\1)[^\\\r\n\u2028\u2029])*)\1\s*,?\s*\/\/\s*nip\s*$/i;
+// INLINE_NIP_JSDOC and TRAILING_COMMENT_NIP embed this same body; tests assert their sources
+// compose from FIRST_STRING_LITERAL's, so the copies cannot drift apart silently.
 const FIRST_STRING_LITERAL = /(["'`])((?:\\.|(?!\1)[^\\\r\n\u2028\u2029])*)\1/;
-const STRING_LITERAL = /(["'`])((?:\\.|(?!\1)[^\\\r\n\u2028\u2029])*)\1/g;
 
-// Line-level JSDoc strippers used for block depth tracking (both ^-anchored: single start,
-// linear). Inline `/** ... */` segments are stripped by stripInlineJsdocSegments below - ANY
-// regex formulation of that strip is super-linear on unterminated input (each `/**` start
-// re-scans the tail for a `*/` that never comes), which the ReDoS canaries flag at 192KB.
-const JSDOC_CLOSE_LINE = /^\s*\*\/\s*$/;
-const JSDOC_STAR_LINE = /^\s*\*.*$/;
+// Every regex the scanner matches against document LINES. The canary registry derives from this
+// object, so registering here IS being canaried; a guard test additionally asserts no regex
+// literal exists in this file outside the object (exemptions: FIRST_STRING_LITERAL's definition
+// above, which is a member, and the document-split /\r?\n/ - one linear pass, no line input).
+const LINE_SCANNING_REGEXES = {
+  JSDOC_TYPE_PATTERN: /@type\s*\{(NipString(?:\[\])?|Record<string,\s*NipString(?:\[\])?>)\}/,
+  // Matches a line that ends with a standalone `// nip` annotation. Must never carry the g flag:
+  // it is .test()ed twice per line (pattern-7 prefilter + pattern-1 arming), and a stateful
+  // lastIndex would silently desync the second call.
+  LINE_ENDS_WITH_NIP: /\/\/\s*nip\s*$/i,
+  INLINE_NIP_JSDOC: /\/\*\*\s*nip\s*\*\/\s*(["'`])((?:\\.|(?!\1)[^\\\r\n\u2028\u2029])*)\1/i,
+  TRAILING_COMMENT_NIP: /(["'`])((?:\\.|(?!\1)[^\\\r\n\u2028\u2029])*)\1\s*,?\s*\/\/\s*nip\s*$/i,
+  FIRST_STRING_LITERAL,
+  STRING_LITERAL: new RegExp(FIRST_STRING_LITERAL.source, "g"),
+  // Line-level JSDoc strippers used for block depth tracking (both ^-anchored: single start,
+  // linear). Inline `/** ... */` segments are stripped by stripInlineJsdocSegments below - ANY
+  // regex formulation of that strip is super-linear on unterminated input (each `/**` start
+  // re-scans the tail for a `*/` that never comes), which the ReDoS canaries flag at 192KB.
+  JSDOC_CLOSE_LINE: /^\s*\*\/\s*$/,
+  JSDOC_STAR_LINE: /^\s*\*.*$/,
+} as const;
 
-// Every regex the scanner matches against document LINES. New line-scanning regexes MUST be added
-// here - the test suite's ReDoS canaries iterate this registry. (The only exemption is the
-// document-split /\r?\n/ in findNipStringsInJS: one linear pass per document, no line input.)
-export const SCANNER_REGEXES: ReadonlyArray<{ name: string; regex: RegExp }> = [
-  { name: "JSDOC_TYPE_PATTERN", regex: JSDOC_TYPE_PATTERN },
-  { name: "INLINE_NIP_JSDOC", regex: INLINE_NIP_JSDOC },
-  { name: "LINE_ENDS_WITH_NIP", regex: LINE_ENDS_WITH_NIP },
-  { name: "TRAILING_COMMENT_NIP", regex: TRAILING_COMMENT_NIP },
-  { name: "FIRST_STRING_LITERAL", regex: FIRST_STRING_LITERAL },
-  { name: "STRING_LITERAL", regex: STRING_LITERAL },
-  { name: "JSDOC_CLOSE_LINE", regex: JSDOC_CLOSE_LINE },
-  { name: "JSDOC_STAR_LINE", regex: JSDOC_STAR_LINE },
-];
+const {
+  JSDOC_TYPE_PATTERN,
+  LINE_ENDS_WITH_NIP,
+  INLINE_NIP_JSDOC,
+  TRAILING_COMMENT_NIP,
+  STRING_LITERAL,
+  JSDOC_CLOSE_LINE,
+  JSDOC_STAR_LINE,
+} = LINE_SCANNING_REGEXES;
+
+export const SCANNER_REGEXES: ReadonlyArray<{ name: string; regex: RegExp }> = Object.entries(
+  LINE_SCANNING_REGEXES,
+).map(([name, regex]) => ({ name, regex }));
 
 // Strips every terminated inline `/** ... */` segment (nearest `*/` wins, matching the lazy
 // regex this replaces) in one left-to-right pass - see the note above JSDOC_CLOSE_LINE for why
@@ -144,7 +151,9 @@ export function findNipStringsInJS(document: ScannableDocument): NipStringMatch[
       const stringMatch = line.match(FIRST_STRING_LITERAL);
       if (stringMatch?.[2]) {
         const content = stringMatch[2];
-        const startColumn = line.indexOf(stringMatch[0]) + 1; // +1 to skip the quote
+        // match.index for uniformity with the other pattern sites (the old indexOf(match[0])
+        // here was provably equivalent - leftmost match is the leftmost occurrence).
+        const startColumn = (stringMatch.index ?? 0) + 1; // +1 to skip the quote
         matches.push({
           content,
           lineNumber: lineNum,
@@ -159,9 +168,10 @@ export function findNipStringsInJS(document: ScannableDocument): NipStringMatch[
     const inlineMatch = line.match(INLINE_NIP_JSDOC);
     if (inlineMatch?.[2]) {
       const content = inlineMatch[2];
-      const fullMatch = inlineMatch[0];
-      const matchIndex = line.indexOf(fullMatch);
-      const stringStart = line.indexOf(content, matchIndex);
+      // The full match ends with `content` + closing quote, so the content's position is exact
+      // arithmetic - indexOf(content) could bind to an earlier copy (e.g. the word "nip" inside
+      // the annotation itself).
+      const stringStart = (inlineMatch.index ?? 0) + inlineMatch[0].length - content.length - 1;
       matches.push({
         content,
         lineNumber: lineNum,
@@ -179,7 +189,9 @@ export function findNipStringsInJS(document: ScannableDocument): NipStringMatch[
     const trailingMatch = LINE_ENDS_WITH_NIP.test(line) ? line.match(TRAILING_COMMENT_NIP) : null;
     if (trailingMatch?.[2] && !inNipBlock) {
       const content = trailingMatch[2];
-      const stringStart = line.indexOf(content);
+      // Match starts at the opening quote; +1 lands on the content. indexOf(content) could bind
+      // to an earlier occurrence of the same text in the code before the string.
+      const stringStart = (trailingMatch.index ?? 0) + 1;
       matches.push({
         content,
         lineNumber: lineNum,
@@ -215,8 +227,8 @@ export function findNipStringsInJS(document: ScannableDocument): NipStringMatch[
 
         if (stringMatch?.[2]) {
           const content = stringMatch[2];
-          const targetLineText = lines[targetLine];
-          const stringStart = targetLineText.indexOf(content);
+          // Match starts at the opening quote on the target line; +1 lands on the content.
+          const stringStart = (stringMatch.index ?? 0) + 1;
           matches.push({
             content,
             lineNumber: targetLine,
