@@ -125,7 +125,7 @@
           "items": {
             "type": "string"
           },
-          "description": "Additional valid NIP properties to accept in the first section. Merged with any .vsnip.json files in the file's folder and its parent folders."
+          "description": "Additional valid NIP properties to accept in the first section. Folder-level .vsnip.json files add to this list."
         },
         "vsnip-check.additionalStats": {
           "type": "array",
@@ -134,7 +134,7 @@
           "items": {
             "type": "string"
           },
-          "description": "Additional valid NIP stats to accept in the second section. Merged with any .vsnip.json files in the file's folder and its parent folders."
+          "description": "Additional valid NIP stats to accept in the second section. Folder-level .vsnip.json files add to this list."
         },
         "vsnip-check.additionalExtras": {
           "type": "array",
@@ -143,7 +143,7 @@
           "items": {
             "type": "string"
           },
-          "description": "Additional valid NIP extras to accept in extra sections. Merged with any .vsnip.json files in the file's folder and its parent folders."
+          "description": "Additional valid NIP extras to accept in extra sections. Folder-level .vsnip.json files add to this list."
         }
       }
     },

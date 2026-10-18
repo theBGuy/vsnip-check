@@ -146,9 +146,14 @@ function uniqueLowercase(values: string[]): string[] {
   return [...uniq];
 }
 
-// Problems in a `.vsnip.json` surface in the Problems panel even while the file is closed, so a
-// typo'd key does not silently leave its additions unapplied. Set in activate().
+// Problems found in a `.vsnip.json` stay in the Problems panel after it closes, so a typo'd key
+// does not silently drop its additions. A file is checked when it is opened, saved or changed, or
+// when an open document's search reaches it. Set in activate().
 let configDiagnostics: vscode.DiagnosticCollection | undefined;
+
+// The workspace watcher sees nothing outside workspace folders; this watches one such folder.
+// Set in activate().
+let watchOutsideWorkspace: ((dir: string) => void) | undefined;
 
 function reportConfigProblems(file: LoadedConfigFile) {
   const diagnostics = file.problems.map((problem) => {
@@ -164,32 +169,36 @@ function reportConfigProblems(file: LoadedConfigFile) {
 const configResolver = new NipConfigResolver({ onLoad: reportConfigProblems });
 
 // Merged lists per document directory; validation runs on every keystroke, so a hit must not
-// touch settings or disk. Cleared wholesale by invalidateConfig().
+// touch settings or disk. Settings, config-file and workspace-folder events clear it.
 const validationListsCache = new Map<string, NipValidationLists>();
 
-function invalidateConfig() {
-  configResolver.clear();
-  validationListsCache.clear();
-  configDiagnostics?.clear();
+// The git extension shows file versions (in diff views, for example) under the git: scheme with
+// the working-tree path, so those copies resolve the same lists as the file itself.
+function configScopeUri(uri: vscode.Uri): vscode.Uri | undefined {
+  if (uri.scheme === "file") return uri;
+  if (uri.scheme === "git") return uri.with({ scheme: "file", query: "", fragment: "" });
+  return undefined;
 }
 
 function getValidationLists(uri: vscode.Uri): NipValidationLists {
-  // Only real files have folders to search; untitled and virtual documents get settings alone.
-  const dir = uri.scheme === "file" ? dirname(uri.fsPath) : undefined;
+  // Untitled and other virtual documents have no folders to search, so they get settings alone.
+  const fileUri = configScopeUri(uri);
+  const dir = fileUri ? dirname(fileUri.fsPath) : undefined;
   const cached = dir === undefined ? undefined : validationListsCache.get(dir);
   if (cached) return cached;
 
-  const settings = vscode.workspace.getConfiguration(CONFIG_SECTION, uri);
+  const settings = vscode.workspace.getConfiguration(CONFIG_SECTION, fileUri ?? uri);
   const additions: ConfigAdditions = {
     additionalProperties: normalizeStringList(settings.get<unknown>("additionalProperties", [])),
     additionalStats: normalizeStringList(settings.get<unknown>("additionalStats", [])),
     additionalExtras: normalizeStringList(settings.get<unknown>("additionalExtras", [])),
   };
 
-  if (dir !== undefined) {
-    const folder = vscode.workspace.getWorkspaceFolder(uri);
+  if (fileUri && dir !== undefined) {
+    const folder = vscode.workspace.getWorkspaceFolder(fileUri);
     const stopDir = folder?.uri.scheme === "file" ? folder.uri.fsPath : undefined;
-    for (const file of configResolver.filesFor(dir, stopDir)) {
+    const onVisit = stopDir === undefined ? watchOutsideWorkspace : undefined;
+    for (const file of configResolver.filesFor(dir, stopDir, onVisit)) {
       for (const key of CONFIG_KEYS) additions[key].push(...file.additions[key]);
     }
   }
@@ -988,36 +997,75 @@ export function activate(context: vscode.ExtensionContext) {
   };
 
   const revalidateOpenDocuments = () => {
-    for (const document of vscode.workspace.textDocuments) validateDocument(document);
+    for (const document of vscode.workspace.textDocuments) {
+      // One document's failure must not leave the rest unvalidated.
+      try {
+        validateDocument(document);
+      } catch (e) {
+        console.error(e);
+      }
+    }
   };
 
-  // A branch switch can touch many config files at once, so the sweep is coalesced; the caches
-  // drop immediately so nothing validated in between reads a stale list.
+  // A branch switch can touch many config files at once, so the sweep is coalesced; the lists
+  // cache drops at once so nothing validated in between reads a stale list.
   let revalidateTimer: NodeJS.Timeout | undefined;
-  const onConfigFilesChanged = () => {
-    invalidateConfig();
+  const scheduleRevalidation = () => {
+    validationListsCache.clear();
     clearTimeout(revalidateTimer);
     revalidateTimer = setTimeout(revalidateOpenDocuments, 100);
   };
 
-  const configWatcher = vscode.workspace.createFileSystemWatcher(`**/${CONFIG_FILE_NAME}`);
-  context.subscriptions.push(
-    configWatcher,
-    configWatcher.onDidCreate(onConfigFilesChanged),
-    configWatcher.onDidChange(onConfigFilesChanged),
-    configWatcher.onDidDelete(onConfigFilesChanged),
-    // Workspace folder roots bound the upward search, so adding or removing one changes it.
-    vscode.workspace.onDidChangeWorkspaceFolders(onConfigFilesChanged),
-    { dispose: () => clearTimeout(revalidateTimer) },
-  );
+  // Drops every cached config file, not just this one: a folder can be spelled more than one way
+  // (case, 8.3 names, links), and a document may have cached it under another spelling. The
+  // changed file is re-read at once so its warnings stay current even when no open document's
+  // search reaches it; a deleted file's warnings go with it. Other files' warnings are kept.
+  const onConfigFileChanged = (uri: vscode.Uri) => {
+    const dir = dirname(uri.fsPath);
+    configResolver.clear();
+    if (!configResolver.load(dir)) configDiagnostics?.delete(uri);
+    scheduleRevalidation();
+  };
+
+  const watchConfigFiles = (watcher: vscode.FileSystemWatcher) => [
+    watcher,
+    watcher.onDidCreate(onConfigFileChanged),
+    watcher.onDidChange(onConfigFileChanged),
+    watcher.onDidDelete(onConfigFileChanged),
+  ];
+
+  // One watcher per folder searched outside the workspace; a bare file-name pattern makes each a
+  // non-recursive watch of that folder alone.
+  const outsideWatchers = new Map<string, vscode.Disposable[]>();
+  watchOutsideWorkspace = (dir) => {
+    if (outsideWatchers.has(dir)) return;
+    const pattern = new vscode.RelativePattern(vscode.Uri.file(dir), CONFIG_FILE_NAME);
+    outsideWatchers.set(dir, watchConfigFiles(vscode.workspace.createFileSystemWatcher(pattern)));
+  };
 
   context.subscriptions.push(
-    vscode.workspace.onDidOpenTextDocument(validateDocument),
-    vscode.workspace.onDidSaveTextDocument((document) => {
-      // The watcher only covers workspace folders; saving a config file elsewhere still applies.
-      if (isConfigFile(document)) onConfigFilesChanged();
-      validateDocument(document);
-    }),
+    ...watchConfigFiles(vscode.workspace.createFileSystemWatcher(`**/${CONFIG_FILE_NAME}`)),
+    // Workspace folder roots bound the upward search, so adding or removing one changes it.
+    vscode.workspace.onDidChangeWorkspaceFolders(scheduleRevalidation),
+    {
+      dispose: () => {
+        clearTimeout(revalidateTimer);
+        watchOutsideWorkspace = undefined;
+        for (const disposables of outsideWatchers.values()) for (const d of disposables) d.dispose();
+        outsideWatchers.clear();
+      },
+    },
+  );
+
+  // Opening or saving a config file re-reads it, which also recovers a change no watcher reported.
+  const onOpenOrSave = (document: vscode.TextDocument) => {
+    if (isConfigFile(document)) onConfigFileChanged(document.uri);
+    validateDocument(document);
+  };
+
+  context.subscriptions.push(
+    vscode.workspace.onDidOpenTextDocument(onOpenOrSave),
+    vscode.workspace.onDidSaveTextDocument(onOpenOrSave),
     vscode.workspace.onDidChangeTextDocument((event) => {
       validateTextDocument(event.document, diagnosticCollection);
       validateJSNipStrings(event.document, diagnosticCollection);
@@ -1031,14 +1079,10 @@ export function activate(context: vscode.ExtensionContext) {
     }),
     vscode.workspace.onDidChangeConfiguration((event) => {
       if (!event.affectsConfiguration(CONFIG_SECTION)) return;
-      invalidateConfig();
+      validationListsCache.clear();
       revalidateOpenDocuments();
     }),
   );
-
-  // The document whose opening activated the extension fired onDidOpenTextDocument before the
-  // listener above existed, as did any restored from the last session.
-  revalidateOpenDocuments();
 
   context.subscriptions.push(
     vscode.workspace.onDidChangeTextDocument(async (event) => {
@@ -1448,4 +1492,8 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.languages.registerCodeActionsProvider("javascript", quickFixProvider, quickFixMeta),
     vscode.languages.registerCodeActionsProvider("typescript", quickFixProvider, quickFixMeta),
   );
+
+  // Documents opened before activation, including the one that triggered it, never reached the
+  // open listener.
+  revalidateOpenDocuments();
 }

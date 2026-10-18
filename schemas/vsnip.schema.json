@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "vsnip-check folder settings",
-  "description": "Extends NIP validation and completion for files in this folder and its subfolders. Lists are merged with the vsnip-check.* settings and with any .vsnip.json files in parent folders, up to the workspace folder root or the nearest file with \"root\": true.",
+  "description": "Extends NIP validation and completion for files in this folder and its subfolders. Lists add to the vsnip-check.* settings and to .vsnip.json files in parent folders; set \"root\": true to leave the parent files out.",
   "type": "object",
   "properties": {
     "$schema": {

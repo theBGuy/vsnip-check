@@ -102,6 +102,30 @@ describe("parseConfigText", () => {
     }
   });
 
+  test("a problem points at the key, not the same text used as a value", () => {
+    const { problems } = parseConfigText('{"additionalExtras": ["root"], "root": 1}');
+    assert.equal(problems.length, 1);
+    assert.equal(problems[0].character, 31);
+  });
+
+  test("with duplicate keys the problem points at the last one, which JSON.parse keeps", () => {
+    const { additions, problems } = parseConfigText('{"additionalStats": ["a"], "additionalStats": 5}');
+    assert.deepEqual(additions.additionalStats, []);
+    assert.equal(problems.length, 1);
+    assert.equal(problems[0].character, 27);
+  });
+
+  test("lines are counted at \\r\\n, lone \\r and \\n alike", () => {
+    for (const [text, line] of [
+      ['{\r  "bogus": 1}', 1],
+      ['{\r\n  "bogus": 1}', 1],
+      ['{\n\r\n\r  "bogus": 1}', 3],
+    ] as const) {
+      const { problems } = parseConfigText(text);
+      assert.deepEqual([problems[0].line, problems[0].character], [line, 2], JSON.stringify(text));
+    }
+  });
+
   test("an unparseable file never declares root", () => {
     assert.equal(parseConfigText('{"root": true,').root, false);
     assert.equal(parseConfigText("[true]").root, false);
@@ -116,13 +140,15 @@ describe("NipConfigResolver", () => {
 
   function fakeFs(files: Record<string, unknown>) {
     const reads: string[] = [];
-    const contents = new Map(Object.entries(files).map(([dir, cfg]) => [join(dir, CONFIG_FILE_NAME), cfg]));
+    const contents = new Map<string, unknown>(
+      Object.entries(files).map(([dir, cfg]) => [join(dir, CONFIG_FILE_NAME), cfg]),
+    );
     const read = (path: string) => {
       reads.push(path);
       const cfg = contents.get(path);
       return cfg === undefined ? undefined : typeof cfg === "string" ? cfg : JSON.stringify(cfg);
     };
-    return { read, reads };
+    return { read, reads, contents };
   }
 
   const statsOf = (files: LoadedConfigFile[]) => files.map((f) => f.additions.additionalStats);
@@ -172,6 +198,50 @@ describe("NipConfigResolver", () => {
     resolver.clear();
     resolver.filesFor(SUB, WS);
     assert.equal(reads.length, 7);
+  });
+
+  test("clear() picks up a file that appeared, changed, or went away", () => {
+    const { read, contents } = fakeFs({});
+    const resolver = new NipConfigResolver({ read });
+    const path = join(PICKIT, CONFIG_FILE_NAME);
+    assert.deepEqual(statsOf(resolver.filesFor(SUB, WS)), []);
+
+    contents.set(path, { additionalStats: ["new"] });
+    assert.deepEqual(statsOf(resolver.filesFor(SUB, WS)), [], "cached miss until cleared");
+    resolver.clear();
+    assert.deepEqual(statsOf(resolver.filesFor(SUB, WS)), [["new"]]);
+
+    contents.set(path, { additionalStats: ["changed"] });
+    resolver.clear();
+    assert.deepEqual(statsOf(resolver.filesFor(SUB, WS)), [["changed"]]);
+
+    contents.delete(path);
+    resolver.clear();
+    assert.deepEqual(statsOf(resolver.filesFor(SUB, WS)), []);
+  });
+
+  test("onVisit sees every searched dir, nearest first, absent files included", () => {
+    const { read } = fakeFs({ [PICKIT]: { additionalStats: ["pickit"] } });
+    const visited: string[] = [];
+    new NipConfigResolver({ read }).filesFor(SUB, WS, (dir) => visited.push(dir));
+    assert.deepEqual(visited, [SUB, PICKIT, WS]);
+  });
+
+  test("onVisit stops where the walk stops: at a root file, and at the filesystem root", () => {
+    const { read } = fakeFs({ [PICKIT]: { root: true } });
+    const visited: string[] = [];
+    new NipConfigResolver({ read }).filesFor(SUB, undefined, (dir) => visited.push(dir));
+    assert.deepEqual(visited, [SUB, PICKIT]);
+
+    const toRoot: string[] = [];
+    new NipConfigResolver({ read: () => undefined }).filesFor(SUB, undefined, (dir) => toRoot.push(dir));
+    assert.deepEqual(toRoot, [SUB, PICKIT, WS, ROOT]);
+  });
+
+  test("a stop dir that is not an ancestor does not cut the walk short", () => {
+    const { read } = fakeFs({ [ROOT]: { additionalStats: ["root"] } });
+    const files = new NipConfigResolver({ read }).filesFor(SUB, join(ROOT, "elsewhere"));
+    assert.deepEqual(statsOf(files), [["root"]]);
   });
 
   test("onLoad fires once per parsed file, never for absent dirs or cache hits", () => {
@@ -247,6 +317,10 @@ describe("readConfigFileSync", () => {
     const asDir = join(dir, "dir-case");
     mkdirSync(join(asDir, CONFIG_FILE_NAME), { recursive: true });
     assert.equal(readConfigFileSync(join(asDir, CONFIG_FILE_NAME)), undefined);
+  });
+
+  test("rethrows errors that do not mean 'absent' (here, an invalid path argument)", () => {
+    assert.throws(() => readConfigFileSync(join(dir, `bad${String.fromCharCode(0)}name`)));
   });
 
   test("returns undefined when a path segment is a file", () => {

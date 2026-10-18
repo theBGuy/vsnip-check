@@ -48,16 +48,22 @@ export function normalizeStringList(value: unknown): string[] {
 }
 
 function problemAt(text: string, offset: number, length: number, message: string): ConfigProblem {
-  const before = text.slice(0, Math.max(offset, 0));
-  const lineStart = before.lastIndexOf("\n") + 1;
-  return { message, line: before.split("\n").length - 1, character: before.length - lineStart, length };
+  // Counts line breaks the way the editor does, lone \r included.
+  const lines = text.slice(0, Math.max(offset, 0)).split(/\r\n|\r|\n/);
+  return { message, line: lines.length - 1, character: lines[lines.length - 1].length, length };
 }
 
-// Points at the first `"key"` in the text; good enough for a warning squiggle.
+// Points at the LAST `"key"` followed by a colon: JSON.parse keeps the last of duplicate keys,
+// and the colon skips the same text used as a string value.
 function problemAtKey(text: string, key: string, message: string): ConfigProblem {
   const quoted = JSON.stringify(key);
-  const offset = text.indexOf(quoted);
-  return offset >= 0 ? problemAt(text, offset, quoted.length, message) : problemAt(text, 0, 0, message);
+  for (let offset = text.lastIndexOf(quoted); offset >= 0; offset = text.lastIndexOf(quoted, offset - 1)) {
+    let next = offset + quoted.length;
+    while (next < text.length && " \t\r\n".includes(text[next])) next++;
+    if (text[next] === ":") return problemAt(text, offset, quoted.length, message);
+    if (offset === 0) break;
+  }
+  return problemAt(text, 0, 0, message);
 }
 
 export function parseConfigText(rawText: string): ParsedConfig {
@@ -174,17 +180,19 @@ export class NipConfigResolver {
   /**
    * Config files that apply to a document in `dir`, outermost first. Walks up to and including
    * `stopDir` (the workspace folder root), or the filesystem root without one, stopping early at
-   * a file marked `"root": true`.
+   * a file marked `"root": true`. `onVisit` sees every directory searched, with or without a file.
    */
-  filesFor(dir: string, stopDir?: string): LoadedConfigFile[] {
+  filesFor(dir: string, stopDir?: string, onVisit?: (dir: string) => void): LoadedConfigFile[] {
     const found: LoadedConfigFile[] = [];
     let current = dir;
     for (;;) {
+      onVisit?.(current);
       const file = this.load(current);
       if (file) found.push(file);
       if (file?.root) break;
 
-      // relative() compares case-insensitively on win32, where fsPath drive-letter casing varies.
+      // relative() compares case-insensitively on win32, so a document opened through a
+      // differently-cased path still stops at its workspace folder.
       if (stopDir !== undefined && relative(stopDir, current) === "") break;
       const parent = dirname(current);
       if (parent === current) break;
