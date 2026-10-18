@@ -3,7 +3,7 @@
 // stay linear on any input.
 
 // kolbot cuts a NIP line at its first `//` without looking at quotes (NTItemParser.js
-// ParseLineInt), so nothing after it is part of the line. Item names such as hunter'sbow
+// ParseLineInt), so nothing after it is parsed. Item names such as hunter'sbow
 // contain apostrophes, which a quote-aware cut would read as an opening quote.
 export function stripNipComment(line: string): string {
   const start = line.indexOf("//");

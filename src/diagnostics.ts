@@ -260,7 +260,8 @@ const _aliases = new Map([
 
 /**
  * Validates a single NIP string and returns diagnostic results with relative offsets.
- * This is used for validating NIP strings embedded in JS/TS files.
+ * This is used for validating NIP strings embedded in JS/TS files. Callers cut the
+ * comment first (stripNipComment); nothing here strips it.
  */
 function validateNipString(
   nipLine: string,
