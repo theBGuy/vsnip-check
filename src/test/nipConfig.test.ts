@@ -103,9 +103,10 @@ describe("parseConfigText", () => {
   });
 
   test("a problem points at the key, not the same text used as a value", () => {
-    const { problems } = parseConfigText('{"additionalExtras": ["root"], "root": 1}');
+    // The value comes last, so the search from the end must skip it (no colon) to reach the key.
+    const { problems } = parseConfigText('{"root": 1, "additionalExtras": ["root"]}');
     assert.equal(problems.length, 1);
-    assert.equal(problems[0].character, 31);
+    assert.equal(problems[0].character, 1);
   });
 
   test("with duplicate keys the problem points at the last one, which JSON.parse keeps", () => {

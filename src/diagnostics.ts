@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { basename, dirname } from "node:path";
 import * as vscode from "vscode";
 import {
@@ -996,7 +997,18 @@ export function activate(context: vscode.ExtensionContext) {
     validateJSNipStrings(document, diagnosticCollection);
   };
 
+  // A deleted or renamed folder takes its config files along without any watcher event for them,
+  // so every sweep drops the warnings of config files that no longer exist.
+  const pruneMissingConfigWarnings = () => {
+    const missing: vscode.Uri[] = [];
+    configDiagnostics?.forEach((uri) => {
+      if (!existsSync(uri.fsPath)) missing.push(uri);
+    });
+    for (const uri of missing) configDiagnostics?.delete(uri);
+  };
+
   const revalidateOpenDocuments = () => {
+    pruneMissingConfigWarnings();
     for (const document of vscode.workspace.textDocuments) {
       // One document's failure must not leave the rest unvalidated.
       try {
@@ -1027,6 +1039,11 @@ export function activate(context: vscode.ExtensionContext) {
     scheduleRevalidation();
   };
 
+  const onFilesMovedOrDeleted = () => {
+    configResolver.clear();
+    scheduleRevalidation();
+  };
+
   const watchConfigFiles = (watcher: vscode.FileSystemWatcher) => [
     watcher,
     watcher.onDidCreate(onConfigFileChanged),
@@ -1047,6 +1064,10 @@ export function activate(context: vscode.ExtensionContext) {
     ...watchConfigFiles(vscode.workspace.createFileSystemWatcher(`**/${CONFIG_FILE_NAME}`)),
     // Workspace folder roots bound the upward search, so adding or removing one changes it.
     vscode.workspace.onDidChangeWorkspaceFolders(scheduleRevalidation),
+    // Deletes and renames made in VS Code (the Explorer or workspace edits) can take whole folders
+    // of config files at once; ones made outside VS Code are caught by the next sweep's prune.
+    vscode.workspace.onDidDeleteFiles(onFilesMovedOrDeleted),
+    vscode.workspace.onDidRenameFiles(onFilesMovedOrDeleted),
     {
       dispose: () => {
         clearTimeout(revalidateTimer);
