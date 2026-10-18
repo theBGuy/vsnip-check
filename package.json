@@ -121,29 +121,38 @@
         "vsnip-check.additionalProperties": {
           "type": "array",
           "default": [],
+          "scope": "resource",
           "items": {
             "type": "string"
           },
-          "description": "Additional valid NIP properties to accept in the first section."
+          "description": "Additional valid NIP properties to accept in the first section. Folder-level .vsnip.json files add to this list."
         },
         "vsnip-check.additionalStats": {
           "type": "array",
           "default": [],
+          "scope": "resource",
           "items": {
             "type": "string"
           },
-          "description": "Additional valid NIP stats to accept in the second section."
+          "description": "Additional valid NIP stats to accept in the second section. Folder-level .vsnip.json files add to this list."
         },
         "vsnip-check.additionalExtras": {
           "type": "array",
           "default": [],
+          "scope": "resource",
           "items": {
             "type": "string"
           },
-          "description": "Additional valid NIP extras to accept in extra sections."
+          "description": "Additional valid NIP extras to accept in extra sections. Folder-level .vsnip.json files add to this list."
         }
       }
-    }
+    },
+    "jsonValidation": [
+      {
+        "fileMatch": ".vsnip.json",
+        "url": "./schemas/vsnip.schema.json"
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "pnpm run package",

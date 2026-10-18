@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "vsnip-check folder settings",
+  "description": "Extends NIP validation and completion for files in this folder and its subfolders. Lists add to the vsnip-check.* settings and to .vsnip.json files in parent folders; set \"root\": true to leave the parent files out.",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "root": {
+      "type": "boolean",
+      "default": false,
+      "description": "Ignore .vsnip.json files in parent folders. The vsnip-check.* settings still apply."
+    },
+    "additionalProperties": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Additional valid NIP properties to accept in the first section."
+    },
+    "additionalStats": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Additional valid NIP stats to accept in the second section."
+    },
+    "additionalExtras": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Additional valid NIP extras to accept in extra sections."
+    }
+  },
+  "additionalProperties": false
+}
