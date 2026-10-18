@@ -1,6 +1,6 @@
 import * as assert from "node:assert/strict";
 import { describe, test } from "node:test";
-import { findUnexpectedCommas } from "../nipSyntax.js";
+import { findUnexpectedCommas, stripNipComment } from "../nipSyntax.js";
 
 function commasAt(line: string): number[] {
   return [...line].flatMap((ch, i) => (ch === "," ? [i] : []));
@@ -82,5 +82,28 @@ describe("findUnexpectedCommas", () => {
     const start = performance.now();
     findUnexpectedCommas(line);
     assert.ok(performance.now() - start < 1000, "took longer than 1s on a 250K-char line");
+  });
+});
+
+describe("stripNipComment", () => {
+  test("cuts at the first // even after an apostrophe in an item name", () => {
+    const line = "[name] == hunter'sbow && [quality] == unique // keep, it's good";
+    assert.equal(stripNipComment(line), "[name] == hunter'sbow && [quality] == unique ");
+    assert.deepEqual(findUnexpectedCommas(stripNipComment(line)), []);
+  });
+
+  test("cuts inside quotes too, as kolbot does", () => {
+    assert.equal(stripNipComment('[tier] == f("a//b")'), '[tier] == f("a');
+  });
+
+  test("cuts at the first of several, including ///", () => {
+    assert.equal(stripNipComment("[name] == ring // a // b"), "[name] == ring ");
+    assert.equal(stripNipComment("/// note"), "");
+  });
+
+  test("leaves lines without // unchanged, single slashes included", () => {
+    for (const line of ["", "[name] == ring # [fcr] >= 10", "[tier] == 100 / 2 # [mf] >= 5"]) {
+      assert.equal(stripNipComment(line), line);
+    }
   });
 });

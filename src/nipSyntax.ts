@@ -1,6 +1,14 @@
-// NIP line check with no vscode imports, so it is unit-tested directly in
-// src/test/nipSyntax.test.ts. A character walk, not a regex: it runs on every
-// keystroke and must stay linear on any input.
+// NIP line helpers with no vscode imports, so they are unit-tested directly in
+// src/test/nipSyntax.test.ts. No regexes: they run on every keystroke and must
+// stay linear on any input.
+
+// kolbot cuts a NIP line at its first `//` without looking at quotes (NTItemParser.js
+// ParseLineInt), so nothing after it is part of the line. Item names such as hunter'sbow
+// contain apostrophes, which a quote-aware cut would read as an opening quote.
+export function stripNipComment(line: string): string {
+  const start = line.indexOf("//");
+  return start === -1 ? line : line.slice(0, start);
+}
 
 // Accepts a comma only when the innermost open parenthesis follows a name, as in a call's
 // arguments or an in/notin list. kolbot runs tier expressions as JavaScript, so any function name
