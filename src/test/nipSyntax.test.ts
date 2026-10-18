@@ -24,8 +24,8 @@ describe("findUnexpectedCommas", () => {
       "[name] in (wirt, greatbow)",
       "[quality]notin(rare,unique)",
       "[name] in\t(a, b)",
-      "[name] in (a, b)",
-      "[tier] == tierscore　(item, 1)",
+      "[name] in\u00a0(a, b)",
+      "[tier] == tierscore\u3000(item, 1)",
     ]) {
       assert.deepEqual(findUnexpectedCommas(line), [], line);
     }
