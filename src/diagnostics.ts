@@ -18,8 +18,8 @@ import {
   NipConfigResolver,
   normalizeStringList,
 } from "./nipConfig.js";
-import { findUnexpectedCommas } from "./nipSyntax.js";
-import { clearNipStringCache, findNipStringsInJS, stripInlineCommentOutsideStrings } from "./scanner.js";
+import { findUnexpectedCommas, stripNipComment } from "./nipSyntax.js";
+import { clearNipStringCache, findNipStringsInJS } from "./scanner.js";
 
 interface NipDiagnosticResult {
   message: string;
@@ -67,7 +67,8 @@ function validateJSNipStrings(document: vscode.TextDocument, diagnosticCollectio
   const validationLists = getValidationLists(document.uri);
 
   for (const match of nipStrings) {
-    const validationResults = validateNipString(match.content, match.content, validationLists);
+    const content = stripNipComment(match.content);
+    const validationResults = validateNipString(content, content, validationLists);
 
     for (const result of validationResults) {
       const range = new vscode.Range(
@@ -259,7 +260,8 @@ const _aliases = new Map([
 
 /**
  * Validates a single NIP string and returns diagnostic results with relative offsets.
- * This is used for validating NIP strings embedded in JS/TS files.
+ * This is used for validating NIP strings embedded in JS/TS files. Callers cut the
+ * comment first (stripNipComment); nothing here strips it.
  */
 function validateNipString(
   nipLine: string,
@@ -271,7 +273,7 @@ function validateNipString(
 
   if (line.length < 5) return results;
 
-  for (const pos of findUnexpectedCommas(stripInlineCommentOutsideStrings(originalLine))) {
+  for (const pos of findUnexpectedCommas(originalLine)) {
     results.push({ message: "Unexpected comma", startOffset: pos, endOffset: pos + 1 });
   }
 
@@ -506,7 +508,7 @@ function validateTextDocument(textDocument: vscode.TextDocument, diagnosticColle
   const lines = textDocument.getText().split(/\r?\n/g);
 
   for (let i = 0; i < lines.length; i++) {
-    lines[i] = stripInlineCommentOutsideStrings(lines[i]);
+    lines[i] = stripNipComment(lines[i]);
 
     const line = lines[i].replace(/\s+/g, "").toLowerCase();
     if (line.length < 5) continue;
@@ -902,7 +904,7 @@ function updateNipDecorations(editor: vscode.TextEditor, decorations: NipDecorat
   };
 
   for (const match of nipStrings) {
-    for (const token of tokenizeNipContent(match.content)) {
+    for (const token of tokenizeNipContent(stripNipComment(match.content))) {
       const len = token.end - token.start;
       if (len > 0) {
         const col = match.startColumn + token.start;
