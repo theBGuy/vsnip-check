@@ -7,27 +7,40 @@ function commasAt(line: string): number[] {
 }
 
 describe("findUnexpectedCommas", () => {
-  test("accepts commas in calls to any function, not only the built-in scoring helpers", () => {
+  test("accepts commas in calls to any function name", () => {
+    // kolbot lowercases the line before compiling it, so these use lowercase names.
     for (const line of [
       "[type] == wand && [quality] >= normal # [itemchargedskill] == 91 # [secondarytier] == 50000 + chargeditemscore(item, 91)",
       "[name] == slayerguard # [barbarianskills] == 2 # [tier] == tierscore(item, 100000)",
-      "[name] == ring # [fcr] >= 10 # [tier] == myCustomScore(item, 1, 2)",
-      "[name] == ring # # [tier] == Math.max(1, 2)",
+      "[name] == ring # [fcr] >= 10 # [tier] == myscore(item, 1, 2)",
       "[name] == ring # # [tier] == $score_2(item, 1)",
     ]) {
       assert.deepEqual(findUnexpectedCommas(line), [], line);
     }
   });
 
-  test("accepts commas in in/notin lists, with or without a space before the paren", () => {
-    assert.deepEqual(findUnexpectedCommas("[name] in (wirt, greatbow)"), []);
-    assert.deepEqual(findUnexpectedCommas("[quality]notin(rare,unique)"), []);
-    assert.deepEqual(findUnexpectedCommas("[name] in\t(a, b)"), []);
+  test("accepts any whitespace between a name and its paren", () => {
+    for (const line of [
+      "[name] in (wirt, greatbow)",
+      "[quality]notin(rare,unique)",
+      "[name] in\t(a, b)",
+      "[name] in (a, b)",
+      "[tier] == tierscore　(item, 1)",
+    ]) {
+      assert.deepEqual(findUnexpectedCommas(line), [], line);
+    }
   });
 
   test("a comma after an inner group or nested call still belongs to the outer call", () => {
     assert.deepEqual(findUnexpectedCommas("[tier] == tierscore(item, (1 + 2), 3)"), []);
-    assert.deepEqual(findUnexpectedCommas("[tier] == tierscore(item, Math.max(1, 2), 3)"), []);
+    assert.deepEqual(findUnexpectedCommas("[tier] == tierscore(item, chargeditemscore(item, 91), 3)"), []);
+  });
+
+  test("a paren left open in one section does not cover commas in the next", () => {
+    const line = "[name] in (a, b # [fcr] >= 10, [mf] >= 5 # [maxquantity] == 1, [tier] == 5";
+    const afterFirstSection = commasAt(line).filter((i) => i > line.indexOf("#"));
+    assert.equal(afterFirstSection.length, 2);
+    assert.deepEqual(findUnexpectedCommas(line), afterFirstSection);
   });
 
   test("flags commas outside any parentheses, at the right offsets", () => {
@@ -44,7 +57,7 @@ describe("findUnexpectedCommas", () => {
       "[tier] == 5 (a, b)",
       "[tier] == tierscore(item, (a, b))",
     ]) {
-      assert.equal(findUnexpectedCommas(line).length, 1, line);
+      assert.deepEqual(findUnexpectedCommas(line), [line.lastIndexOf(",")], line);
     }
   });
 
@@ -53,7 +66,7 @@ describe("findUnexpectedCommas", () => {
     assert.deepEqual(findUnexpectedCommas(line), [line.lastIndexOf(",")]);
   });
 
-  test("tolerates unbalanced parentheses (reported by the paren-count check instead)", () => {
+  test("an unclosed call keeps later commas in its section valid; a stray close paren is ignored", () => {
     assert.deepEqual(findUnexpectedCommas("[tier] == tierscore(item, 1"), []);
     const extraClose = "[name] == ring), a, b";
     assert.deepEqual(findUnexpectedCommas(extraClose), commasAt(extraClose));
