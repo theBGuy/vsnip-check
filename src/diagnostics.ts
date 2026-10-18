@@ -1,3 +1,4 @@
+import { basename, dirname } from "node:path";
 import * as vscode from "vscode";
 import {
   NTIPAliasClass,
@@ -8,6 +9,14 @@ import {
   NTIPAliasStat,
   NTIPAliasType,
 } from "./NTItemAlias.js";
+import {
+  CONFIG_FILE_NAME,
+  CONFIG_KEYS,
+  type ConfigAdditions,
+  type LoadedConfigFile,
+  NipConfigResolver,
+  normalizeStringList,
+} from "./nipConfig.js";
 import { clearNipStringCache, findNipStringsInJS, stripInlineCommentOutsideStrings } from "./scanner.js";
 
 interface NipDiagnosticResult {
@@ -48,9 +57,15 @@ function validateJSNipStrings(document: vscode.TextDocument, diagnosticCollectio
 
   const diagnostics: vscode.Diagnostic[] = [];
   const nipStrings = findNipStringsInJS(document);
+  // This runs for every JS/TS file; ones without NIP strings skip the folder-config lookup.
+  if (nipStrings.length === 0) {
+    diagnosticCollection.set(document.uri, diagnostics);
+    return;
+  }
+  const validationLists = getValidationLists(document.uri);
 
   for (const match of nipStrings) {
-    const validationResults = validateNipString(match.content, match.content);
+    const validationResults = validateNipString(match.content, match.content, validationLists);
 
     for (const result of validationResults) {
       const range = new vscode.Range(
@@ -131,25 +146,63 @@ function uniqueLowercase(values: string[]): string[] {
   return [...uniq];
 }
 
-function getConfiguredStringArray(settingKey: string): string[] {
-  const configValue = vscode.workspace.getConfiguration(CONFIG_SECTION).get<unknown>(settingKey, []);
-  if (!Array.isArray(configValue)) {
-    return [];
-  }
+// Problems in a `.vsnip.json` surface in the Problems panel even while the file is closed, so a
+// typo'd key does not silently leave its additions unapplied. Set in activate().
+let configDiagnostics: vscode.DiagnosticCollection | undefined;
 
-  return configValue
-    .filter((value): value is string => typeof value === "string")
-    .map((value) => value.trim().toLowerCase())
-    .filter((value) => value.length > 0);
+function reportConfigProblems(file: LoadedConfigFile) {
+  const diagnostics = file.problems.map((problem) => {
+    const start = new vscode.Position(problem.line, problem.character);
+    const range = new vscode.Range(start, start.translate(0, problem.length));
+    const diagnostic = new vscode.Diagnostic(range, problem.message, vscode.DiagnosticSeverity.Warning);
+    diagnostic.source = CONFIG_SECTION;
+    return diagnostic;
+  });
+  configDiagnostics?.set(vscode.Uri.file(file.path), diagnostics);
 }
 
-function getValidationLists(): NipValidationLists {
-  const validProperties = uniqueLowercase([
-    ...baseValidProperties,
-    ...getConfiguredStringArray("additionalProperties"),
-  ]);
-  const validStats = uniqueLowercase([...Object.keys(NTIPAliasStat), ...getConfiguredStringArray("additionalStats")]);
-  const validExtras = uniqueLowercase([...baseExtrasValues, ...getConfiguredStringArray("additionalExtras")]);
+const configResolver = new NipConfigResolver({ onLoad: reportConfigProblems });
+
+// Merged lists per document directory; validation runs on every keystroke, so a hit must not
+// touch settings or disk. Cleared wholesale by invalidateConfig().
+const validationListsCache = new Map<string, NipValidationLists>();
+
+function invalidateConfig() {
+  configResolver.clear();
+  validationListsCache.clear();
+  configDiagnostics?.clear();
+}
+
+function getValidationLists(uri: vscode.Uri): NipValidationLists {
+  // Only real files have folders to search; untitled and virtual documents get settings alone.
+  const dir = uri.scheme === "file" ? dirname(uri.fsPath) : undefined;
+  const cached = dir === undefined ? undefined : validationListsCache.get(dir);
+  if (cached) return cached;
+
+  const settings = vscode.workspace.getConfiguration(CONFIG_SECTION, uri);
+  const additions: ConfigAdditions = {
+    additionalProperties: normalizeStringList(settings.get<unknown>("additionalProperties", [])),
+    additionalStats: normalizeStringList(settings.get<unknown>("additionalStats", [])),
+    additionalExtras: normalizeStringList(settings.get<unknown>("additionalExtras", [])),
+  };
+
+  if (dir !== undefined) {
+    const folder = vscode.workspace.getWorkspaceFolder(uri);
+    const stopDir = folder?.uri.scheme === "file" ? folder.uri.fsPath : undefined;
+    for (const file of configResolver.filesFor(dir, stopDir)) {
+      for (const key of CONFIG_KEYS) additions[key].push(...file.additions[key]);
+    }
+  }
+
+  const lists = buildValidationLists(additions);
+  if (dir !== undefined) validationListsCache.set(dir, lists);
+  return lists;
+}
+
+function buildValidationLists(additions: ConfigAdditions): NipValidationLists {
+  const validProperties = uniqueLowercase([...baseValidProperties, ...additions.additionalProperties]);
+  const validStats = uniqueLowercase([...Object.keys(NTIPAliasStat), ...additions.additionalStats]);
+  const validExtras = uniqueLowercase([...baseExtrasValues, ...additions.additionalExtras]);
 
   return {
     validProperties,
@@ -197,9 +250,12 @@ const _aliases = new Map([
  * Validates a single NIP string and returns diagnostic results with relative offsets.
  * This is used for validating NIP strings embedded in JS/TS files.
  */
-function validateNipString(nipLine: string, originalLine: string): NipDiagnosticResult[] {
+function validateNipString(
+  nipLine: string,
+  originalLine: string,
+  validationLists: NipValidationLists,
+): NipDiagnosticResult[] {
   const results: NipDiagnosticResult[] = [];
-  const validationLists = getValidationLists();
   const line = nipLine.replace(/\s+/g, "").toLowerCase();
 
   if (line.length < 5) return results;
@@ -449,7 +505,7 @@ function validateTextDocument(textDocument: vscode.TextDocument, diagnosticColle
     return;
   }
 
-  const validationLists = getValidationLists();
+  const validationLists = getValidationLists(textDocument.uri);
   const diagnostics: vscode.Diagnostic[] = [];
   const lines = textDocument.getText().split(/\r?\n/g);
 
@@ -695,7 +751,7 @@ function provideNipQuickFixes(
   context: vscode.CodeActionContext,
 ): vscode.CodeAction[] {
   const actions: vscode.CodeAction[] = [];
-  const validationLists = getValidationLists();
+  const validationLists = getValidationLists(document.uri);
 
   for (const diagnostic of context.diagnostics) {
     const msg = diagnostic.message;
@@ -918,14 +974,49 @@ export function activate(context: vscode.ExtensionContext) {
     }),
   );
 
+  configDiagnostics = vscode.languages.createDiagnosticCollection(`${CONFIG_SECTION}-config`);
+  context.subscriptions.push(configDiagnostics);
+
+  const isConfigFile = (document: vscode.TextDocument) =>
+    document.uri.scheme === "file" && basename(document.uri.fsPath) === CONFIG_FILE_NAME;
+
+  const validateDocument = (document: vscode.TextDocument) => {
+    // An open config file reports its own problems even when no NIP file below it is open.
+    if (isConfigFile(document)) configResolver.load(dirname(document.uri.fsPath));
+    validateTextDocument(document, diagnosticCollection);
+    validateJSNipStrings(document, diagnosticCollection);
+  };
+
+  const revalidateOpenDocuments = () => {
+    for (const document of vscode.workspace.textDocuments) validateDocument(document);
+  };
+
+  // A branch switch can touch many config files at once, so the sweep is coalesced; the caches
+  // drop immediately so nothing validated in between reads a stale list.
+  let revalidateTimer: NodeJS.Timeout | undefined;
+  const onConfigFilesChanged = () => {
+    invalidateConfig();
+    clearTimeout(revalidateTimer);
+    revalidateTimer = setTimeout(revalidateOpenDocuments, 100);
+  };
+
+  const configWatcher = vscode.workspace.createFileSystemWatcher(`**/${CONFIG_FILE_NAME}`);
   context.subscriptions.push(
-    vscode.workspace.onDidOpenTextDocument((document) => {
-      validateTextDocument(document, diagnosticCollection);
-      validateJSNipStrings(document, diagnosticCollection);
-    }),
+    configWatcher,
+    configWatcher.onDidCreate(onConfigFilesChanged),
+    configWatcher.onDidChange(onConfigFilesChanged),
+    configWatcher.onDidDelete(onConfigFilesChanged),
+    // Workspace folder roots bound the upward search, so adding or removing one changes it.
+    vscode.workspace.onDidChangeWorkspaceFolders(onConfigFilesChanged),
+    { dispose: () => clearTimeout(revalidateTimer) },
+  );
+
+  context.subscriptions.push(
+    vscode.workspace.onDidOpenTextDocument(validateDocument),
     vscode.workspace.onDidSaveTextDocument((document) => {
-      validateTextDocument(document, diagnosticCollection);
-      validateJSNipStrings(document, diagnosticCollection);
+      // The watcher only covers workspace folders; saving a config file elsewhere still applies.
+      if (isConfigFile(document)) onConfigFilesChanged();
+      validateDocument(document);
     }),
     vscode.workspace.onDidChangeTextDocument((event) => {
       validateTextDocument(event.document, diagnosticCollection);
@@ -940,12 +1031,14 @@ export function activate(context: vscode.ExtensionContext) {
     }),
     vscode.workspace.onDidChangeConfiguration((event) => {
       if (!event.affectsConfiguration(CONFIG_SECTION)) return;
-      for (const document of vscode.workspace.textDocuments) {
-        validateTextDocument(document, diagnosticCollection);
-        validateJSNipStrings(document, diagnosticCollection);
-      }
+      invalidateConfig();
+      revalidateOpenDocuments();
     }),
   );
+
+  // The document whose opening activated the extension fired onDidOpenTextDocument before the
+  // listener above existed, as did any restored from the last session.
+  revalidateOpenDocuments();
 
   context.subscriptions.push(
     vscode.workspace.onDidChangeTextDocument(async (event) => {
@@ -1030,7 +1123,7 @@ export function activate(context: vscode.ExtensionContext) {
     {
       provideCompletionItems(document, position, _token, _contextt) {
         try {
-          const validationLists = getValidationLists();
+          const validationLists = getValidationLists(document.uri);
           const completionItems: vscode.CompletionItem[] = [];
           const line = document.lineAt(position).text;
           const linePrefix = line.slice(0, position.character);
@@ -1186,7 +1279,7 @@ export function activate(context: vscode.ExtensionContext) {
       _context: vscode.CompletionContext,
     ) {
       try {
-        const validationLists = getValidationLists();
+        const validationLists = getValidationLists(document.uri);
         const completionItems: vscode.CompletionItem[] = [];
         const line = document.lineAt(position).text;
         const linePrefix = line.slice(0, position.character);

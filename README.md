@@ -18,7 +18,22 @@ You can extend parser validation and completion lists from settings:
 }
 ```
 
-These additions are merged with built-in values and apply to `.nip` files and NIP strings embedded in JavaScript/TypeScript.
+These additions are merged with built-in values and apply to `.nip` files and NIP strings embedded in JavaScript/TypeScript. In a multi-root workspace, each folder's `.vscode/settings.json` applies to that folder.
+
+### Per-folder settings with `.vsnip.json`
+
+To give one folder its own additions, put a `.vsnip.json` file in it. It applies to that folder and everything below it, and uses the same keys without the `vsnip-check.` prefix:
+
+```json
+{
+	"additionalStats": ["mycustomstat"],
+	"additionalExtras": ["mycustomextra"]
+}
+```
+
+Lists add up: a file accepts everything in your settings plus every `.vsnip.json` from its own folder up to the workspace folder root (for a file outside any workspace folder, up to the filesystem root). Changes apply as soon as the file is saved, and problems such as invalid JSON or a misspelled key show up in the Problems panel.
+
+To give a folder a fresh start, add `"root": true` to its `.vsnip.json`. Files in parent folders then stop applying to it and its subfolders; your settings still apply.
 
 ## How to install
 
