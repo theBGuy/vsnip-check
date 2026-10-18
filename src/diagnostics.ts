@@ -18,6 +18,7 @@ import {
   NipConfigResolver,
   normalizeStringList,
 } from "./nipConfig.js";
+import { findUnexpectedCommas } from "./nipSyntax.js";
 import { clearNipStringCache, findNipStringsInJS, stripInlineCommentOutsideStrings } from "./scanner.js";
 
 interface NipDiagnosticResult {
@@ -270,23 +271,8 @@ function validateNipString(
 
   if (line.length < 5) return results;
 
-  // Flag commas that are not inside an in/notin list or known scoring-function args.
-  {
-    const validRanges: [number, number][] = [];
-    const inPat = /\b(?:in|notin|tierscore|secondaryscore|mercscore)\s*\([^)]*\)/gi;
-    let inm: RegExpExecArray | null;
-    const lineWithoutComment = stripInlineCommentOutsideStrings(originalLine);
-    while ((inm = inPat.exec(lineWithoutComment)) !== null) {
-      validRanges.push([inm.index, inm.index + inm[0].length]);
-    }
-    const commaPat = /,/g;
-    let cm: RegExpExecArray | null;
-    while ((cm = commaPat.exec(lineWithoutComment)) !== null) {
-      const pos = cm.index;
-      if (!validRanges.some(([s, e]) => pos >= s && pos < e)) {
-        results.push({ message: "Unexpected comma", startOffset: pos, endOffset: pos + 1 });
-      }
-    }
+  for (const pos of findUnexpectedCommas(stripInlineCommentOutsideStrings(originalLine))) {
+    results.push({ message: "Unexpected comma", startOffset: pos, endOffset: pos + 1 });
   }
 
   const sections = line.split("#");
@@ -525,22 +511,8 @@ function validateTextDocument(textDocument: vscode.TextDocument, diagnosticColle
     const line = lines[i].replace(/\s+/g, "").toLowerCase();
     if (line.length < 5) continue;
 
-    // Flag commas that are not inside an in/notin list or known scoring-function args.
-    {
-      const validRanges: [number, number][] = [];
-      const inPat = /\b(?:in|notin|tierscore|secondaryscore|mercscore)\s*\([^)]*\)/gi;
-      let inm: RegExpExecArray | null;
-      while ((inm = inPat.exec(lines[i])) !== null) {
-        validRanges.push([inm.index, inm.index + inm[0].length]);
-      }
-      const commaPat = /,/g;
-      let cm: RegExpExecArray | null;
-      while ((cm = commaPat.exec(lines[i])) !== null) {
-        const pos = cm.index;
-        if (!validRanges.some(([s, e]) => pos >= s && pos < e)) {
-          diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, pos, i, pos + 1), "Unexpected comma"));
-        }
-      }
+    for (const pos of findUnexpectedCommas(lines[i])) {
+      diagnostics.push(new vscode.Diagnostic(new vscode.Range(i, pos, i, pos + 1), "Unexpected comma"));
     }
 
     const sections = line.split("#");
